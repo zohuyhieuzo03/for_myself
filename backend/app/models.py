@@ -44,6 +44,7 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+    todos: list["Todo"] = Relationship(back_populates="owner", cascade_delete=True)
 
 
 # Properties to return via API, id is always required
@@ -111,3 +112,42 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
+
+
+# Shared properties for Todo
+class TodoBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=500)
+    is_completed: bool = Field(default=False)
+
+
+# Properties to receive on todo creation
+class TodoCreate(TodoBase):
+    pass
+
+
+# Properties to receive on todo update
+class TodoUpdate(TodoBase):
+    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
+    description: str | None = Field(default=None, max_length=500)
+    is_completed: bool | None = Field(default=None)
+
+
+# Database model, database table inferred from class name
+class Todo(TodoBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    owner: User | None = Relationship(back_populates="todos")
+
+
+# Properties to return via API, id is always required
+class TodoPublic(TodoBase):
+    id: uuid.UUID
+    owner_id: uuid.UUID
+
+
+class TodosPublic(SQLModel):
+    data: list[TodoPublic]
+    count: int

@@ -51,6 +51,31 @@ export type PrivateUserCreate = {
     is_verified?: boolean;
 };
 
+export type TodoCreate = {
+    title: string;
+    description?: (string | null);
+    is_completed?: boolean;
+};
+
+export type TodoPublic = {
+    title: string;
+    description?: (string | null);
+    is_completed?: boolean;
+    id: string;
+    owner_id: string;
+};
+
+export type TodosPublic = {
+    data: Array<TodoPublic>;
+    count: number;
+};
+
+export type TodoUpdate = {
+    title?: (string | null);
+    description?: (string | null);
+    is_completed?: (boolean | null);
+};
+
 export type Token = {
     access_token: string;
     token_type?: string;
@@ -170,6 +195,38 @@ export type PrivateCreateUserData = {
 };
 
 export type PrivateCreateUserResponse = (UserPublic);
+
+export type TodosReadTodosData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type TodosReadTodosResponse = (TodosPublic);
+
+export type TodosCreateTodoData = {
+    requestBody: TodoCreate;
+};
+
+export type TodosCreateTodoResponse = (TodoPublic);
+
+export type TodosReadTodoData = {
+    id: string;
+};
+
+export type TodosReadTodoResponse = (TodoPublic);
+
+export type TodosUpdateTodoData = {
+    id: string;
+    requestBody: TodoUpdate;
+};
+
+export type TodosUpdateTodoResponse = (TodoPublic);
+
+export type TodosDeleteTodoData = {
+    id: string;
+};
+
+export type TodosDeleteTodoResponse = (Message);
 
 export type UsersReadUsersData = {
     limit?: number;
