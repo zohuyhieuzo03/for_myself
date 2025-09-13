@@ -1,4 +1,4 @@
-import { Button, DialogActionTrigger, DialogTitle, Text, VStack } from "@chakra-ui/react"
+import { Button, DialogActionTrigger, DialogTitle, Text } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 
@@ -26,7 +26,7 @@ const DeleteTodo = ({ todo }: DeleteTodoProps) => {
   const { showSuccessToast } = useCustomToast()
 
   const mutation = useMutation({
-    mutationFn: () => TodosService.deleteTodo({ id: todo.id }),
+    mutationFn: () => TodosService.deleteTodoEndpoint({ id: todo.id }),
     onSuccess: () => {
       showSuccessToast("Todo deleted successfully.")
       setIsOpen(false)

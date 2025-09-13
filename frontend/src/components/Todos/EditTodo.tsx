@@ -49,7 +49,7 @@ const EditTodo = ({ todo }: EditTodoProps) => {
 
   const mutation = useMutation({
     mutationFn: (data: TodoUpdate) =>
-      TodosService.updateTodo({ id: todo.id, requestBody: data }),
+      TodosService.updateTodoEndpoint({ id: todo.id, requestBody: data }),
     onSuccess: () => {
       showSuccessToast("Todo updated successfully.")
       setIsOpen(false)

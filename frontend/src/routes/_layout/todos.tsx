@@ -7,12 +7,16 @@ import {
   VStack,
   Badge,
 } from "@chakra-ui/react"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { FiCheckSquare } from "react-icons/fi"
 import { z } from "zod"
 
-import { TodosService } from "@/client"
+import { TodosService, type TodoUpdate } from "@/client"
+import type { ApiError } from "@/client/core/ApiError"
+import useCustomToast from "@/hooks/useCustomToast"
+import { handleError, formatDateTimeShort } from "@/utils"
+import { Checkbox } from "@/components/ui/checkbox"
 import TodoActionsMenu from "@/components/Todos/TodoActionsMenu"
 import AddTodo from "@/components/Todos/AddTodo"
 import PendingTodos from "@/components/Pending/PendingTodos"
@@ -45,11 +49,34 @@ export const Route = createFileRoute("/_layout/todos")({
 function TodosTable() {
   const navigate = useNavigate()
   const { page } = Route.useSearch()
+  const queryClient = useQueryClient()
+  const { showSuccessToast } = useCustomToast()
 
   const { data, isLoading, isPlaceholderData } = useQuery({
     ...getTodosQueryOptions({ page }),
     placeholderData: (prevData) => prevData,
   })
+
+  const toggleTodoMutation = useMutation({
+    mutationFn: ({ id, is_completed }: { id: string; is_completed: boolean }) =>
+      TodosService.updateTodoEndpoint({ 
+        id, 
+        requestBody: { is_completed } as TodoUpdate 
+      }),
+    onSuccess: () => {
+      showSuccessToast("Todo status updated successfully.")
+    },
+    onError: (err: ApiError) => {
+      handleError(err)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+    },
+  })
+
+  const handleToggleTodo = (id: string, currentStatus: boolean) => {
+    toggleTodoMutation.mutate({ id, is_completed: !currentStatus })
+  }
 
   const setPage = (page: number) => {
     navigate({
@@ -88,16 +115,28 @@ function TodosTable() {
       <Table.Root size={{ base: "sm", md: "md" }}>
         <Table.Header>
           <Table.Row>
+            <Table.ColumnHeader w="xs">Done</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">ID</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Title</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Description</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Status</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Created At</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Updated At</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
           {todos?.map((todo) => (
             <Table.Row key={todo.id} opacity={isPlaceholderData ? 0.5 : 1}>
+              <Table.Cell>
+                <Checkbox
+                  checked={todo.is_completed}
+                  onCheckedChange={() => handleToggleTodo(todo.id, todo.is_completed || false)}
+                  disabled={toggleTodoMutation.isPending}
+                  colorScheme="green"
+                  size="md"
+                />
+              </Table.Cell>
               <Table.Cell truncate maxW="sm">
                 {todo.id}
               </Table.Cell>
@@ -112,9 +151,15 @@ function TodosTable() {
                 {todo.description || "N/A"}
               </Table.Cell>
               <Table.Cell>
-                <Badge colorScheme={todo.is_completed ? "green" : "orange"}>
+                <Badge colorScheme={todo.is_completed ? "green" : "orange"} bg={todo.is_completed ? "green.500" : "orange.500"} color="white">
                   {todo.is_completed ? "Completed" : "Pending"}
                 </Badge>
+              </Table.Cell>
+              <Table.Cell truncate maxW="sm">
+                {formatDateTimeShort(todo.created_at)}
+              </Table.Cell>
+              <Table.Cell truncate maxW="sm">
+                {formatDateTimeShort(todo.updated_at)}
               </Table.Cell>
               <Table.Cell>
                 <TodoActionsMenu todo={todo} />

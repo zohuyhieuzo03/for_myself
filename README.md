@@ -9,6 +9,7 @@
     - 🧰 [SQLModel](https://sqlmodel.tiangolo.com) for the Python SQL database interactions (ORM).
     - 🔍 [Pydantic](https://docs.pydantic.dev), used by FastAPI, for the data validation and settings management.
     - 💾 [PostgreSQL](https://www.postgresql.org) as the SQL database.
+    - 🔄 [Alembic](https://alembic.sqlalchemy.org) for database migrations with helper scripts.
 - 🚀 [React](https://react.dev) for the frontend.
     - 💃 Using TypeScript, hooks, Vite, and other parts of a modern frontend stack.
     - 🎨 [Chakra UI](https://chakra-ui.com) for the frontend components.
@@ -215,6 +216,36 @@ The input variables, with their default values (some auto generated) are:
 ## Backend Development
 
 Backend docs: [backend/README.md](./backend/README.md).
+
+### Database Migrations
+
+This project includes helper scripts to manage Alembic database migrations:
+
+- **`scripts/migration.py`** - Python script for creating and managing migrations
+- **`scripts/migration.sh`** - Bash script with colored output
+- **`scripts/copy-migrations.sh`** - Simple script to copy migrations from container to host
+- **`scripts/sync-migrations.sh`** - Auto-sync migrations between container and host
+
+#### Quick Start with Migrations:
+
+```bash
+# Create a new migration with autogenerate
+python scripts/migration.py -m "Add user profile fields" -a
+
+# Create and run migration immediately
+python scripts/migration.py -m "Add user profile fields" -a -r
+
+# Check migration status
+python scripts/migration.py -s
+
+# Copy migrations from container to host
+./scripts/copy-migrations.sh
+
+# Sync migrations between container and host
+./scripts/sync-migrations.sh
+```
+
+For detailed migration documentation, see [scripts/README-migration.md](./scripts/README-migration.md).
 
 ## Frontend Development
 

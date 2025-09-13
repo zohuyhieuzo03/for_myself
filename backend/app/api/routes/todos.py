@@ -6,6 +6,7 @@ from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import Todo, TodoCreate, TodoPublic, TodosPublic, TodoUpdate, Message
+from app.crud import create_todo, update_todo, get_todo, get_todos, delete_todo
 
 router = APIRouter(prefix="/todos", tags=["todos"])
 
@@ -55,21 +56,18 @@ def read_todo(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> 
 
 
 @router.post("/", response_model=TodoPublic)
-def create_todo(
+def create_todo_endpoint(
     *, session: SessionDep, current_user: CurrentUser, todo_in: TodoCreate
 ) -> Any:
     """
     Create new todo.
     """
-    todo = Todo.model_validate(todo_in, update={"owner_id": current_user.id})
-    session.add(todo)
-    session.commit()
-    session.refresh(todo)
+    todo = create_todo(session=session, todo_in=todo_in, owner_id=current_user.id)
     return todo
 
 
 @router.put("/{id}", response_model=TodoPublic)
-def update_todo(
+def update_todo_endpoint(
     *,
     session: SessionDep,
     current_user: CurrentUser,
@@ -84,16 +82,12 @@ def update_todo(
         raise HTTPException(status_code=404, detail="Todo not found")
     if not current_user.is_superuser and (todo.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    update_dict = todo_in.model_dump(exclude_unset=True)
-    todo.sqlmodel_update(update_dict)
-    session.add(todo)
-    session.commit()
-    session.refresh(todo)
+    todo = update_todo(session=session, db_todo=todo, todo_in=todo_in)
     return todo
 
 
 @router.delete("/{id}")
-def delete_todo(
+def delete_todo_endpoint(
     session: SessionDep, current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
     """
@@ -104,6 +98,5 @@ def delete_todo(
         raise HTTPException(status_code=404, detail="Todo not found")
     if not current_user.is_superuser and (todo.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    session.delete(todo)
-    session.commit()
+    delete_todo(session=session, todo_id=id)
     return Message(message="Todo deleted successfully")

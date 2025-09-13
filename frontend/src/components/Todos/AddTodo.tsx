@@ -47,7 +47,7 @@ const AddTodo = () => {
 
   const mutation = useMutation({
     mutationFn: (data: TodoCreate) =>
-      TodosService.createTodo({ requestBody: data }),
+      TodosService.createTodoEndpoint({ requestBody: data }),
     onSuccess: () => {
       showSuccessToast("Todo created successfully.")
       reset()

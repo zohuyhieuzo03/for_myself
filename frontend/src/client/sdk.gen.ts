@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoData, TodosCreateTodoResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoData, TodosUpdateTodoResponse, TodosDeleteTodoData, TodosDeleteTodoResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class ItemsService {
     /**
@@ -260,14 +260,14 @@ export class TodosService {
     }
     
     /**
-     * Create Todo
+     * Create Todo Endpoint
      * Create new todo.
      * @param data The data for the request.
      * @param data.requestBody
      * @returns TodoPublic Successful Response
      * @throws ApiError
      */
-    public static createTodo(data: TodosCreateTodoData): CancelablePromise<TodosCreateTodoResponse> {
+    public static createTodoEndpoint(data: TodosCreateTodoEndpointData): CancelablePromise<TodosCreateTodoEndpointResponse> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/v1/todos/',
@@ -301,7 +301,7 @@ export class TodosService {
     }
     
     /**
-     * Update Todo
+     * Update Todo Endpoint
      * Update a todo.
      * @param data The data for the request.
      * @param data.id
@@ -309,7 +309,7 @@ export class TodosService {
      * @returns TodoPublic Successful Response
      * @throws ApiError
      */
-    public static updateTodo(data: TodosUpdateTodoData): CancelablePromise<TodosUpdateTodoResponse> {
+    public static updateTodoEndpoint(data: TodosUpdateTodoEndpointData): CancelablePromise<TodosUpdateTodoEndpointResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/api/v1/todos/{id}',
@@ -325,14 +325,14 @@ export class TodosService {
     }
     
     /**
-     * Delete Todo
+     * Delete Todo Endpoint
      * Delete a todo.
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
      * @throws ApiError
      */
-    public static deleteTodo(data: TodosDeleteTodoData): CancelablePromise<TodosDeleteTodoResponse> {
+    public static deleteTodoEndpoint(data: TodosDeleteTodoEndpointData): CancelablePromise<TodosDeleteTodoEndpointResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/api/v1/todos/{id}',

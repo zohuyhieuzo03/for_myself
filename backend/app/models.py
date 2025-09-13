@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timezone
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
@@ -139,6 +140,8 @@ class Todo(TodoBase, table=True):
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     owner: User | None = Relationship(back_populates="todos")
 
 
@@ -146,6 +149,8 @@ class Todo(TodoBase, table=True):
 class TodoPublic(TodoBase):
     id: uuid.UUID
     owner_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
 
 
 class TodosPublic(SQLModel):

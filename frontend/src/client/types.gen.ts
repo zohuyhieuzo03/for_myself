@@ -63,6 +63,8 @@ export type TodoPublic = {
     is_completed?: boolean;
     id: string;
     owner_id: string;
+    created_at: string;
+    updated_at: string;
 };
 
 export type TodosPublic = {
@@ -203,11 +205,11 @@ export type TodosReadTodosData = {
 
 export type TodosReadTodosResponse = (TodosPublic);
 
-export type TodosCreateTodoData = {
+export type TodosCreateTodoEndpointData = {
     requestBody: TodoCreate;
 };
 
-export type TodosCreateTodoResponse = (TodoPublic);
+export type TodosCreateTodoEndpointResponse = (TodoPublic);
 
 export type TodosReadTodoData = {
     id: string;
@@ -215,18 +217,18 @@ export type TodosReadTodoData = {
 
 export type TodosReadTodoResponse = (TodoPublic);
 
-export type TodosUpdateTodoData = {
+export type TodosUpdateTodoEndpointData = {
     id: string;
     requestBody: TodoUpdate;
 };
 
-export type TodosUpdateTodoResponse = (TodoPublic);
+export type TodosUpdateTodoEndpointResponse = (TodoPublic);
 
-export type TodosDeleteTodoData = {
+export type TodosDeleteTodoEndpointData = {
     id: string;
 };
 
-export type TodosDeleteTodoResponse = (Message);
+export type TodosDeleteTodoEndpointResponse = (Message);
 
 export type UsersReadUsersData = {
     limit?: number;
