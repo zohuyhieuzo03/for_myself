@@ -17,7 +17,7 @@ import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError, formatDateTimeShort } from "@/utils"
 import { Checkbox } from "@/components/ui/checkbox"
-import TodoActionsMenu from "@/components/Todos/TodoActionsMenu"
+import { TodoActionsMenu } from "@/components/Todos/TodoActionsMenu"
 import AddTodo from "@/components/Todos/AddTodo"
 import PendingTodos from "@/components/Pending/PendingTodos"
 import {

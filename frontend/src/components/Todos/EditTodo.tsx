@@ -1,7 +1,7 @@
 import {
   Button,
+  ButtonGroup,
   DialogActionTrigger,
-  DialogTitle,
   Input,
   Text,
   VStack,
@@ -9,6 +9,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
+import { FaExchangeAlt } from "react-icons/fa"
 
 import { type TodoPublic, type TodoUpdate, TodosService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
@@ -21,6 +22,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogRoot,
+  DialogTitle,
   DialogTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
@@ -36,7 +38,8 @@ const EditTodo = ({ todo }: EditTodoProps) => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<TodoUpdate>({
     mode: "onBlur",
     criteriaMode: "all",
@@ -52,6 +55,7 @@ const EditTodo = ({ todo }: EditTodoProps) => {
       TodosService.updateTodoEndpoint({ id: todo.id, requestBody: data }),
     onSuccess: () => {
       showSuccessToast("Todo updated successfully.")
+      reset()
       setIsOpen(false)
     },
     onError: (err: ApiError) => {
@@ -62,7 +66,7 @@ const EditTodo = ({ todo }: EditTodoProps) => {
     },
   })
 
-  const onSubmit: SubmitHandler<TodoUpdate> = (data) => {
+  const onSubmit: SubmitHandler<TodoUpdate> = async (data) => {
     mutation.mutate(data)
   }
 
@@ -74,8 +78,9 @@ const EditTodo = ({ todo }: EditTodoProps) => {
       onOpenChange={({ open }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          Edit
+        <Button variant="ghost">
+          <FaExchangeAlt fontSize="16px" />
+          Edit Todo
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -84,7 +89,7 @@ const EditTodo = ({ todo }: EditTodoProps) => {
             <DialogTitle>Edit Todo</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>Update the todo details.</Text>
+            <Text mb={4}>Update the todo details below.</Text>
             <VStack gap={4}>
               <Field
                 required
@@ -94,7 +99,7 @@ const EditTodo = ({ todo }: EditTodoProps) => {
               >
                 <Input
                   {...register("title", {
-                    required: "Title is required.",
+                    required: "Title is required",
                   })}
                   placeholder="Title"
                   type="text"
@@ -127,23 +132,20 @@ const EditTodo = ({ todo }: EditTodoProps) => {
           </DialogBody>
 
           <DialogFooter gap={2}>
-            <DialogActionTrigger asChild>
-              <Button
-                variant="subtle"
-                colorPalette="gray"
-                disabled={isSubmitting}
-              >
-                Cancel
+            <ButtonGroup>
+              <DialogActionTrigger asChild>
+                <Button
+                  variant="subtle"
+                  colorPalette="gray"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+              </DialogActionTrigger>
+              <Button variant="solid" type="submit" loading={isSubmitting}>
+                Save
               </Button>
-            </DialogActionTrigger>
-            <Button
-              variant="solid"
-              type="submit"
-              disabled={!isValid}
-              loading={isSubmitting}
-            >
-              Update
-            </Button>
+            </ButtonGroup>
           </DialogFooter>
         </form>
         <DialogCloseTrigger />

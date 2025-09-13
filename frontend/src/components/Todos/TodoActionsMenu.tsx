@@ -9,7 +9,7 @@ interface TodoActionsMenuProps {
   todo: TodoPublic
 }
 
-const TodoActionsMenu = ({ todo }: TodoActionsMenuProps) => {
+export const TodoActionsMenu = ({ todo }: TodoActionsMenuProps) => {
   return (
     <MenuRoot>
       <MenuTrigger asChild>
@@ -19,10 +19,8 @@ const TodoActionsMenu = ({ todo }: TodoActionsMenuProps) => {
       </MenuTrigger>
       <MenuContent>
         <EditTodo todo={todo} />
-        <DeleteTodo todo={todo} />
+        <DeleteTodo id={todo.id} />
       </MenuContent>
     </MenuRoot>
   )
 }
-
-export default TodoActionsMenu

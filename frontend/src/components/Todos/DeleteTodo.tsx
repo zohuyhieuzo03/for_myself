@@ -1,12 +1,12 @@
-import { Button, DialogActionTrigger, DialogTitle, Text } from "@chakra-ui/react"
+import { Button, DialogTitle, Text } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { FiTrash2 } from "react-icons/fi"
 
-import { type TodoPublic, TodosService } from "@/client"
-import type { ApiError } from "@/client/core/ApiError"
-import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { TodosService } from "@/client"
 import {
+  DialogActionTrigger,
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
@@ -14,75 +14,88 @@ import {
   DialogHeader,
   DialogRoot,
   DialogTrigger,
-} from "../ui/dialog"
+} from "@/components/ui/dialog"
+import useCustomToast from "@/hooks/useCustomToast"
 
-interface DeleteTodoProps {
-  todo: TodoPublic
-}
-
-const DeleteTodo = ({ todo }: DeleteTodoProps) => {
+const DeleteTodo = ({ id }: { id: string }) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
-  const { showSuccessToast } = useCustomToast()
+  const { showSuccessToast, showErrorToast } = useCustomToast()
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm()
+
+  const deleteTodo = async (id: string) => {
+    await TodosService.deleteTodoEndpoint({ id: id })
+  }
 
   const mutation = useMutation({
-    mutationFn: () => TodosService.deleteTodoEndpoint({ id: todo.id }),
+    mutationFn: deleteTodo,
     onSuccess: () => {
-      showSuccessToast("Todo deleted successfully.")
+      showSuccessToast("The todo was deleted successfully")
       setIsOpen(false)
     },
-    onError: (err: ApiError) => {
-      handleError(err)
+    onError: () => {
+      showErrorToast("An error occurred while deleting the todo")
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] })
+      queryClient.invalidateQueries()
     },
   })
 
-  const handleDelete = () => {
-    mutation.mutate()
+  const onSubmit = async () => {
+    mutation.mutate(id)
   }
 
   return (
     <DialogRoot
       size={{ base: "xs", md: "md" }}
       placement="center"
+      role="alertdialog"
       open={isOpen}
       onOpenChange={({ open }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" colorPalette="red">
-          Delete
+        <Button variant="ghost" size="sm" colorPalette="red">
+          <FiTrash2 fontSize="16px" />
+          Delete Todo
         </Button>
       </DialogTrigger>
+
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete Todo</DialogTitle>
-        </DialogHeader>
-        <DialogBody>
-          <Text mb={4}>
-            Are you sure you want to delete "{todo.title}"? This action cannot be undone.
-          </Text>
-        </DialogBody>
-        <DialogFooter gap={2}>
-          <DialogActionTrigger asChild>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DialogCloseTrigger />
+          <DialogHeader>
+            <DialogTitle>Delete Todo</DialogTitle>
+          </DialogHeader>
+          <DialogBody>
+            <Text mb={4}>
+              This todo will be permanently deleted. Are you sure? You will not
+              be able to undo this action.
+            </Text>
+          </DialogBody>
+
+          <DialogFooter gap={2}>
+            <DialogActionTrigger asChild>
+              <Button
+                variant="subtle"
+                colorPalette="gray"
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            </DialogActionTrigger>
             <Button
-              variant="subtle"
-              colorPalette="gray"
-              disabled={mutation.isPending}
+              variant="solid"
+              colorPalette="red"
+              type="submit"
+              loading={isSubmitting}
             >
-              Cancel
+              Delete
             </Button>
-          </DialogActionTrigger>
-          <Button
-            colorPalette="red"
-            onClick={handleDelete}
-            loading={mutation.isPending}
-          >
-            Delete
-          </Button>
-        </DialogFooter>
-        <DialogCloseTrigger />
+          </DialogFooter>
+        </form>
       </DialogContent>
     </DialogRoot>
   )
