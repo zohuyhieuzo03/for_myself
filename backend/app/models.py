@@ -1,7 +1,8 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
+from enum import Enum
 
-from pydantic import EmailStr
+from pydantic import BaseModel, EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -25,9 +26,10 @@ class UserRegister(SQLModel):
 
 
 # Properties to receive via API on update, all are optional
-class UserUpdate(UserBase):
-    email: EmailStr | None = Field(default=None, max_length=255)  # type: ignore
+class UserUpdate(BaseModel):
+    email: EmailStr | None = Field(default=None, max_length=255)
     password: str | None = Field(default=None, min_length=8, max_length=40)
+    is_superuser: bool | None = None
 
 
 class UserUpdateMe(SQLModel):
@@ -46,6 +48,18 @@ class User(UserBase, table=True):
     hashed_password: str
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
     todos: list["Todo"] = Relationship(back_populates="owner", cascade_delete=True)
+    sprints: list["Sprint"] = Relationship(back_populates="user", cascade_delete=True)
+    accounts: list["Account"] = Relationship(back_populates="user", cascade_delete=True)
+    categories: list["Category"] = Relationship(
+        back_populates="user", cascade_delete=True
+    )
+    incomes: list["Income"] = Relationship(back_populates="user", cascade_delete=True)
+    transactions: list["Transaction"] = Relationship(
+        back_populates="user", cascade_delete=True
+    )
+    allocation_rules: list["AllocationRule"] = Relationship(
+        back_populates="user", cascade_delete=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -70,8 +84,8 @@ class ItemCreate(ItemBase):
 
 
 # Properties to receive on item update
-class ItemUpdate(ItemBase):
-    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
+class ItemUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
 
 
 # Database model, database table inferred from class name
@@ -128,8 +142,8 @@ class TodoCreate(TodoBase):
 
 
 # Properties to receive on todo update
-class TodoUpdate(TodoBase):
-    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
+class TodoUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=500)
     is_completed: bool | None = Field(default=None)
 
@@ -155,4 +169,300 @@ class TodoPublic(TodoBase):
 
 class TodosPublic(SQLModel):
     data: list[TodoPublic]
+    count: int
+
+
+# ========= ENUMS =========
+class AccountType(str, Enum):
+    cash = "cash"
+    bank = "bank"
+    ewallet = "ewallet"
+    investment = "investment"
+    credit_card = "credit_card"
+    other = "other"
+
+
+class TxnType(str, Enum):
+    income = "in"
+    expense = "out"
+
+
+class CategoryGroup(str, Enum):
+    needs = "needs"
+    wants = "wants"
+    savings_debt = "savings_debt"
+
+
+# ========= SPRINT =========
+class SprintBase(SQLModel):
+    start_date: date
+    end_date: date
+    payday_anchor: date
+    is_closed: bool = False
+
+
+class SprintCreate(SprintBase):
+    pass
+
+
+class SprintUpdate(BaseModel):
+    start_date: date | None = None
+    end_date: date | None = None
+    payday_anchor: date | None = None
+    is_closed: bool | None = None
+
+
+class Sprint(SprintBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    user: User | None = Relationship(back_populates="sprints")
+    incomes: list["Income"] = Relationship(back_populates="sprint", cascade_delete=True)
+    txns: list["Transaction"] = Relationship(
+        back_populates="sprint", cascade_delete=True
+    )
+    allocation_rules: list["AllocationRule"] = Relationship(
+        back_populates="sprint", cascade_delete=True
+    )
+
+
+class SprintPublic(SprintBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+class SprintsPublic(SQLModel):
+    data: list[SprintPublic]
+    count: int
+
+
+# ========= ACCOUNT =========
+class AccountBase(SQLModel):
+    name: str = Field(max_length=255)
+    type: AccountType = Field(default=AccountType.cash)
+    currency: str = Field(default="VND", max_length=10)
+    is_active: bool = Field(default=True)
+
+
+class AccountCreate(AccountBase):
+    pass
+
+
+class AccountUpdate(BaseModel):
+    name: str | None = Field(default=None, max_length=255)
+    type: AccountType | None = None
+    currency: str | None = Field(default=None, max_length=10)
+    is_active: bool | None = None
+
+
+class Account(AccountBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    user: User | None = Relationship(back_populates="accounts")
+    txns: list["Transaction"] = Relationship(
+        back_populates="account", cascade_delete=True
+    )
+
+
+class AccountPublic(AccountBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+class AccountsPublic(SQLModel):
+    data: list[AccountPublic]
+    count: int
+
+
+# ========= CATEGORY =========
+class CategoryBase(SQLModel):
+    name: str = Field(max_length=255)
+    grp: CategoryGroup
+    is_envelope: bool = True
+
+
+class CategoryCreate(CategoryBase):
+    pass
+
+
+class CategoryUpdate(BaseModel):
+    name: str | None = Field(default=None, max_length=255)
+    grp: CategoryGroup | None = None
+    is_envelope: bool | None = None
+
+
+class Category(CategoryBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    user: User | None = Relationship(back_populates="categories")
+    txns: list["Transaction"] = Relationship(
+        back_populates="category", cascade_delete=True
+    )
+
+
+class CategoryPublic(CategoryBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+class CategoriesPublic(SQLModel):
+    data: list[CategoryPublic]
+    count: int
+
+
+# ========= INCOME =========
+class IncomeBase(SQLModel):
+    received_at: date
+    source: str = Field(max_length=255)
+    gross_amount: float
+    net_amount: float
+    currency: str = Field(default="VND", max_length=10)
+
+
+class IncomeCreate(IncomeBase):
+    sprint_id: uuid.UUID
+
+
+class IncomeUpdate(BaseModel):
+    received_at: date | None = None
+    source: str | None = Field(default=None, max_length=255)
+    gross_amount: float | None = None
+    net_amount: float | None = None
+    currency: str | None = Field(default=None, max_length=10)
+    sprint_id: uuid.UUID | None = None
+
+
+class Income(IncomeBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+    sprint_id: uuid.UUID = Field(foreign_key="sprint.id", nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    user: User | None = Relationship(back_populates="incomes")
+    sprint: Sprint | None = Relationship(back_populates="incomes")
+
+
+class IncomePublic(IncomeBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    sprint_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+class IncomesPublic(SQLModel):
+    data: list[IncomePublic]
+    count: int
+
+
+# ========= TRANSACTION =========
+class TransactionBase(SQLModel):
+    txn_date: date
+    type: TxnType
+    amount: float = Field(gt=0)
+    currency: str = Field(default="VND", max_length=10)
+    merchant: str | None = Field(default=None, max_length=255)
+    note: str | None = Field(default=None, max_length=500)
+
+
+class TransactionCreate(TransactionBase):
+    account_id: uuid.UUID
+    category_id: uuid.UUID | None = None
+    sprint_id: uuid.UUID | None = None
+
+
+class TransactionUpdate(BaseModel):
+    txn_date: date | None = None
+    type: TxnType | None = None
+    amount: float | None = Field(default=None, gt=0)
+    currency: str | None = Field(default=None, max_length=10)
+    merchant: str | None = Field(default=None, max_length=255)
+    note: str | None = Field(default=None, max_length=500)
+    account_id: uuid.UUID | None = None
+    category_id: uuid.UUID | None = None
+    sprint_id: uuid.UUID | None = None
+
+
+class Transaction(TransactionBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+    sprint_id: uuid.UUID | None = Field(foreign_key="sprint.id")
+    account_id: uuid.UUID = Field(foreign_key="account.id", nullable=False)
+    category_id: uuid.UUID | None = Field(foreign_key="category.id")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    user: User | None = Relationship(back_populates="transactions")
+    sprint: Sprint | None = Relationship(back_populates="txns")
+    account: Account | None = Relationship(back_populates="txns")
+    category: Category | None = Relationship(back_populates="txns")
+
+
+class TransactionPublic(TransactionBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    sprint_id: uuid.UUID | None
+    account_id: uuid.UUID
+    category_id: uuid.UUID | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class TransactionsPublic(SQLModel):
+    data: list[TransactionPublic]
+    count: int
+
+
+# ========= ALLOCATION RULE =========
+class AllocationRuleBase(SQLModel):
+    grp: CategoryGroup
+    percent: float = Field(gt=0, le=100)
+
+
+class AllocationRuleCreate(AllocationRuleBase):
+    sprint_id: uuid.UUID
+
+
+class AllocationRuleUpdate(BaseModel):
+    grp: CategoryGroup | None = None
+    percent: float | None = Field(default=None, gt=0, le=100)
+    sprint_id: uuid.UUID | None = None
+
+
+class AllocationRule(AllocationRuleBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+    sprint_id: uuid.UUID = Field(foreign_key="sprint.id", nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    user: User | None = Relationship(back_populates="allocation_rules")
+    sprint: Sprint | None = Relationship(back_populates="allocation_rules")
+
+
+class AllocationRulePublic(AllocationRuleBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    sprint_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+class AllocationRulesPublic(SQLModel):
+    data: list[AllocationRulePublic]
     count: int

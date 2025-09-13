@@ -5,8 +5,8 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models import Todo, TodoCreate, TodoPublic, TodosPublic, TodoUpdate, Message
-from app.crud import create_todo, update_todo, get_todo, get_todos, delete_todo
+from app.crud import create_todo, delete_todo, update_todo
+from app.models import Message, Todo, TodoCreate, TodoPublic, TodosPublic, TodoUpdate
 
 router = APIRouter(prefix="/todos", tags=["todos"])
 
