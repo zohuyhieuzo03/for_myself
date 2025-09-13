@@ -9,12 +9,7 @@ export function formatDateTime(utcDateTimeString: string): string {
     if (!utcDateTimeString) return 'N/A';
     
     try {
-      // Đảm bảo string luôn có Z để JS hiểu đây là UTC
-      const normalized = utcDateTimeString.endsWith('Z')
-        ? utcDateTimeString
-        : utcDateTimeString + 'Z';
-  
-      const date = new Date(normalized);
+      const date = new Date(utcDateTimeString);
       
       if (isNaN(date.getTime())) return 'Invalid Date';
       
@@ -41,11 +36,7 @@ export function formatDateTime(utcDateTimeString: string): string {
     if (!utcDateTimeString) return 'N/A';
     
     try {
-      const normalized = utcDateTimeString.endsWith('Z')
-        ? utcDateTimeString
-        : utcDateTimeString + 'Z';
-  
-      const date = new Date(normalized);
+      const date = new Date(utcDateTimeString);
       
       if (isNaN(date.getTime())) return 'Invalid Date';
   
