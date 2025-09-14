@@ -16,9 +16,17 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutTodosRouteImport } from './routes/_layout/todos'
+import { Route as LayoutSprintFinanceRouteImport } from './routes/_layout/sprint-finance'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutSprintFinanceIndexRouteImport } from './routes/_layout/sprint-finance/index'
+import { Route as LayoutSprintFinanceTransactionsRouteImport } from './routes/_layout/sprint-finance/transactions'
+import { Route as LayoutSprintFinanceSprintsRouteImport } from './routes/_layout/sprint-finance/sprints'
+import { Route as LayoutSprintFinanceIncomesRouteImport } from './routes/_layout/sprint-finance/incomes'
+import { Route as LayoutSprintFinanceCategoriesRouteImport } from './routes/_layout/sprint-finance/categories'
+import { Route as LayoutSprintFinanceAllocationRulesRouteImport } from './routes/_layout/sprint-finance/allocation-rules'
+import { Route as LayoutSprintFinanceAccountsRouteImport } from './routes/_layout/sprint-finance/accounts'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -54,6 +62,11 @@ const LayoutTodosRoute = LayoutTodosRouteImport.update({
   path: '/todos',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutSprintFinanceRoute = LayoutSprintFinanceRouteImport.update({
+  id: '/sprint-finance',
+  path: '/sprint-finance',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -69,6 +82,48 @@ const LayoutAdminRoute = LayoutAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutSprintFinanceIndexRoute =
+  LayoutSprintFinanceIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => LayoutSprintFinanceRoute,
+  } as any)
+const LayoutSprintFinanceTransactionsRoute =
+  LayoutSprintFinanceTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => LayoutSprintFinanceRoute,
+  } as any)
+const LayoutSprintFinanceSprintsRoute =
+  LayoutSprintFinanceSprintsRouteImport.update({
+    id: '/sprints',
+    path: '/sprints',
+    getParentRoute: () => LayoutSprintFinanceRoute,
+  } as any)
+const LayoutSprintFinanceIncomesRoute =
+  LayoutSprintFinanceIncomesRouteImport.update({
+    id: '/incomes',
+    path: '/incomes',
+    getParentRoute: () => LayoutSprintFinanceRoute,
+  } as any)
+const LayoutSprintFinanceCategoriesRoute =
+  LayoutSprintFinanceCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => LayoutSprintFinanceRoute,
+  } as any)
+const LayoutSprintFinanceAllocationRulesRoute =
+  LayoutSprintFinanceAllocationRulesRouteImport.update({
+    id: '/allocation-rules',
+    path: '/allocation-rules',
+    getParentRoute: () => LayoutSprintFinanceRoute,
+  } as any)
+const LayoutSprintFinanceAccountsRoute =
+  LayoutSprintFinanceAccountsRouteImport.update({
+    id: '/accounts',
+    path: '/accounts',
+    getParentRoute: () => LayoutSprintFinanceRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
@@ -78,8 +133,16 @@ export interface FileRoutesByFullPath {
   '/admin': typeof LayoutAdminRoute
   '/items': typeof LayoutItemsRoute
   '/settings': typeof LayoutSettingsRoute
+  '/sprint-finance': typeof LayoutSprintFinanceRouteWithChildren
   '/todos': typeof LayoutTodosRoute
   '/': typeof LayoutIndexRoute
+  '/sprint-finance/accounts': typeof LayoutSprintFinanceAccountsRoute
+  '/sprint-finance/allocation-rules': typeof LayoutSprintFinanceAllocationRulesRoute
+  '/sprint-finance/categories': typeof LayoutSprintFinanceCategoriesRoute
+  '/sprint-finance/incomes': typeof LayoutSprintFinanceIncomesRoute
+  '/sprint-finance/sprints': typeof LayoutSprintFinanceSprintsRoute
+  '/sprint-finance/transactions': typeof LayoutSprintFinanceTransactionsRoute
+  '/sprint-finance/': typeof LayoutSprintFinanceIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -91,6 +154,13 @@ export interface FileRoutesByTo {
   '/settings': typeof LayoutSettingsRoute
   '/todos': typeof LayoutTodosRoute
   '/': typeof LayoutIndexRoute
+  '/sprint-finance/accounts': typeof LayoutSprintFinanceAccountsRoute
+  '/sprint-finance/allocation-rules': typeof LayoutSprintFinanceAllocationRulesRoute
+  '/sprint-finance/categories': typeof LayoutSprintFinanceCategoriesRoute
+  '/sprint-finance/incomes': typeof LayoutSprintFinanceIncomesRoute
+  '/sprint-finance/sprints': typeof LayoutSprintFinanceSprintsRoute
+  '/sprint-finance/transactions': typeof LayoutSprintFinanceTransactionsRoute
+  '/sprint-finance': typeof LayoutSprintFinanceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -102,8 +172,16 @@ export interface FileRoutesById {
   '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/items': typeof LayoutItemsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
+  '/_layout/sprint-finance': typeof LayoutSprintFinanceRouteWithChildren
   '/_layout/todos': typeof LayoutTodosRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/sprint-finance/accounts': typeof LayoutSprintFinanceAccountsRoute
+  '/_layout/sprint-finance/allocation-rules': typeof LayoutSprintFinanceAllocationRulesRoute
+  '/_layout/sprint-finance/categories': typeof LayoutSprintFinanceCategoriesRoute
+  '/_layout/sprint-finance/incomes': typeof LayoutSprintFinanceIncomesRoute
+  '/_layout/sprint-finance/sprints': typeof LayoutSprintFinanceSprintsRoute
+  '/_layout/sprint-finance/transactions': typeof LayoutSprintFinanceTransactionsRoute
+  '/_layout/sprint-finance/': typeof LayoutSprintFinanceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -115,8 +193,16 @@ export interface FileRouteTypes {
     | '/admin'
     | '/items'
     | '/settings'
+    | '/sprint-finance'
     | '/todos'
     | '/'
+    | '/sprint-finance/accounts'
+    | '/sprint-finance/allocation-rules'
+    | '/sprint-finance/categories'
+    | '/sprint-finance/incomes'
+    | '/sprint-finance/sprints'
+    | '/sprint-finance/transactions'
+    | '/sprint-finance/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -128,6 +214,13 @@ export interface FileRouteTypes {
     | '/settings'
     | '/todos'
     | '/'
+    | '/sprint-finance/accounts'
+    | '/sprint-finance/allocation-rules'
+    | '/sprint-finance/categories'
+    | '/sprint-finance/incomes'
+    | '/sprint-finance/sprints'
+    | '/sprint-finance/transactions'
+    | '/sprint-finance'
   id:
     | '__root__'
     | '/_layout'
@@ -138,8 +231,16 @@ export interface FileRouteTypes {
     | '/_layout/admin'
     | '/_layout/items'
     | '/_layout/settings'
+    | '/_layout/sprint-finance'
     | '/_layout/todos'
     | '/_layout/'
+    | '/_layout/sprint-finance/accounts'
+    | '/_layout/sprint-finance/allocation-rules'
+    | '/_layout/sprint-finance/categories'
+    | '/_layout/sprint-finance/incomes'
+    | '/_layout/sprint-finance/sprints'
+    | '/_layout/sprint-finance/transactions'
+    | '/_layout/sprint-finance/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -201,6 +302,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutTodosRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/sprint-finance': {
+      id: '/_layout/sprint-finance'
+      path: '/sprint-finance'
+      fullPath: '/sprint-finance'
+      preLoaderRoute: typeof LayoutSprintFinanceRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/settings': {
       id: '/_layout/settings'
       path: '/settings'
@@ -222,13 +330,87 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/sprint-finance/': {
+      id: '/_layout/sprint-finance/'
+      path: '/'
+      fullPath: '/sprint-finance/'
+      preLoaderRoute: typeof LayoutSprintFinanceIndexRouteImport
+      parentRoute: typeof LayoutSprintFinanceRoute
+    }
+    '/_layout/sprint-finance/transactions': {
+      id: '/_layout/sprint-finance/transactions'
+      path: '/transactions'
+      fullPath: '/sprint-finance/transactions'
+      preLoaderRoute: typeof LayoutSprintFinanceTransactionsRouteImport
+      parentRoute: typeof LayoutSprintFinanceRoute
+    }
+    '/_layout/sprint-finance/sprints': {
+      id: '/_layout/sprint-finance/sprints'
+      path: '/sprints'
+      fullPath: '/sprint-finance/sprints'
+      preLoaderRoute: typeof LayoutSprintFinanceSprintsRouteImport
+      parentRoute: typeof LayoutSprintFinanceRoute
+    }
+    '/_layout/sprint-finance/incomes': {
+      id: '/_layout/sprint-finance/incomes'
+      path: '/incomes'
+      fullPath: '/sprint-finance/incomes'
+      preLoaderRoute: typeof LayoutSprintFinanceIncomesRouteImport
+      parentRoute: typeof LayoutSprintFinanceRoute
+    }
+    '/_layout/sprint-finance/categories': {
+      id: '/_layout/sprint-finance/categories'
+      path: '/categories'
+      fullPath: '/sprint-finance/categories'
+      preLoaderRoute: typeof LayoutSprintFinanceCategoriesRouteImport
+      parentRoute: typeof LayoutSprintFinanceRoute
+    }
+    '/_layout/sprint-finance/allocation-rules': {
+      id: '/_layout/sprint-finance/allocation-rules'
+      path: '/allocation-rules'
+      fullPath: '/sprint-finance/allocation-rules'
+      preLoaderRoute: typeof LayoutSprintFinanceAllocationRulesRouteImport
+      parentRoute: typeof LayoutSprintFinanceRoute
+    }
+    '/_layout/sprint-finance/accounts': {
+      id: '/_layout/sprint-finance/accounts'
+      path: '/accounts'
+      fullPath: '/sprint-finance/accounts'
+      preLoaderRoute: typeof LayoutSprintFinanceAccountsRouteImport
+      parentRoute: typeof LayoutSprintFinanceRoute
+    }
   }
 }
+
+interface LayoutSprintFinanceRouteChildren {
+  LayoutSprintFinanceAccountsRoute: typeof LayoutSprintFinanceAccountsRoute
+  LayoutSprintFinanceAllocationRulesRoute: typeof LayoutSprintFinanceAllocationRulesRoute
+  LayoutSprintFinanceCategoriesRoute: typeof LayoutSprintFinanceCategoriesRoute
+  LayoutSprintFinanceIncomesRoute: typeof LayoutSprintFinanceIncomesRoute
+  LayoutSprintFinanceSprintsRoute: typeof LayoutSprintFinanceSprintsRoute
+  LayoutSprintFinanceTransactionsRoute: typeof LayoutSprintFinanceTransactionsRoute
+  LayoutSprintFinanceIndexRoute: typeof LayoutSprintFinanceIndexRoute
+}
+
+const LayoutSprintFinanceRouteChildren: LayoutSprintFinanceRouteChildren = {
+  LayoutSprintFinanceAccountsRoute: LayoutSprintFinanceAccountsRoute,
+  LayoutSprintFinanceAllocationRulesRoute:
+    LayoutSprintFinanceAllocationRulesRoute,
+  LayoutSprintFinanceCategoriesRoute: LayoutSprintFinanceCategoriesRoute,
+  LayoutSprintFinanceIncomesRoute: LayoutSprintFinanceIncomesRoute,
+  LayoutSprintFinanceSprintsRoute: LayoutSprintFinanceSprintsRoute,
+  LayoutSprintFinanceTransactionsRoute: LayoutSprintFinanceTransactionsRoute,
+  LayoutSprintFinanceIndexRoute: LayoutSprintFinanceIndexRoute,
+}
+
+const LayoutSprintFinanceRouteWithChildren =
+  LayoutSprintFinanceRoute._addFileChildren(LayoutSprintFinanceRouteChildren)
 
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutItemsRoute: typeof LayoutItemsRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
+  LayoutSprintFinanceRoute: typeof LayoutSprintFinanceRouteWithChildren
   LayoutTodosRoute: typeof LayoutTodosRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
@@ -237,6 +419,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
   LayoutItemsRoute: LayoutItemsRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
+  LayoutSprintFinanceRoute: LayoutSprintFinanceRouteWithChildren,
   LayoutTodosRoute: LayoutTodosRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }
