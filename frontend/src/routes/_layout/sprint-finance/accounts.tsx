@@ -1,26 +1,30 @@
-import { 
-  Container, 
-  Heading, 
-  Table, 
-  VStack,
-  Text,
+import {
   Badge,
-  HStack
+  Container,
+  Heading,
+  HStack,
+  Table,
+  Text,
+  VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { FiCreditCard } from "react-icons/fi"
 
 import { AccountsService } from "@/client"
-import AddAccount from "@/components/Accounts/AddAccount"
 import { AccountActionsMenu } from "@/components/Accounts/AccountActionsMenu"
+import AddAccount from "@/components/Accounts/AddAccount"
 
 export const Route = createFileRoute("/_layout/sprint-finance/accounts")({
   component: AccountsPage,
 })
 
 function AccountsPage() {
-  const { data: accounts, isLoading, error } = useQuery({
+  const {
+    data: accounts,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["accounts"],
     queryFn: () => AccountsService.readAccounts(),
   })
@@ -72,7 +76,8 @@ function AccountsPage() {
                   <Table.Cell>{account.name}</Table.Cell>
                   <Table.Cell>
                     <Badge colorPalette="blue">
-                      {account.type.charAt(0).toUpperCase() + account.type.slice(1)}
+                      {account.type.charAt(0).toUpperCase() +
+                        account.type.slice(1)}
                     </Badge>
                   </Table.Cell>
                   <Table.Cell>{account.currency}</Table.Cell>
@@ -92,7 +97,8 @@ function AccountsPage() {
           <VStack gap={4} py={8}>
             <FiCreditCard size="48px" color="gray" />
             <Text color="gray.500" textAlign="center">
-              No accounts found. Create your first account to start tracking your finances.
+              No accounts found. Create your first account to start tracking
+              your finances.
             </Text>
             <AddAccount />
           </VStack>

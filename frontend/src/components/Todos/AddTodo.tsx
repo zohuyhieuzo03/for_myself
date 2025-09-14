@@ -118,10 +118,7 @@ const AddTodo = () => {
                 errorText={errors.is_completed?.message}
                 label="Completed"
               >
-                <input
-                  type="checkbox"
-                  {...register("is_completed")}
-                />
+                <input type="checkbox" {...register("is_completed")} />
               </Field>
             </VStack>
           </DialogBody>

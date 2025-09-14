@@ -8,6 +8,7 @@ from app.api.deps import CurrentUser, SessionDep
 from app.models import (
     Message,
     SprintCreate,
+    SprintDetailPublic,
     SprintPublic,
     SprintsPublic,
     SprintUpdate,
@@ -89,6 +90,41 @@ def read_sprint(
             detail="Not enough permissions",
         )
     return sprint
+
+
+@router.get("/{sprint_id}/detail", response_model=SprintDetailPublic)
+def read_sprint_detail(
+    *, session: SessionDep, current_user: CurrentUser, sprint_id: uuid.UUID
+) -> Any:
+    """
+    Get sprint detail with all related financial data.
+    """
+    sprint_detail = crud.get_sprint_detail(
+        session=session, sprint_id=sprint_id, user_id=current_user.id
+    )
+    if not sprint_detail:
+        raise HTTPException(
+            status_code=404,
+            detail="The sprint with this id does not exist in the system",
+        )
+    
+    # Convert to SprintDetailPublic format
+    return SprintDetailPublic(
+        id=sprint_detail["sprint"].id,
+        user_id=sprint_detail["sprint"].user_id,
+        start_date=sprint_detail["sprint"].start_date,
+        end_date=sprint_detail["sprint"].end_date,
+        payday_anchor=sprint_detail["sprint"].payday_anchor,
+        is_closed=sprint_detail["sprint"].is_closed,
+        created_at=sprint_detail["sprint"].created_at,
+        updated_at=sprint_detail["sprint"].updated_at,
+        incomes=sprint_detail["incomes"],
+        transactions=sprint_detail["transactions"],
+        allocation_rules=sprint_detail["allocation_rules"],
+        accounts=sprint_detail["accounts"],
+        categories=sprint_detail["categories"],
+        financial_summary=sprint_detail["financial_summary"]
+    )
 
 
 @router.delete("/{sprint_id}", response_model=Message)

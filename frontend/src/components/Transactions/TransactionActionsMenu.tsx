@@ -1,9 +1,9 @@
 import { IconButton } from "@chakra-ui/react"
 import { BsThreeDotsVertical } from "react-icons/bs"
 import type { TransactionPublic } from "@/client"
+import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu"
 import DeleteTransaction from "./DeleteTransaction"
 import EditTransaction from "./EditTransaction"
-import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu"
 
 interface TransactionActionsMenuProps {
   transaction: TransactionPublic
@@ -12,11 +12,11 @@ interface TransactionActionsMenuProps {
   sprints: Array<{ id: string; start_date: string; end_date: string }>
 }
 
-export const TransactionActionsMenu = ({ 
-  transaction, 
-  accounts, 
-  categories, 
-  sprints 
+export const TransactionActionsMenu = ({
+  transaction,
+  accounts,
+  categories,
+  sprints,
 }: TransactionActionsMenuProps) => {
   return (
     <MenuRoot>
@@ -26,8 +26,8 @@ export const TransactionActionsMenu = ({
         </IconButton>
       </MenuTrigger>
       <MenuContent>
-        <EditTransaction 
-          transaction={transaction} 
+        <EditTransaction
+          transaction={transaction}
           accounts={accounts}
           categories={categories}
           sprints={sprints}

@@ -3,7 +3,6 @@ import {
   DialogActionTrigger,
   DialogTitle,
   Input,
-
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -33,7 +32,11 @@ interface AddTransactionProps {
   sprints: Array<{ id: string; start_date: string; end_date: string }>
 }
 
-const AddTransaction = ({ accounts, categories, sprints }: AddTransactionProps) => {
+const AddTransaction = ({
+  accounts,
+  categories,
+  sprints,
+}: AddTransactionProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -139,7 +142,10 @@ const AddTransaction = ({ accounts, categories, sprints }: AddTransactionProps) 
                 <Input
                   {...register("amount", {
                     required: "Amount is required.",
-                    min: { value: 0.01, message: "Amount must be greater than 0" },
+                    min: {
+                      value: 0.01,
+                      message: "Amount must be greater than 0",
+                    },
                   })}
                   placeholder="0.00"
                   type="number"
@@ -211,9 +217,7 @@ const AddTransaction = ({ accounts, categories, sprints }: AddTransactionProps) 
                 errorText={errors.category_id?.message}
                 label="Category"
               >
-                <select
-                  {...register("category_id")}
-                >
+                <select {...register("category_id")}>
                   <option value="">Select Category</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
@@ -228,9 +232,7 @@ const AddTransaction = ({ accounts, categories, sprints }: AddTransactionProps) 
                 errorText={errors.sprint_id?.message}
                 label="Sprint"
               >
-                <select
-                  {...register("sprint_id")}
-                >
+                <select {...register("sprint_id")}>
                   <option value="">Select Sprint</option>
                   {sprints.map((sprint) => (
                     <option key={sprint.id} value={sprint.id}>

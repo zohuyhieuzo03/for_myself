@@ -3,7 +3,6 @@ import {
   ButtonGroup,
   DialogActionTrigger,
   Input,
-
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -12,7 +11,11 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type TransactionPublic, type TransactionUpdate, TransactionsService } from "@/client"
+import {
+  type TransactionPublic,
+  TransactionsService,
+  type TransactionUpdate,
+} from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -35,7 +38,12 @@ interface EditTransactionProps {
   sprints: Array<{ id: string; start_date: string; end_date: string }>
 }
 
-const EditTransaction = ({ transaction, accounts, categories, sprints }: EditTransactionProps) => {
+const EditTransaction = ({
+  transaction,
+  accounts,
+  categories,
+  sprints,
+}: EditTransactionProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -62,7 +70,10 @@ const EditTransaction = ({ transaction, accounts, categories, sprints }: EditTra
 
   const mutation = useMutation({
     mutationFn: (data: TransactionUpdate) =>
-      TransactionsService.updateTransaction({ transactionId: transaction.id, requestBody: data }),
+      TransactionsService.updateTransaction({
+        transactionId: transaction.id,
+        requestBody: data,
+      }),
     onSuccess: () => {
       showSuccessToast("Transaction updated successfully.")
       reset()
@@ -141,7 +152,10 @@ const EditTransaction = ({ transaction, accounts, categories, sprints }: EditTra
                 <Input
                   {...register("amount", {
                     required: "Amount is required",
-                    min: { value: 0.01, message: "Amount must be greater than 0" },
+                    min: {
+                      value: 0.01,
+                      message: "Amount must be greater than 0",
+                    },
                   })}
                   placeholder="0.00"
                   type="number"
@@ -213,9 +227,7 @@ const EditTransaction = ({ transaction, accounts, categories, sprints }: EditTra
                 errorText={errors.category_id?.message}
                 label="Category"
               >
-                <select
-                  {...register("category_id")}
-                >
+                <select {...register("category_id")}>
                   <option value="">Select Category</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
@@ -230,9 +242,7 @@ const EditTransaction = ({ transaction, accounts, categories, sprints }: EditTra
                 errorText={errors.sprint_id?.message}
                 label="Sprint"
               >
-                <select
-                  {...register("sprint_id")}
-                >
+                <select {...register("sprint_id")}>
                   <option value="">Select Sprint</option>
                   {sprints.map((sprint) => (
                     <option key={sprint.id} value={sprint.id}>

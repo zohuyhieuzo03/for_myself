@@ -3,7 +3,6 @@ import {
   ButtonGroup,
   DialogActionTrigger,
   Input,
-
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -12,7 +11,11 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type CategoryPublic, type CategoryUpdate, CategoriesService } from "@/client"
+import {
+  CategoriesService,
+  type CategoryPublic,
+  type CategoryUpdate,
+} from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -53,7 +56,10 @@ const EditCategory = ({ category }: EditCategoryProps) => {
 
   const mutation = useMutation({
     mutationFn: (data: CategoryUpdate) =>
-      CategoriesService.updateCategory({ categoryId: category.id, requestBody: data }),
+      CategoriesService.updateCategory({
+        categoryId: category.id,
+        requestBody: data,
+      }),
     onSuccess: () => {
       showSuccessToast("Category updated successfully.")
       reset()
@@ -129,10 +135,7 @@ const EditCategory = ({ category }: EditCategoryProps) => {
                 errorText={errors.is_envelope?.message}
                 label="Envelope Category"
               >
-                <input
-                  type="checkbox"
-                  {...register("is_envelope")}
-                />
+                <input type="checkbox" {...register("is_envelope")} />
               </Field>
             </VStack>
           </DialogBody>

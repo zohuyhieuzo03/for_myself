@@ -3,7 +3,6 @@ import {
   DialogActionTrigger,
   DialogTitle,
   Input,
-
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -143,10 +142,7 @@ const AddAccount = () => {
                 errorText={errors.is_active?.message}
                 label="Active"
               >
-                <input
-                  type="checkbox"
-                  {...register("is_active")}
-                />
+                <input type="checkbox" {...register("is_active")} />
               </Field>
             </VStack>
           </DialogBody>

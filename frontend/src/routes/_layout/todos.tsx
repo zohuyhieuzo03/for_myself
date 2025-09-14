@@ -1,11 +1,11 @@
 import {
+  Badge,
   Container,
   EmptyState,
   Flex,
   Heading,
   Table,
   VStack,
-  Badge,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
@@ -14,18 +14,18 @@ import { z } from "zod"
 
 import { TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
-import useCustomToast from "@/hooks/useCustomToast"
-import { handleError, formatDateTimeShort } from "@/utils"
-import { Checkbox } from "@/components/ui/checkbox"
-import { TodoActionsMenu } from "@/components/Todos/TodoActionsMenu"
-import AddTodo from "@/components/Todos/AddTodo"
 import PendingTodos from "@/components/Pending/PendingTodos"
+import AddTodo from "@/components/Todos/AddTodo"
+import { TodoActionsMenu } from "@/components/Todos/TodoActionsMenu"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   PaginationItems,
   PaginationNextTrigger,
   PaginationPrevTrigger,
   PaginationRoot,
 } from "@/components/ui/pagination.tsx"
+import useCustomToast from "@/hooks/useCustomToast"
+import { formatDateTimeShort, handleError } from "@/utils"
 
 const todosSearchSchema = z.object({
   page: z.number().catch(1),
@@ -59,9 +59,9 @@ function TodosTable() {
 
   const toggleTodoMutation = useMutation({
     mutationFn: ({ id, is_completed }: { id: string; is_completed: boolean }) =>
-      TodosService.updateTodoEndpoint({ 
-        id, 
-        requestBody: { is_completed } as TodoUpdate 
+      TodosService.updateTodoEndpoint({
+        id,
+        requestBody: { is_completed } as TodoUpdate,
       }),
     onSuccess: () => {
       showSuccessToast("Todo status updated successfully.")
@@ -131,7 +131,9 @@ function TodosTable() {
               <Table.Cell>
                 <Checkbox
                   checked={todo.is_completed}
-                  onCheckedChange={() => handleToggleTodo(todo.id, todo.is_completed || false)}
+                  onCheckedChange={() =>
+                    handleToggleTodo(todo.id, todo.is_completed || false)
+                  }
                   disabled={toggleTodoMutation.isPending}
                   colorScheme="green"
                   size="md"
@@ -151,7 +153,11 @@ function TodosTable() {
                 {todo.description || "N/A"}
               </Table.Cell>
               <Table.Cell>
-                <Badge colorScheme={todo.is_completed ? "green" : "orange"} bg={todo.is_completed ? "green.500" : "orange.500"} color="white">
+                <Badge
+                  colorScheme={todo.is_completed ? "green" : "orange"}
+                  bg={todo.is_completed ? "green.500" : "orange.500"}
+                  color="white"
+                >
                   {todo.is_completed ? "Completed" : "Pending"}
                 </Badge>
               </Table.Cell>

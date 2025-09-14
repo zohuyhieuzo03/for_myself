@@ -1,11 +1,10 @@
-import { 
-  Container, 
-  Heading, 
-  Table, 
-  VStack,
+import {
+  Container,
+  Heading,
+  HStack,
+  Table,
   Text,
-  Badge,
-  HStack
+  VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
@@ -20,7 +19,11 @@ export const Route = createFileRoute("/_layout/sprint-finance/incomes")({
 })
 
 function IncomesPage() {
-  const { data: incomes, isLoading, error } = useQuery({
+  const {
+    data: incomes,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["incomes"],
     queryFn: () => IncomesService.readIncomes(),
   })
@@ -52,11 +55,12 @@ function IncomesPage() {
     )
   }
 
-  const sprintsList = sprints?.data?.map((sprint: any) => ({ 
-    id: sprint.id, 
-    start_date: sprint.start_date, 
-    end_date: sprint.end_date 
-  })) || []
+  const sprintsList =
+    sprints?.data?.map((sprint: any) => ({
+      id: sprint.id,
+      start_date: sprint.start_date,
+      end_date: sprint.end_date,
+    })) || []
 
   return (
     <Container maxW="full">
@@ -81,28 +85,37 @@ function IncomesPage() {
             </Table.Header>
             <Table.Body>
               {incomes.data.map((income: any) => {
-                const sprint = sprints?.data?.find((s: any) => s.id === income.sprint_id)
-                
+                const sprint = sprints?.data?.find(
+                  (s: any) => s.id === income.sprint_id,
+                )
+
                 return (
                   <Table.Row key={income.id}>
                     <Table.Cell>{income.received_at}</Table.Cell>
                     <Table.Cell>{income.source}</Table.Cell>
                     <Table.Cell>
                       <Text fontWeight="bold" color="gray.600">
-                        {income.gross_amount.toLocaleString('vi-VN')} {income.currency}
+                        {income.gross_amount.toLocaleString("vi-VN")}{" "}
+                        {income.currency}
                       </Text>
                     </Table.Cell>
                     <Table.Cell>
                       <Text fontWeight="bold" color="green.500">
-                        {income.net_amount.toLocaleString('vi-VN')} {income.currency}
+                        {income.net_amount.toLocaleString("vi-VN")}{" "}
+                        {income.currency}
                       </Text>
                     </Table.Cell>
                     <Table.Cell>{income.currency}</Table.Cell>
                     <Table.Cell>
-                      {sprint ? `${sprint.start_date} - ${sprint.end_date}` : "-"}
+                      {sprint
+                        ? `${sprint.start_date} - ${sprint.end_date}`
+                        : "-"}
                     </Table.Cell>
                     <Table.Cell>
-                      <IncomeActionsMenu income={income} sprints={sprintsList} />
+                      <IncomeActionsMenu
+                        income={income}
+                        sprints={sprintsList}
+                      />
                     </Table.Cell>
                   </Table.Row>
                 )
@@ -113,7 +126,8 @@ function IncomesPage() {
           <VStack gap={4} py={8}>
             <FiTrendingUp size="48px" color="gray" />
             <Text color="gray.500" textAlign="center">
-              No incomes found. Create your first income to start tracking your earnings.
+              No incomes found. Create your first income to start tracking your
+              earnings.
             </Text>
             <AddIncome sprints={sprintsList} />
           </VStack>

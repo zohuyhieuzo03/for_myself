@@ -11,7 +11,7 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type SprintPublic, type SprintUpdate, SprintsService } from "@/client"
+import { type SprintPublic, SprintsService, type SprintUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -142,10 +142,7 @@ const EditSprint = ({ sprint }: EditSprintProps) => {
                 errorText={errors.is_closed?.message}
                 label="Closed"
               >
-                <input
-                  type="checkbox"
-                  {...register("is_closed")}
-                />
+                <input type="checkbox" {...register("is_closed")} />
               </Field>
             </VStack>
           </DialogBody>

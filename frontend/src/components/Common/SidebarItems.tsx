@@ -1,19 +1,19 @@
 import { Box, Flex, Icon, Text } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link as RouterLink } from "@tanstack/react-router"
-import { 
-  FiBriefcase, 
-  FiCheckSquare, 
-  FiHome, 
-  FiSettings, 
-  FiUsers,
-  FiDollarSign,
-  FiTag,
-  FiCreditCard,
-  FiTrendingUp,
-  FiTarget,
+import {
+  FiArrowUpCircle,
+  FiBriefcase,
   FiCalendar,
-  FiArrowUpCircle
+  FiCheckSquare,
+  FiCreditCard,
+  FiDollarSign,
+  FiHome,
+  FiSettings,
+  FiTag,
+  FiTarget,
+  FiTrendingUp,
+  FiUsers,
 } from "react-icons/fi"
 import type { IconType } from "react-icons/lib"
 
@@ -32,8 +32,16 @@ const sprintFinanceItems = [
   { icon: FiCreditCard, title: "Accounts", path: "/sprint-finance/accounts" },
   { icon: FiTag, title: "Categories", path: "/sprint-finance/categories" },
   { icon: FiArrowUpCircle, title: "Incomes", path: "/sprint-finance/incomes" },
-  { icon: FiTrendingUp, title: "Transactions", path: "/sprint-finance/transactions" },
-  { icon: FiTarget, title: "Allocation Rules", path: "/sprint-finance/allocation-rules" },
+  {
+    icon: FiTrendingUp,
+    title: "Transactions",
+    path: "/sprint-finance/transactions",
+  },
+  {
+    icon: FiTarget,
+    title: "Allocation Rules",
+    path: "/sprint-finance/allocation-rules",
+  },
 ]
 
 interface SidebarItemsProps {
@@ -72,23 +80,25 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
     </RouterLink>
   ))
 
-  const sprintFinanceListItems = sprintFinanceItems.map(({ icon, title, path }) => (
-    <RouterLink key={title} to={path} onClick={onClose}>
-      <Flex
-        gap={4}
-        px={4}
-        py={2}
-        _hover={{
-          background: "gray.subtle",
-        }}
-        alignItems="center"
-        fontSize="sm"
-      >
-        <Icon as={icon} alignSelf="center" />
-        <Text ml={2}>{title}</Text>
-      </Flex>
-    </RouterLink>
-  ))
+  const sprintFinanceListItems = sprintFinanceItems.map(
+    ({ icon, title, path }) => (
+      <RouterLink key={title} to={path} onClick={onClose}>
+        <Flex
+          gap={4}
+          px={4}
+          py={2}
+          _hover={{
+            background: "gray.subtle",
+          }}
+          alignItems="center"
+          fontSize="sm"
+        >
+          <Icon as={icon} alignSelf="center" />
+          <Text ml={2}>{title}</Text>
+        </Flex>
+      </RouterLink>
+    ),
+  )
 
   return (
     <>
@@ -96,7 +106,7 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
         Menu
       </Text>
       <Box>{listItems}</Box>
-      
+
       <Text fontSize="xs" px={4} py={2} fontWeight="bold" mt={4}>
         Sprint Finance
       </Text>

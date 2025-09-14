@@ -3,7 +3,6 @@ import {
   DialogActionTrigger,
   DialogTitle,
   Input,
-
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -12,7 +11,7 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaPlus } from "react-icons/fa"
 
-import { type CategoryCreate, CategoriesService } from "@/client"
+import { CategoriesService, type CategoryCreate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -124,10 +123,7 @@ const AddCategory = () => {
                 errorText={errors.is_envelope?.message}
                 label="Envelope Category"
               >
-                <input
-                  type="checkbox"
-                  {...register("is_envelope")}
-                />
+                <input type="checkbox" {...register("is_envelope")} />
               </Field>
             </VStack>
           </DialogBody>

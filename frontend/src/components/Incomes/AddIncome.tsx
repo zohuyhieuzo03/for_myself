@@ -3,7 +3,6 @@ import {
   DialogActionTrigger,
   DialogTitle,
   Input,
-
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -133,7 +132,10 @@ const AddIncome = ({ sprints }: AddIncomeProps) => {
                 <Input
                   {...register("gross_amount", {
                     required: "Gross amount is required.",
-                    min: { value: 0.01, message: "Amount must be greater than 0" },
+                    min: {
+                      value: 0.01,
+                      message: "Amount must be greater than 0",
+                    },
                   })}
                   placeholder="0.00"
                   type="number"
@@ -150,7 +152,10 @@ const AddIncome = ({ sprints }: AddIncomeProps) => {
                 <Input
                   {...register("net_amount", {
                     required: "Net amount is required.",
-                    min: { value: 0.01, message: "Amount must be greater than 0" },
+                    min: {
+                      value: 0.01,
+                      message: "Amount must be greater than 0",
+                    },
                   })}
                   placeholder="0.00"
                   type="number"

@@ -466,3 +466,13 @@ class AllocationRulePublic(AllocationRuleBase):
 class AllocationRulesPublic(SQLModel):
     data: list[AllocationRulePublic]
     count: int
+
+
+# ========= SPRINT DETAIL =========
+class SprintDetailPublic(SprintPublic):
+    incomes: list[IncomePublic] = []
+    transactions: list[TransactionPublic] = []
+    allocation_rules: list[AllocationRulePublic] = []
+    accounts: list[AccountPublic] = []
+    categories: list[CategoryPublic] = []
+    financial_summary: dict = {}

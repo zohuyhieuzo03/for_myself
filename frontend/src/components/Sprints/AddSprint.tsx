@@ -137,10 +137,7 @@ const AddSprint = () => {
                 errorText={errors.is_closed?.message}
                 label="Closed"
               >
-                <input
-                  type="checkbox"
-                  {...register("is_closed")}
-                />
+                <input type="checkbox" {...register("is_closed")} />
               </Field>
             </VStack>
           </DialogBody>

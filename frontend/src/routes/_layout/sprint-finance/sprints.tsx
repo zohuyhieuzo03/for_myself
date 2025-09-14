@@ -5,11 +5,12 @@ import {
   VStack,
   Text,
   Badge,
-  HStack
+  HStack,
+  Button
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
-import { createFileRoute } from "@tanstack/react-router"
-import { FiCalendar } from "react-icons/fi"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { FiCalendar, FiEye } from "react-icons/fi"
 
 import { SprintsService } from "@/client"
 import AddSprint from "@/components/Sprints/AddSprint"
@@ -24,6 +25,16 @@ function SprintsPage() {
     queryKey: ["sprints"],
     queryFn: () => SprintsService.readSprints(),
   })
+
+  // Format date to display as DD/MM/YYYY
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  }
 
   if (isLoading) {
     return (
@@ -59,6 +70,7 @@ function SprintsPage() {
           <Table.Root size={{ base: "sm", md: "md" }}>
             <Table.Header>
               <Table.Row>
+                <Table.ColumnHeader>View</Table.ColumnHeader>
                 <Table.ColumnHeader>Start Date</Table.ColumnHeader>
                 <Table.ColumnHeader>End Date</Table.ColumnHeader>
                 <Table.ColumnHeader>Payday Anchor</Table.ColumnHeader>
@@ -69,9 +81,23 @@ function SprintsPage() {
             <Table.Body>
               {sprints.data.map((sprint: any) => (
                 <Table.Row key={sprint.id}>
-                  <Table.Cell>{sprint.start_date}</Table.Cell>
-                  <Table.Cell>{sprint.end_date}</Table.Cell>
-                  <Table.Cell>{sprint.payday_anchor}</Table.Cell>
+                  <Table.Cell>
+                    <Link
+                      to="/sprint-finance/sprint-detail"
+                      search={{ sprintId: sprint.id }}
+                    >
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        colorPalette="blue"
+                      >
+                        <FiEye />
+                      </Button>
+                    </Link>
+                  </Table.Cell>
+                  <Table.Cell>{formatDate(sprint.start_date)}</Table.Cell>
+                  <Table.Cell>{formatDate(sprint.end_date)}</Table.Cell>
+                  <Table.Cell>{formatDate(sprint.payday_anchor)}</Table.Cell>
                   <Table.Cell>
                     <Badge colorPalette={sprint.is_closed ? "red" : "green"}>
                       {sprint.is_closed ? "Closed" : "Active"}

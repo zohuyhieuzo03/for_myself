@@ -3,7 +3,6 @@ import {
   DialogActionTrigger,
   DialogTitle,
   Input,
-
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -89,7 +88,9 @@ const AddAllocationRule = ({ sprints }: AddAllocationRuleProps) => {
             <DialogTitle>Add Allocation Rule</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>Fill in the details to add a new allocation rule.</Text>
+            <Text mb={4}>
+              Fill in the details to add a new allocation rule.
+            </Text>
             <VStack gap={4}>
               <Field
                 required
@@ -117,8 +118,14 @@ const AddAllocationRule = ({ sprints }: AddAllocationRuleProps) => {
                 <Input
                   {...register("percent", {
                     required: "Percentage is required.",
-                    min: { value: 0.01, message: "Percentage must be greater than 0" },
-                    max: { value: 100, message: "Percentage must be less than or equal to 100" },
+                    min: {
+                      value: 0.01,
+                      message: "Percentage must be greater than 0",
+                    },
+                    max: {
+                      value: 100,
+                      message: "Percentage must be less than or equal to 100",
+                    },
                   })}
                   placeholder="0.00"
                   type="number"

@@ -16,7 +16,9 @@ function Dashboard() {
         <Text fontSize="2xl" truncate maxW="sm">
           Hi, {currentUser?.full_name || currentUser?.email} 👋🏼
         </Text>
-        <Text>Welcome back, nice to see you again! 🚀 Hot reload is working!</Text>
+        <Text>
+          Welcome back, nice to see you again! 🚀 Hot reload is working!
+        </Text>
       </Box>
     </Container>
   )

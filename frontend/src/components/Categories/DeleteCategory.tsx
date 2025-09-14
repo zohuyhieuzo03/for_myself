@@ -71,8 +71,8 @@ const DeleteCategory = ({ id }: { id: string }) => {
           </DialogHeader>
           <DialogBody>
             <Text mb={4}>
-              This category will be permanently deleted. Are you sure? You will not
-              be able to undo this action.
+              This category will be permanently deleted. Are you sure? You will
+              not be able to undo this action.
             </Text>
           </DialogBody>
 

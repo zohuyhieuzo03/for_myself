@@ -1,11 +1,11 @@
-import { 
-  Container, 
-  Heading, 
-  Table, 
-  VStack,
-  Text,
+import {
   Badge,
-  HStack
+  Container,
+  Heading,
+  HStack,
+  Table,
+  Text,
+  VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
@@ -20,7 +20,11 @@ export const Route = createFileRoute("/_layout/sprint-finance/categories")({
 })
 
 function CategoriesPage() {
-  const { data: categories, isLoading, error } = useQuery({
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["categories"],
     queryFn: () => CategoriesService.readCategories(),
   })
@@ -70,17 +74,23 @@ function CategoriesPage() {
                 <Table.Row key={category.id}>
                   <Table.Cell>{category.name}</Table.Cell>
                   <Table.Cell>
-                    <Badge 
+                    <Badge
                       colorPalette={
-                        category.grp === "needs" ? "green" : 
-                        category.grp === "wants" ? "blue" : "purple"
+                        category.grp === "needs"
+                          ? "green"
+                          : category.grp === "wants"
+                            ? "blue"
+                            : "purple"
                       }
                     >
-                      {category.grp.charAt(0).toUpperCase() + category.grp.slice(1).replace('_', ' ')}
+                      {category.grp.charAt(0).toUpperCase() +
+                        category.grp.slice(1).replace("_", " ")}
                     </Badge>
                   </Table.Cell>
                   <Table.Cell>
-                    <Badge colorPalette={category.is_envelope ? "green" : "gray"}>
+                    <Badge
+                      colorPalette={category.is_envelope ? "green" : "gray"}
+                    >
                       {category.is_envelope ? "Envelope" : "Non-Envelope"}
                     </Badge>
                   </Table.Cell>
@@ -95,7 +105,8 @@ function CategoriesPage() {
           <VStack gap={4} py={8}>
             <FiTag size="48px" color="gray" />
             <Text color="gray.500" textAlign="center">
-              No categories found. Create your first category to organize your spending.
+              No categories found. Create your first category to organize your
+              spending.
             </Text>
             <AddCategory />
           </VStack>

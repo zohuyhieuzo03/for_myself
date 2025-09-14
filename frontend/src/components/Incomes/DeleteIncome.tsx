@@ -71,8 +71,8 @@ const DeleteIncome = ({ id }: { id: string }) => {
           </DialogHeader>
           <DialogBody>
             <Text mb={4}>
-              This income will be permanently deleted. Are you sure? You will not
-              be able to undo this action.
+              This income will be permanently deleted. Are you sure? You will
+              not be able to undo this action.
             </Text>
           </DialogBody>
 

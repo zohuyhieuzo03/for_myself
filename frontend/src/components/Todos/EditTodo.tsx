@@ -11,7 +11,7 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type TodoPublic, type TodoUpdate, TodosService } from "@/client"
+import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -123,10 +123,7 @@ const EditTodo = ({ todo }: EditTodoProps) => {
                 errorText={errors.is_completed?.message}
                 label="Completed"
               >
-                <input
-                  type="checkbox"
-                  {...register("is_completed")}
-                />
+                <input type="checkbox" {...register("is_completed")} />
               </Field>
             </VStack>
           </DialogBody>

@@ -3,7 +3,6 @@ import {
   ButtonGroup,
   DialogActionTrigger,
   Input,
-
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -12,7 +11,11 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type AccountPublic, type AccountUpdate, AccountsService } from "@/client"
+import {
+  type AccountPublic,
+  AccountsService,
+  type AccountUpdate,
+} from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -54,7 +57,10 @@ const EditAccount = ({ account }: EditAccountProps) => {
 
   const mutation = useMutation({
     mutationFn: (data: AccountUpdate) =>
-      AccountsService.updateAccount({ accountId: account.id, requestBody: data }),
+      AccountsService.updateAccount({
+        accountId: account.id,
+        requestBody: data,
+      }),
     onSuccess: () => {
       showSuccessToast("Account updated successfully.")
       reset()
@@ -148,10 +154,7 @@ const EditAccount = ({ account }: EditAccountProps) => {
                 errorText={errors.is_active?.message}
                 label="Active"
               >
-                <input
-                  type="checkbox"
-                  {...register("is_active")}
-                />
+                <input type="checkbox" {...register("is_active")} />
               </Field>
             </VStack>
           </DialogBody>

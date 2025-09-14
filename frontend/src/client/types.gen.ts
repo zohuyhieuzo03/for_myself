@@ -181,6 +181,25 @@ export type SprintCreate = {
     is_closed?: boolean;
 };
 
+export type SprintDetailPublic = {
+    start_date: string;
+    end_date: string;
+    payday_anchor: string;
+    is_closed?: boolean;
+    id: string;
+    user_id: string;
+    created_at: string;
+    updated_at: string;
+    incomes?: Array<IncomePublic>;
+    transactions?: Array<TransactionPublic>;
+    allocation_rules?: Array<AllocationRulePublic>;
+    accounts?: Array<AccountPublic>;
+    categories?: Array<CategoryPublic>;
+    financial_summary?: {
+        [key: string]: unknown;
+    };
+};
+
 export type SprintPublic = {
     start_date: string;
     end_date: string;
@@ -555,6 +574,12 @@ export type SprintsDeleteSprintData = {
 };
 
 export type SprintsDeleteSprintResponse = (Message);
+
+export type SprintsReadSprintDetailData = {
+    sprintId: string;
+};
+
+export type SprintsReadSprintDetailResponse = (SprintDetailPublic);
 
 export type TodosReadTodosData = {
     limit?: number;

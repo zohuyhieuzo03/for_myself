@@ -1,9 +1,9 @@
 import { IconButton } from "@chakra-ui/react"
 import { BsThreeDotsVertical } from "react-icons/bs"
 import type { TodoPublic } from "@/client"
+import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu"
 import DeleteTodo from "./DeleteTodo"
 import EditTodo from "./EditTodo"
-import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu"
 
 interface TodoActionsMenuProps {
   todo: TodoPublic

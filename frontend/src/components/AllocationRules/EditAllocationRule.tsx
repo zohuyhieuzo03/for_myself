@@ -3,7 +3,6 @@ import {
   ButtonGroup,
   DialogActionTrigger,
   Input,
-
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -12,7 +11,11 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type AllocationRulePublic, type AllocationRuleUpdate, AllocationRulesService } from "@/client"
+import {
+  type AllocationRulePublic,
+  AllocationRulesService,
+  type AllocationRuleUpdate,
+} from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -33,7 +36,10 @@ interface EditAllocationRuleProps {
   sprints: Array<{ id: string; start_date: string; end_date: string }>
 }
 
-const EditAllocationRule = ({ allocationRule, sprints }: EditAllocationRuleProps) => {
+const EditAllocationRule = ({
+  allocationRule,
+  sprints,
+}: EditAllocationRuleProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -54,7 +60,10 @@ const EditAllocationRule = ({ allocationRule, sprints }: EditAllocationRuleProps
 
   const mutation = useMutation({
     mutationFn: (data: AllocationRuleUpdate) =>
-      AllocationRulesService.updateAllocationRule({ id: allocationRule.id, requestBody: data }),
+      AllocationRulesService.updateAllocationRule({
+        id: allocationRule.id,
+        requestBody: data,
+      }),
     onSuccess: () => {
       showSuccessToast("Allocation rule updated successfully.")
       reset()
@@ -119,8 +128,14 @@ const EditAllocationRule = ({ allocationRule, sprints }: EditAllocationRuleProps
                 <Input
                   {...register("percent", {
                     required: "Percentage is required",
-                    min: { value: 0.01, message: "Percentage must be greater than 0" },
-                    max: { value: 100, message: "Percentage must be less than or equal to 100" },
+                    min: {
+                      value: 0.01,
+                      message: "Percentage must be greater than 0",
+                    },
+                    max: {
+                      value: 100,
+                      message: "Percentage must be less than or equal to 100",
+                    },
                   })}
                   placeholder="0.00"
                   type="number"

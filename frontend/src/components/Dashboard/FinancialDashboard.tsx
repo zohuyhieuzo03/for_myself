@@ -1,31 +1,31 @@
-import { 
-  Box, 
-  Card, 
-  Container, 
-  Grid, 
-  HStack, 
-  Heading, 
+import {
+  Box,
+  Card,
+  Container,
+  Grid,
+  Heading,
+  HStack,
   Text,
-  VStack 
+  VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
-import { 
-  FiDollarSign, 
-  FiTrendingUp, 
-  FiTrendingDown, 
+import {
   FiCalendar,
   FiCreditCard,
+  FiDollarSign,
   FiTag,
-  FiTarget
+  FiTarget,
+  FiTrendingDown,
+  FiTrendingUp,
 } from "react-icons/fi"
 
-import { 
-  SprintsService, 
-  AccountsService, 
-  CategoriesService, 
-  TransactionsService,
+import {
+  AccountsService,
+  AllocationRulesService,
+  CategoriesService,
   IncomesService,
-  AllocationRulesService 
+  SprintsService,
+  TransactionsService,
 } from "@/client"
 
 const FinancialDashboard = () => {
@@ -61,28 +61,47 @@ const FinancialDashboard = () => {
   })
 
   // Calculate summary statistics
-  const totalIncome = incomes?.data?.reduce((sum: number, income: any) => sum + income.net_amount, 0) || 0
-  const totalExpenses = transactions?.data?.filter((t: any) => t.type === "out").reduce((sum: number, txn: any) => sum + txn.amount, 0) || 0
+  const totalIncome =
+    incomes?.data?.reduce(
+      (sum: number, income: any) => sum + income.net_amount,
+      0,
+    ) || 0
+  const totalExpenses =
+    transactions?.data
+      ?.filter((t: any) => t.type === "out")
+      .reduce((sum: number, txn: any) => sum + txn.amount, 0) || 0
   const netWorth = totalIncome - totalExpenses
-  const activeSprints = sprints?.data?.filter((sprint: any) => !sprint.is_closed).length || 0
-  const activeAccounts = accounts?.data?.filter((account: any) => account.is_active).length || 0
-  const envelopeCategories = categories?.data?.filter((category: any) => category.is_envelope).length || 0
+  const activeSprints =
+    sprints?.data?.filter((sprint: any) => !sprint.is_closed).length || 0
+  const activeAccounts =
+    accounts?.data?.filter((account: any) => account.is_active).length || 0
+  const envelopeCategories =
+    categories?.data?.filter((category: any) => category.is_envelope).length ||
+    0
   const totalAllocationRules = allocationRules?.data?.length || 0
 
   // Calculate spending by category group
-  const spendingByGroup = categories?.data?.reduce((acc: Record<string, number>, category: any) => {
-    const categoryTransactions = transactions?.data?.filter(
-      (t: any) => t.category_id === category.id && t.type === "out"
-    ) || []
-    const categorySpending = categoryTransactions.reduce((sum: number, t: any) => sum + t.amount, 0)
-    
-    if (!acc[category.grp]) {
-      acc[category.grp] = 0
-    }
-    acc[category.grp] += categorySpending
-    
-    return acc
-  }, {} as Record<string, number>) || {}
+  const spendingByGroup =
+    categories?.data?.reduce(
+      (acc: Record<string, number>, category: any) => {
+        const categoryTransactions =
+          transactions?.data?.filter(
+            (t: any) => t.category_id === category.id && t.type === "out",
+          ) || []
+        const categorySpending = categoryTransactions.reduce(
+          (sum: number, t: any) => sum + t.amount,
+          0,
+        )
+
+        if (!acc[category.grp]) {
+          acc[category.grp] = 0
+        }
+        acc[category.grp] += categorySpending
+
+        return acc
+      },
+      {} as Record<string, number>,
+    ) || {}
 
   return (
     <Container maxW="full" py={6}>
@@ -92,17 +111,28 @@ const FinancialDashboard = () => {
         </Heading>
 
         {/* Summary Stats */}
-        <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={4}>
+        <Grid
+          templateColumns={{
+            base: "1fr",
+            md: "repeat(2, 1fr)",
+            lg: "repeat(4, 1fr)",
+          }}
+          gap={4}
+        >
           <Card.Root>
             <Card.Body>
               <HStack>
                 <FiDollarSign size="24px" color="green" />
                 <Box>
-                  <Text fontSize="sm" color="gray.600">Total Income</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color="green.500">
-                    {totalIncome.toLocaleString('vi-VN')} VND
+                  <Text fontSize="sm" color="gray.600">
+                    Total Income
                   </Text>
-                  <Text fontSize="xs" color="gray.500">Net amount received</Text>
+                  <Text fontSize="2xl" fontWeight="bold" color="green.500">
+                    {totalIncome.toLocaleString("vi-VN")} VND
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    Net amount received
+                  </Text>
                 </Box>
               </HStack>
             </Card.Body>
@@ -113,11 +143,15 @@ const FinancialDashboard = () => {
               <HStack>
                 <FiTrendingDown size="24px" color="red" />
                 <Box>
-                  <Text fontSize="sm" color="gray.600">Total Expenses</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color="red.500">
-                    {totalExpenses.toLocaleString('vi-VN')} VND
+                  <Text fontSize="sm" color="gray.600">
+                    Total Expenses
                   </Text>
-                  <Text fontSize="xs" color="gray.500">Total spending</Text>
+                  <Text fontSize="2xl" fontWeight="bold" color="red.500">
+                    {totalExpenses.toLocaleString("vi-VN")} VND
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    Total spending
+                  </Text>
                 </Box>
               </HStack>
             </Card.Body>
@@ -126,13 +160,24 @@ const FinancialDashboard = () => {
           <Card.Root>
             <Card.Body>
               <HStack>
-                <FiTrendingUp size="24px" color={netWorth >= 0 ? "green" : "red"} />
+                <FiTrendingUp
+                  size="24px"
+                  color={netWorth >= 0 ? "green" : "red"}
+                />
                 <Box>
-                  <Text fontSize="sm" color="gray.600">Net Worth</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color={netWorth >= 0 ? "green.500" : "red.500"}>
-                    {netWorth.toLocaleString('vi-VN')} VND
+                  <Text fontSize="sm" color="gray.600">
+                    Net Worth
                   </Text>
-                  <Text fontSize="xs" color="gray.500">Income - Expenses</Text>
+                  <Text
+                    fontSize="2xl"
+                    fontWeight="bold"
+                    color={netWorth >= 0 ? "green.500" : "red.500"}
+                  >
+                    {netWorth.toLocaleString("vi-VN")} VND
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    Income - Expenses
+                  </Text>
                 </Box>
               </HStack>
             </Card.Body>
@@ -143,11 +188,15 @@ const FinancialDashboard = () => {
               <HStack>
                 <FiCalendar size="24px" color="blue" />
                 <Box>
-                  <Text fontSize="sm" color="gray.600">Active Sprints</Text>
+                  <Text fontSize="sm" color="gray.600">
+                    Active Sprints
+                  </Text>
                   <Text fontSize="2xl" fontWeight="bold" color="blue.500">
                     {activeSprints}
                   </Text>
-                  <Text fontSize="xs" color="gray.500">Open budget periods</Text>
+                  <Text fontSize="xs" color="gray.500">
+                    Open budget periods
+                  </Text>
                 </Box>
               </HStack>
             </Card.Body>
@@ -193,14 +242,18 @@ const FinancialDashboard = () => {
             </Card.Header>
             <Card.Body>
               <VStack gap={3} align="stretch">
-                {Object.entries(spendingByGroup).map(([group, amount]: [string, any]) => (
-                  <HStack key={group} justify="space-between">
-                    <Text textTransform="capitalize">{group.replace('_', ' ')}</Text>
-                    <Text fontWeight="bold" color="red.500">
-                      {amount.toLocaleString('vi-VN')} VND
-                    </Text>
-                  </HStack>
-                ))}
+                {Object.entries(spendingByGroup).map(
+                  ([group, amount]: [string, any]) => (
+                    <HStack key={group} justify="space-between">
+                      <Text textTransform="capitalize">
+                        {group.replace("_", " ")}
+                      </Text>
+                      <Text fontWeight="bold" color="red.500">
+                        {amount.toLocaleString("vi-VN")} VND
+                      </Text>
+                    </HStack>
+                  ),
+                )}
                 {Object.keys(spendingByGroup).length === 0 && (
                   <Text color="gray.500" textAlign="center">
                     No spending data available
@@ -218,19 +271,32 @@ const FinancialDashboard = () => {
           </Card.Header>
           <Card.Body>
             {transactions?.data?.slice(0, 5).map((transaction: any) => (
-              <HStack key={transaction.id} justify="space-between" py={2} borderBottom="1px" borderColor="gray.200">
+              <HStack
+                key={transaction.id}
+                justify="space-between"
+                py={2}
+                borderBottom="1px"
+                borderColor="gray.200"
+              >
                 <VStack align="start" gap={1}>
-                  <Text fontWeight="medium">{transaction.merchant || "Unknown"}</Text>
-                  <Text fontSize="sm" color="gray.600">{transaction.txn_date}</Text>
+                  <Text fontWeight="medium">
+                    {transaction.merchant || "Unknown"}
+                  </Text>
+                  <Text fontSize="sm" color="gray.600">
+                    {transaction.txn_date}
+                  </Text>
                 </VStack>
                 <VStack align="end" gap={1}>
-                  <Text 
-                    fontWeight="bold" 
+                  <Text
+                    fontWeight="bold"
                     color={transaction.type === "in" ? "green.500" : "red.500"}
                   >
-                    {transaction.type === "in" ? "+" : "-"}{transaction.amount.toLocaleString('vi-VN')} VND
+                    {transaction.type === "in" ? "+" : "-"}
+                    {transaction.amount.toLocaleString("vi-VN")} VND
                   </Text>
-                  <Text fontSize="sm" color="gray.600">{transaction.currency}</Text>
+                  <Text fontSize="sm" color="gray.600">
+                    {transaction.currency}
+                  </Text>
                 </VStack>
               </HStack>
             ))}

@@ -1,30 +1,35 @@
-import { 
-  Container, 
-  Heading, 
-  Table, 
-  VStack,
-  Text,
+import {
   Badge,
-  HStack
+  Container,
+  Heading,
+  HStack,
+  IconButton,
+  Table,
+  Text,
+  VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
+import { BsThreeDotsVertical } from "react-icons/bs"
 import { FiTarget } from "react-icons/fi"
-
 import { AllocationRulesService, SprintsService } from "@/client"
 import AddAllocationRule from "@/components/AllocationRules/AddAllocationRule"
-import EditAllocationRule from "@/components/AllocationRules/EditAllocationRule"
 import DeleteAllocationRule from "@/components/AllocationRules/DeleteAllocationRule"
+import EditAllocationRule from "@/components/AllocationRules/EditAllocationRule"
 import { MenuContent, MenuRoot, MenuTrigger } from "@/components/ui/menu"
-import { IconButton } from "@chakra-ui/react"
-import { BsThreeDotsVertical } from "react-icons/bs"
 
-export const Route = createFileRoute("/_layout/sprint-finance/allocation-rules")({
+export const Route = createFileRoute(
+  "/_layout/sprint-finance/allocation-rules",
+)({
   component: AllocationRulesPage,
 })
 
 function AllocationRulesPage() {
-  const { data: allocationRules, isLoading, error } = useQuery({
+  const {
+    data: allocationRules,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["allocation-rules"],
     queryFn: () => AllocationRulesService.readAllocationRules(),
   })
@@ -56,13 +61,18 @@ function AllocationRulesPage() {
     )
   }
 
-  const sprintsList = sprints?.data?.map((sprint: any) => ({ 
-    id: sprint.id, 
-    start_date: sprint.start_date, 
-    end_date: sprint.end_date 
-  })) || []
+  const sprintsList =
+    sprints?.data?.map((sprint: any) => ({
+      id: sprint.id,
+      start_date: sprint.start_date,
+      end_date: sprint.end_date,
+    })) || []
 
-  const AllocationRuleActionsMenu = ({ allocationRule }: { allocationRule: any }) => (
+  const AllocationRuleActionsMenu = ({
+    allocationRule,
+  }: {
+    allocationRule: any
+  }) => (
     <MenuRoot>
       <MenuTrigger asChild>
         <IconButton variant="ghost" color="inherit">
@@ -70,7 +80,10 @@ function AllocationRulesPage() {
         </IconButton>
       </MenuTrigger>
       <MenuContent>
-        <EditAllocationRule allocationRule={allocationRule} sprints={sprintsList} />
+        <EditAllocationRule
+          allocationRule={allocationRule}
+          sprints={sprintsList}
+        />
         <DeleteAllocationRule id={allocationRule.id} />
       </MenuContent>
     </MenuRoot>
@@ -96,25 +109,33 @@ function AllocationRulesPage() {
             </Table.Header>
             <Table.Body>
               {allocationRules.data.map((rule: any) => {
-                const sprint = sprints?.data?.find((s: any) => s.id === rule.sprint_id)
-                
+                const sprint = sprints?.data?.find(
+                  (s: any) => s.id === rule.sprint_id,
+                )
+
                 return (
                   <Table.Row key={rule.id}>
                     <Table.Cell>
-                      <Badge 
+                      <Badge
                         colorPalette={
-                          rule.grp === "needs" ? "green" : 
-                          rule.grp === "wants" ? "blue" : "purple"
+                          rule.grp === "needs"
+                            ? "green"
+                            : rule.grp === "wants"
+                              ? "blue"
+                              : "purple"
                         }
                       >
-                        {rule.grp.charAt(0).toUpperCase() + rule.grp.slice(1).replace('_', ' ')}
+                        {rule.grp.charAt(0).toUpperCase() +
+                          rule.grp.slice(1).replace("_", " ")}
                       </Badge>
                     </Table.Cell>
                     <Table.Cell>
                       <Text fontWeight="bold">{rule.percent}%</Text>
                     </Table.Cell>
                     <Table.Cell>
-                      {sprint ? `${sprint.start_date} - ${sprint.end_date}` : "-"}
+                      {sprint
+                        ? `${sprint.start_date} - ${sprint.end_date}`
+                        : "-"}
                     </Table.Cell>
                     <Table.Cell>
                       <AllocationRuleActionsMenu allocationRule={rule} />
@@ -128,7 +149,8 @@ function AllocationRulesPage() {
           <VStack gap={4} py={8}>
             <FiTarget size="48px" color="gray" />
             <Text color="gray.500" textAlign="center">
-              No allocation rules found. Create your first allocation rule to set budget percentages.
+              No allocation rules found. Create your first allocation rule to
+              set budget percentages.
             </Text>
             <AddAllocationRule sprints={sprintsList} />
           </VStack>

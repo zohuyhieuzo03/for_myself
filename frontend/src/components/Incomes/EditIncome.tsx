@@ -3,7 +3,6 @@ import {
   ButtonGroup,
   DialogActionTrigger,
   Input,
-
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -12,7 +11,7 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type IncomePublic, type IncomeUpdate, IncomesService } from "@/client"
+import { type IncomePublic, IncomesService, type IncomeUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -135,7 +134,10 @@ const EditIncome = ({ income, sprints }: EditIncomeProps) => {
                 <Input
                   {...register("gross_amount", {
                     required: "Gross amount is required",
-                    min: { value: 0.01, message: "Amount must be greater than 0" },
+                    min: {
+                      value: 0.01,
+                      message: "Amount must be greater than 0",
+                    },
                   })}
                   placeholder="0.00"
                   type="number"
@@ -152,7 +154,10 @@ const EditIncome = ({ income, sprints }: EditIncomeProps) => {
                 <Input
                   {...register("net_amount", {
                     required: "Net amount is required",
-                    min: { value: 0.01, message: "Amount must be greater than 0" },
+                    min: {
+                      value: 0.01,
+                      message: "Amount must be greater than 0",
+                    },
                   })}
                   placeholder="0.00"
                   type="number"
