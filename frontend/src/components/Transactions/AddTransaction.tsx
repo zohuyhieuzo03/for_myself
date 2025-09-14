@@ -40,6 +40,13 @@ const AddTransaction = ({
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+
+  // Function to get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  }
+
   const {
     register,
     handleSubmit,
@@ -49,7 +56,7 @@ const AddTransaction = ({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
-      txn_date: "",
+      txn_date: getTodayDate(),
       type: "out",
       amount: 0,
       currency: "VND",
@@ -66,7 +73,17 @@ const AddTransaction = ({
       TransactionsService.createTransaction({ requestBody: data }),
     onSuccess: () => {
       showSuccessToast("Transaction created successfully.")
-      reset()
+      reset({
+        txn_date: getTodayDate(),
+        type: "out",
+        amount: 0,
+        currency: "VND",
+        merchant: "",
+        note: "",
+        account_id: "",
+        category_id: "",
+        sprint_id: "",
+      })
       setIsOpen(false)
     },
     onError: (err: ApiError) => {

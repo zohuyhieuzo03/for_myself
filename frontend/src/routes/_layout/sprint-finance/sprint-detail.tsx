@@ -8,7 +8,7 @@ export const Route = createFileRoute(
 })
 
 function SprintDetailPage() {
-  const { sprintId } = Route.useSearch()
+  const { sprintId } = Route.useSearch() as { sprintId: string }
   console.log('SprintDetailPage rendered with sprintId:', sprintId)
   return <SprintFinancialDetail sprintId={sprintId} />
 }
