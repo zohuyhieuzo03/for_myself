@@ -13,12 +13,7 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 5173,
-    allowedHosts: [
-      "localhost",
-      "127.0.0.1",
-      "fastapi-dev.local",
-      ".local"
-    ],
+    allowedHosts: ["localhost", "127.0.0.1", "fastapi-dev.local", ".local"],
   },
   plugins: [
     tanstackRouter({

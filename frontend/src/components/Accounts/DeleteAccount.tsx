@@ -27,7 +27,7 @@ const DeleteAccount = ({ id }: { id: string }) => {
   } = useForm()
 
   const deleteAccount = async (id: string) => {
-    await AccountsService.deleteAccount({ id: id })
+    await AccountsService.deleteAccount({ accountId: id })
   }
 
   const mutation = useMutation({

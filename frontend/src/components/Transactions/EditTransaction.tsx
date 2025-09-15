@@ -64,7 +64,7 @@ const EditTransaction = ({
       note: transaction.note || "",
       account_id: transaction.account_id,
       category_id: transaction.category_id || "",
-      sprint_id: transaction.sprint_id || "",
+      sprint_id: transaction.sprint_id || null,
     },
   })
 
@@ -88,7 +88,13 @@ const EditTransaction = ({
   })
 
   const onSubmit: SubmitHandler<TransactionUpdate> = async (data) => {
-    mutation.mutate(data)
+    // Convert empty string to null for optional fields
+    const processedData = {
+      ...data,
+      category_id: data.category_id === "" ? null : data.category_id,
+      sprint_id: data.sprint_id === "" ? null : data.sprint_id,
+    }
+    mutation.mutate(processedData)
   }
 
   return (
@@ -243,7 +249,7 @@ const EditTransaction = ({
                 label="Sprint"
               >
                 <select {...register("sprint_id")}>
-                  <option value="">Select Sprint</option>
+                  <option value="">Select Sprint (Optional)</option>
                   {sprints.map((sprint) => (
                     <option key={sprint.id} value={sprint.id}>
                       {sprint.start_date} - {sprint.end_date}

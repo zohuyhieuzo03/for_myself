@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Link as RouterLink } from "@tanstack/react-router"
 import {
   FiArrowUpCircle,
+  FiBarChart,
   FiBriefcase,
   FiCalendar,
   FiCheckSquare,
@@ -21,6 +22,7 @@ import type { UserPublic } from "@/client"
 
 const items = [
   { icon: FiHome, title: "Dashboard", path: "/" },
+  { icon: FiBarChart, title: "Monthly Finance", path: "/monthly-finance" },
   { icon: FiBriefcase, title: "Items", path: "/items" },
   { icon: FiCheckSquare, title: "Todos", path: "/todos" },
   { icon: FiSettings, title: "User Settings", path: "/settings" },

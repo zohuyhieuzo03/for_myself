@@ -45,7 +45,7 @@ const AddAllocationRule = ({ sprints }: AddAllocationRuleProps) => {
     defaultValues: {
       grp: "needs",
       percent: 0,
-      sprint_id: "",
+      sprint_id: null,
     },
   })
 
@@ -66,7 +66,12 @@ const AddAllocationRule = ({ sprints }: AddAllocationRuleProps) => {
   })
 
   const onSubmit: SubmitHandler<AllocationRuleCreate> = (data) => {
-    mutation.mutate(data)
+    // Convert empty string to null for optional fields
+    const processedData = {
+      ...data,
+      sprint_id: data.sprint_id === "" ? null : data.sprint_id,
+    }
+    mutation.mutate(processedData)
   }
 
   return (
@@ -134,17 +139,12 @@ const AddAllocationRule = ({ sprints }: AddAllocationRuleProps) => {
               </Field>
 
               <Field
-                required
                 invalid={!!errors.sprint_id}
                 errorText={errors.sprint_id?.message}
                 label="Sprint"
               >
-                <select
-                  {...register("sprint_id", {
-                    required: "Sprint is required.",
-                  })}
-                >
-                  <option value="">Select Sprint</option>
+                <select {...register("sprint_id")}>
+                  <option value="">Select Sprint (Optional)</option>
                   {sprints.map((sprint) => (
                     <option key={sprint.id} value={sprint.id}>
                       {sprint.start_date} - {sprint.end_date}

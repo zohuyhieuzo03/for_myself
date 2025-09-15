@@ -78,7 +78,8 @@ const SprintFinancialDetail = ({ sprintId }: SprintFinancialDetailProps) => {
   const totalIncome = Number(financialSummary.total_income) || 0
   const totalExpenses = Number(financialSummary.total_expenses) || 0
   const netCashFlow = Number(financialSummary.net_cash_flow) || 0
-  const averageDailySpending = Number(financialSummary.average_daily_spending) || 0
+  const averageDailySpending =
+    Number(financialSummary.average_daily_spending) || 0
   const totalAllocated = Number(financialSummary.total_allocated) || 0
   const budgetUtilization = Number(financialSummary.budget_utilization) || 0
 
@@ -257,9 +258,7 @@ const SprintFinancialDetail = ({ sprintId }: SprintFinancialDetailProps) => {
                     <Text>
                       Allocated: {totalAllocated.toLocaleString()} VND
                     </Text>
-                    <Text>
-                      Spent: {totalExpenses.toLocaleString()} VND
-                    </Text>
+                    <Text>Spent: {totalExpenses.toLocaleString()} VND</Text>
                   </HStack>
                   <Box w="full" bg="gray.200" rounded="full" h={2}>
                     <Box

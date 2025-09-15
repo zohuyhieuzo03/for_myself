@@ -165,13 +165,20 @@ export const AllocationRuleCreateSchema = {
             title: 'Percent'
         },
         sprint_id: {
-            type: 'string',
-            format: 'uuid',
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Sprint Id'
         }
     },
     type: 'object',
-    required: ['grp', 'percent', 'sprint_id'],
+    required: ['grp', 'percent'],
     title: 'AllocationRuleCreate'
 } as const;
 
@@ -197,8 +204,15 @@ export const AllocationRulePublicSchema = {
             title: 'User Id'
         },
         sprint_id: {
-            type: 'string',
-            format: 'uuid',
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Sprint Id'
         },
         created_at: {
@@ -501,13 +515,20 @@ export const IncomeCreateSchema = {
             default: 'VND'
         },
         sprint_id: {
-            type: 'string',
-            format: 'uuid',
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Sprint Id'
         }
     },
     type: 'object',
-    required: ['received_at', 'source', 'gross_amount', 'net_amount', 'sprint_id'],
+    required: ['received_at', 'source', 'gross_amount', 'net_amount'],
     title: 'IncomeCreate'
 } as const;
 
@@ -548,8 +569,15 @@ export const IncomePublicSchema = {
             title: 'User Id'
         },
         sprint_id: {
-            type: 'string',
-            format: 'uuid',
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Sprint Id'
         },
         created_at: {
@@ -775,6 +803,147 @@ export const MessageSchema = {
     type: 'object',
     required: ['message'],
     title: 'Message'
+} as const;
+
+export const MonthlyFinancialReportSchema = {
+    properties: {
+        year: {
+            type: 'integer',
+            title: 'Year'
+        },
+        month: {
+            type: 'integer',
+            title: 'Month'
+        },
+        total_income: {
+            type: 'number',
+            title: 'Total Income',
+            default: 0
+        },
+        total_expenses: {
+            type: 'number',
+            title: 'Total Expenses',
+            default: 0
+        },
+        net_amount: {
+            type: 'number',
+            title: 'Net Amount',
+            default: 0
+        },
+        income_count: {
+            type: 'integer',
+            title: 'Income Count',
+            default: 0
+        },
+        expense_count: {
+            type: 'integer',
+            title: 'Expense Count',
+            default: 0
+        },
+        incomes: {
+            items: {
+                '$ref': '#/components/schemas/IncomePublic'
+            },
+            type: 'array',
+            title: 'Incomes',
+            default: []
+        },
+        transactions: {
+            items: {
+                '$ref': '#/components/schemas/TransactionPublic'
+            },
+            type: 'array',
+            title: 'Transactions',
+            default: []
+        },
+        allocation_rules: {
+            items: {
+                '$ref': '#/components/schemas/AllocationRulePublic'
+            },
+            type: 'array',
+            title: 'Allocation Rules',
+            default: []
+        }
+    },
+    type: 'object',
+    required: ['year', 'month'],
+    title: 'MonthlyFinancialReport'
+} as const;
+
+export const MonthlyFinancialReportsSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/MonthlyFinancialReport'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'MonthlyFinancialReports'
+} as const;
+
+export const MonthlyFinancialSummarySchema = {
+    properties: {
+        year: {
+            type: 'integer',
+            title: 'Year'
+        },
+        month: {
+            type: 'integer',
+            title: 'Month'
+        },
+        total_income: {
+            type: 'number',
+            title: 'Total Income',
+            default: 0
+        },
+        total_expenses: {
+            type: 'number',
+            title: 'Total Expenses',
+            default: 0
+        },
+        net_amount: {
+            type: 'number',
+            title: 'Net Amount',
+            default: 0
+        },
+        income_count: {
+            type: 'integer',
+            title: 'Income Count',
+            default: 0
+        },
+        expense_count: {
+            type: 'integer',
+            title: 'Expense Count',
+            default: 0
+        },
+        category_breakdown: {
+            additionalProperties: {
+                type: 'number'
+            },
+            type: 'object',
+            title: 'Category Breakdown',
+            default: {}
+        },
+        account_breakdown: {
+            additionalProperties: {
+                type: 'number'
+            },
+            type: 'object',
+            title: 'Account Breakdown',
+            default: {}
+        }
+    },
+    type: 'object',
+    required: ['year', 'month'],
+    title: 'MonthlyFinancialSummary'
 } as const;
 
 export const NewPasswordSchema = {

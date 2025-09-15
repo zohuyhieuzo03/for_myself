@@ -27,7 +27,7 @@ const DeleteAllocationRule = ({ id }: { id: string }) => {
   } = useForm()
 
   const deleteAllocationRule = async (id: string) => {
-    await AllocationRulesService.deleteAllocationRule({ id: id })
+    await AllocationRulesService.deleteAllocationRule({ allocationRuleId: id })
   }
 
   const mutation = useMutation({

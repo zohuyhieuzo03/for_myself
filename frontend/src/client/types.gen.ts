@@ -35,7 +35,7 @@ export type AccountUpdate = {
 export type AllocationRuleCreate = {
     grp: CategoryGroup;
     percent: number;
-    sprint_id: string;
+    sprint_id?: (string | null);
 };
 
 export type AllocationRulePublic = {
@@ -43,7 +43,7 @@ export type AllocationRulePublic = {
     percent: number;
     id: string;
     user_id: string;
-    sprint_id: string;
+    sprint_id: (string | null);
     created_at: string;
     updated_at: string;
 };
@@ -107,7 +107,7 @@ export type IncomeCreate = {
     gross_amount: number;
     net_amount: number;
     currency?: string;
-    sprint_id: string;
+    sprint_id?: (string | null);
 };
 
 export type IncomePublic = {
@@ -118,7 +118,7 @@ export type IncomePublic = {
     currency?: string;
     id: string;
     user_id: string;
-    sprint_id: string;
+    sprint_id: (string | null);
     created_at: string;
     updated_at: string;
 };
@@ -160,6 +160,40 @@ export type ItemUpdate = {
 
 export type Message = {
     message: string;
+};
+
+export type MonthlyFinancialReport = {
+    year: number;
+    month: number;
+    total_income?: number;
+    total_expenses?: number;
+    net_amount?: number;
+    income_count?: number;
+    expense_count?: number;
+    incomes?: Array<IncomePublic>;
+    transactions?: Array<TransactionPublic>;
+    allocation_rules?: Array<AllocationRulePublic>;
+};
+
+export type MonthlyFinancialReports = {
+    data: Array<MonthlyFinancialReport>;
+    count: number;
+};
+
+export type MonthlyFinancialSummary = {
+    year: number;
+    month: number;
+    total_income?: number;
+    total_expenses?: number;
+    net_amount?: number;
+    income_count?: number;
+    expense_count?: number;
+    category_breakdown?: {
+        [key: string]: (number);
+    };
+    account_breakdown?: {
+        [key: string]: (number);
+    };
 };
 
 export type NewPassword = {
@@ -536,6 +570,41 @@ export type LoginRecoverPasswordHtmlContentData = {
 };
 
 export type LoginRecoverPasswordHtmlContentResponse = (string);
+
+export type MonthlyReportsGetMonthlyFinancialSummaryData = {
+    month: number;
+    year: number;
+};
+
+export type MonthlyReportsGetMonthlyFinancialSummaryResponse = (MonthlyFinancialSummary);
+
+export type MonthlyReportsGetMonthlyFinancialReportData = {
+    month: number;
+    year: number;
+};
+
+export type MonthlyReportsGetMonthlyFinancialReportResponse = (MonthlyFinancialReport);
+
+export type MonthlyReportsGetMonthlyFinancialReportsRangeData = {
+    /**
+     * End month (1-12)
+     */
+    endMonth: number;
+    /**
+     * End year
+     */
+    endYear: number;
+    /**
+     * Start month (1-12)
+     */
+    startMonth: number;
+    /**
+     * Start year
+     */
+    startYear: number;
+};
+
+export type MonthlyReportsGetMonthlyFinancialReportsRangeResponse = (MonthlyFinancialReports);
 
 export type PrivateCreateUserData = {
     requestBody: PrivateUserCreate;

@@ -2,8 +2,10 @@ import uuid
 from datetime import date, datetime, timezone
 from enum import Enum
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from sqlmodel import Field, Relationship, SQLModel
+
+from app.utils import convert_empty_string_to_none
 
 
 # Shared properties
@@ -334,7 +336,12 @@ class IncomeBase(SQLModel):
 
 
 class IncomeCreate(IncomeBase):
-    sprint_id: uuid.UUID
+    sprint_id: uuid.UUID | None = None
+    
+    @field_validator('sprint_id', mode='before')
+    @classmethod
+    def validate_sprint_id(cls, v):
+        return convert_empty_string_to_none(v)
 
 
 class IncomeUpdate(BaseModel):
@@ -344,12 +351,17 @@ class IncomeUpdate(BaseModel):
     net_amount: float | None = None
     currency: str | None = Field(default=None, max_length=10)
     sprint_id: uuid.UUID | None = None
+    
+    @field_validator('sprint_id', mode='before')
+    @classmethod
+    def validate_sprint_id(cls, v):
+        return convert_empty_string_to_none(v)
 
 
 class Income(IncomeBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
-    sprint_id: uuid.UUID = Field(foreign_key="sprint.id", nullable=False)
+    sprint_id: uuid.UUID | None = Field(foreign_key="sprint.id", nullable=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -360,7 +372,7 @@ class Income(IncomeBase, table=True):
 class IncomePublic(IncomeBase):
     id: uuid.UUID
     user_id: uuid.UUID
-    sprint_id: uuid.UUID
+    sprint_id: uuid.UUID | None
     created_at: datetime
     updated_at: datetime
 
@@ -384,6 +396,11 @@ class TransactionCreate(TransactionBase):
     account_id: uuid.UUID
     category_id: uuid.UUID | None = None
     sprint_id: uuid.UUID | None = None
+    
+    @field_validator('category_id', 'sprint_id', mode='before')
+    @classmethod
+    def validate_optional_ids(cls, v):
+        return convert_empty_string_to_none(v)
 
 
 class TransactionUpdate(BaseModel):
@@ -396,6 +413,11 @@ class TransactionUpdate(BaseModel):
     account_id: uuid.UUID | None = None
     category_id: uuid.UUID | None = None
     sprint_id: uuid.UUID | None = None
+    
+    @field_validator('category_id', 'sprint_id', mode='before')
+    @classmethod
+    def validate_optional_ids(cls, v):
+        return convert_empty_string_to_none(v)
 
 
 class Transaction(TransactionBase, table=True):
@@ -435,19 +457,29 @@ class AllocationRuleBase(SQLModel):
 
 
 class AllocationRuleCreate(AllocationRuleBase):
-    sprint_id: uuid.UUID
+    sprint_id: uuid.UUID | None = None
+    
+    @field_validator('sprint_id', mode='before')
+    @classmethod
+    def validate_sprint_id(cls, v):
+        return convert_empty_string_to_none(v)
 
 
 class AllocationRuleUpdate(BaseModel):
     grp: CategoryGroup | None = None
     percent: float | None = Field(default=None, gt=0, le=100)
     sprint_id: uuid.UUID | None = None
+    
+    @field_validator('sprint_id', mode='before')
+    @classmethod
+    def validate_sprint_id(cls, v):
+        return convert_empty_string_to_none(v)
 
 
 class AllocationRule(AllocationRuleBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
-    sprint_id: uuid.UUID = Field(foreign_key="sprint.id", nullable=False)
+    sprint_id: uuid.UUID | None = Field(foreign_key="sprint.id", nullable=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -458,13 +490,44 @@ class AllocationRule(AllocationRuleBase, table=True):
 class AllocationRulePublic(AllocationRuleBase):
     id: uuid.UUID
     user_id: uuid.UUID
-    sprint_id: uuid.UUID
+    sprint_id: uuid.UUID | None
     created_at: datetime
     updated_at: datetime
 
 
 class AllocationRulesPublic(SQLModel):
     data: list[AllocationRulePublic]
+    count: int
+
+
+# ========= FINANCIAL REPORTS =========
+class MonthlyFinancialReport(SQLModel):
+    year: int
+    month: int
+    total_income: float = 0.0
+    total_expenses: float = 0.0
+    net_amount: float = 0.0
+    income_count: int = 0
+    expense_count: int = 0
+    incomes: list[IncomePublic] = []
+    transactions: list[TransactionPublic] = []
+    allocation_rules: list[AllocationRulePublic] = []
+
+
+class MonthlyFinancialSummary(SQLModel):
+    year: int
+    month: int
+    total_income: float = 0.0
+    total_expenses: float = 0.0
+    net_amount: float = 0.0
+    income_count: int = 0
+    expense_count: int = 0
+    category_breakdown: dict[str, float] = {}
+    account_breakdown: dict[str, float] = {}
+
+
+class MonthlyFinancialReports(SQLModel):
+    data: list[MonthlyFinancialReport]
     count: int
 
 
