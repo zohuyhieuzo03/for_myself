@@ -56,6 +56,24 @@ from .allocation_rule import (
     get_allocation_rules,
     update_allocation_rule,
 )
+from .gmail_connection import (
+    create_gmail_connection,
+    delete_gmail_connection,
+    get_active_gmail_connection,
+    get_gmail_connection,
+    get_gmail_connections,
+    update_gmail_connection,
+)
+from .email_transaction import (
+    bulk_update_email_transactions,
+    create_email_transaction,
+    delete_email_transaction,
+    get_email_transaction,
+    get_email_transaction_by_email_id,
+    get_email_transactions,
+    get_pending_email_transactions,
+    update_email_transaction,
+)
 
 __all__ = [
     # User functions
@@ -107,4 +125,20 @@ __all__ = [
     "get_allocation_rule",
     "get_allocation_rules",
     "update_allocation_rule",
+    # Gmail connection functions
+    "create_gmail_connection",
+    "delete_gmail_connection",
+    "get_active_gmail_connection",
+    "get_gmail_connection",
+    "get_gmail_connections",
+    "update_gmail_connection",
+    # Email transaction functions
+    "bulk_update_email_transactions",
+    "create_email_transaction",
+    "delete_email_transaction",
+    "get_email_transaction",
+    "get_email_transaction_by_email_id",
+    "get_email_transactions",
+    "get_pending_email_transactions",
+    "update_email_transaction",
 ]

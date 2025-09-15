@@ -10,6 +10,7 @@ import {
   FiCreditCard,
   FiDollarSign,
   FiHome,
+  FiMail,
   FiSettings,
   FiTag,
   FiTarget,
@@ -25,6 +26,7 @@ const items = [
   { icon: FiBarChart, title: "Monthly Finance", path: "/monthly-finance" },
   { icon: FiBriefcase, title: "Items", path: "/items" },
   { icon: FiCheckSquare, title: "Todos", path: "/todos" },
+  { icon: FiMail, title: "Gmail Integration", path: "/gmail" },
   { icon: FiSettings, title: "User Settings", path: "/settings" },
 ]
 

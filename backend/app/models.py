@@ -62,6 +62,9 @@ class User(UserBase, table=True):
     allocation_rules: list["AllocationRule"] = Relationship(
         back_populates="user", cascade_delete=True
     )
+    gmail_connections: list["GmailConnection"] = Relationship(
+        back_populates="user", cascade_delete=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -539,3 +542,104 @@ class SprintDetailPublic(SprintPublic):
     accounts: list[AccountPublic] = []
     categories: list[CategoryPublic] = []
     financial_summary: dict = {}
+
+
+# ========= GMAIL INTEGRATION =========
+class GmailConnectionBase(SQLModel):
+    gmail_email: EmailStr = Field(max_length=255)
+    is_active: bool = Field(default=True)
+
+
+class GmailConnectionCreate(GmailConnectionBase):
+    pass
+
+
+class GmailConnectionUpdate(BaseModel):
+    is_active: bool | None = None
+
+
+class GmailConnection(GmailConnectionBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+    access_token: str = Field(max_length=2000)  # Encrypted token
+    refresh_token: str = Field(max_length=2000)  # Encrypted token
+    expires_at: datetime | None = None
+    last_sync_at: datetime | None = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    user: User | None = Relationship(back_populates="gmail_connections")
+    email_transactions: list["EmailTransaction"] = Relationship(
+        back_populates="gmail_connection", cascade_delete=True
+    )
+
+
+class GmailConnectionPublic(GmailConnectionBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    expires_at: datetime | None
+    last_sync_at: datetime | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class GmailConnectionsPublic(SQLModel):
+    data: list[GmailConnectionPublic]
+    count: int
+
+
+# ========= EMAIL TRANSACTION =========
+class EmailTransactionStatus(str, Enum):
+    pending = "pending"
+    processed = "processed"
+    ignored = "ignored"
+
+
+class EmailTransactionBase(SQLModel):
+    email_id: str = Field(max_length=255, index=True)
+    subject: str = Field(max_length=500)
+    sender: str = Field(max_length=255)
+    received_at: datetime
+    amount: float | None = None
+    merchant: str | None = Field(default=None, max_length=255)
+    account_number: str | None = Field(default=None, max_length=100)
+    transaction_type: str | None = Field(default=None, max_length=50)  # debit/credit
+    status: EmailTransactionStatus = Field(default=EmailTransactionStatus.pending)
+    raw_content: str | None = Field(default=None)  # Full email content
+
+
+class EmailTransactionCreate(EmailTransactionBase):
+    gmail_connection_id: uuid.UUID
+
+
+class EmailTransactionUpdate(BaseModel):
+    amount: float | None = None
+    merchant: str | None = Field(default=None, max_length=255)
+    account_number: str | None = Field(default=None, max_length=100)
+    transaction_type: str | None = Field(default=None, max_length=50)
+    status: EmailTransactionStatus | None = None
+    linked_transaction_id: uuid.UUID | None = None
+
+
+class EmailTransaction(EmailTransactionBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    gmail_connection_id: uuid.UUID = Field(foreign_key="gmailconnection.id", nullable=False)
+    linked_transaction_id: uuid.UUID | None = Field(default=None, foreign_key="transaction.id")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    gmail_connection: GmailConnection | None = Relationship(back_populates="email_transactions")
+    linked_transaction: Transaction | None = Relationship()
+
+
+class EmailTransactionPublic(EmailTransactionBase):
+    id: uuid.UUID
+    gmail_connection_id: uuid.UUID
+    linked_transaction_id: uuid.UUID | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class EmailTransactionsPublic(SQLModel):
+    data: list[EmailTransactionPublic]
+    count: int

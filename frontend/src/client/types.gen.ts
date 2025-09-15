@@ -97,6 +97,60 @@ export type CategoryUpdate = {
     is_envelope?: (boolean | null);
 };
 
+export type EmailTransactionPublic = {
+    email_id: string;
+    subject: string;
+    sender: string;
+    received_at: string;
+    amount?: (number | null);
+    merchant?: (string | null);
+    account_number?: (string | null);
+    transaction_type?: (string | null);
+    status?: EmailTransactionStatus;
+    raw_content?: (string | null);
+    id: string;
+    gmail_connection_id: string;
+    linked_transaction_id: (string | null);
+    created_at: string;
+    updated_at: string;
+};
+
+export type EmailTransactionsPublic = {
+    data: Array<EmailTransactionPublic>;
+    count: number;
+};
+
+export type EmailTransactionStatus = 'pending' | 'processed' | 'ignored';
+
+export type EmailTransactionUpdate = {
+    amount?: (number | null);
+    merchant?: (string | null);
+    account_number?: (string | null);
+    transaction_type?: (string | null);
+    status?: (EmailTransactionStatus | null);
+    linked_transaction_id?: (string | null);
+};
+
+export type GmailConnectionPublic = {
+    gmail_email: string;
+    is_active?: boolean;
+    id: string;
+    user_id: string;
+    expires_at: (string | null);
+    last_sync_at: (string | null);
+    created_at: string;
+    updated_at: string;
+};
+
+export type GmailConnectionsPublic = {
+    data: Array<GmailConnectionPublic>;
+    count: number;
+};
+
+export type GmailConnectionUpdate = {
+    is_active?: (boolean | null);
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -480,6 +534,105 @@ export type CategoriesDeleteCategoryData = {
 };
 
 export type CategoriesDeleteCategoryResponse = (Message);
+
+export type GmailGetGmailConnectionsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type GmailGetGmailConnectionsResponse = (GmailConnectionsPublic);
+
+export type GmailInitiateGmailConnectionResponse = ({
+    [key: string]: unknown;
+});
+
+export type GmailHandleGmailCallbackData = {
+    /**
+     * Authorization code from Google
+     */
+    code: string;
+    /**
+     * State parameter for security
+     */
+    state: string;
+};
+
+export type GmailHandleGmailCallbackResponse = (GmailConnectionPublic);
+
+export type GmailUpdateGmailConnectionData = {
+    connectionId: string;
+    requestBody: GmailConnectionUpdate;
+};
+
+export type GmailUpdateGmailConnectionResponse = (GmailConnectionPublic);
+
+export type GmailDeleteGmailConnectionData = {
+    connectionId: string;
+};
+
+export type GmailDeleteGmailConnectionResponse = (Message);
+
+export type GmailGetEmailTransactionsData = {
+    /**
+     * Gmail connection ID
+     */
+    connectionId: string;
+    limit?: number;
+    /**
+     * Filter by month (1-12)
+     */
+    month?: number;
+    skip?: number;
+    /**
+     * Filter by status (pending, processed, ignored)
+     */
+    status?: string;
+    /**
+     * Filter by year (e.g., 2024)
+     */
+    year?: number;
+};
+
+export type GmailGetEmailTransactionsResponse = (EmailTransactionsPublic);
+
+export type GmailSyncEmailsData = {
+    /**
+     * Gmail connection ID
+     */
+    connectionId: string;
+};
+
+export type GmailSyncEmailsResponse = (Message);
+
+export type GmailSyncEmailsByMonthData = {
+    /**
+     * Gmail connection ID
+     */
+    connectionId: string;
+    /**
+     * Month to sync (1-12)
+     */
+    month: number;
+    /**
+     * Year to sync (e.g., 2024)
+     */
+    year: number;
+};
+
+export type GmailSyncEmailsByMonthResponse = (Message);
+
+export type GmailUpdateEmailTransactionData = {
+    requestBody: EmailTransactionUpdate;
+    transactionId: string;
+};
+
+export type GmailUpdateEmailTransactionResponse = (EmailTransactionPublic);
+
+export type GmailDeleteEmailTransactionData = {
+    transactionId: string;
+};
+
+export type GmailDeleteEmailTransactionResponse = (Message);
 
 export type IncomesReadIncomesData = {
     limit?: number;
