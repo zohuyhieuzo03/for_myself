@@ -1,0 +1,327 @@
+---
+description: Full Stack FastAPI Template development guidelines and patterns
+globs:
+alwaysApply: true
+---
+
+# Cursor Rules - Full Stack FastAPI Template
+# Luồng phát triển từ Backend đến Frontend
+
+## 🏗️ Kiến trúc tổng quan
+Dự án này sử dụng:
+- **Backend**: FastAPI + SQLModel + PostgreSQL + Alembic
+- **Frontend**: React + TypeScript + TanStack Router + Chakra UI
+- **API Client**: Auto-generated từ OpenAPI schema
+
+## 📋 Quy trình phát triển tính năng mới
+
+### 1. Backend First Approach
+Luôn bắt đầu từ backend trước khi implement frontend:
+
+#### 1.1 Database Models (`backend/app/models.py`)
+```python
+# Pattern cho mỗi entity:
+class EntityBase(SQLModel):          # Base fields
+class EntityCreate(EntityBase):      # Fields for creation
+class EntityUpdate(BaseModel):       # Fields for update (all optional)
+class Entity(EntityBase, table=True): # Database model
+class EntityPublic(EntityBase):      # API response model
+class EntitiesPublic(SQLModel):      # List response wrapper
+```
+
+#### 1.2 CRUD Operations (`backend/app/crud/`)
+- Tạo file CRUD cho entity mới
+- Implement các hàm: create, read, update, delete
+- Sử dụng SQLModel và SQLAlchemy patterns
+
+#### 1.3 API Routes (`backend/app/api/routes/`)
+- Tạo route file cho entity
+- Implement endpoints: GET, POST, PUT, DELETE
+- Sử dụng dependency injection cho authentication
+- Validate input với Pydantic models
+
+#### 1.4 Database Migration (`backend/app/alembic/versions/`)
+- Tạo migration script với Alembic: `source .venv/bin/activate && alembic revision --autogenerate`
+- Test migration trên development database: `source .venv/bin/activate && alembic upgrade head`
+
+### 2. API Client Generation
+Sau khi backend hoàn thành:
+
+#### 2.1 Generate OpenAPI Schema & Client
+```bash
+# Chạy script để generate OpenAPI schema và TypeScript client
+source .venv/bin/activate && ./scripts/generate-client.sh
+```
+
+### 3. Frontend Implementation
+
+#### 3.1 Component Structure
+```
+frontend/src/components/
+├── EntityName/
+│   ├── EntityNameList.tsx      # List view
+│   ├── EntityNameForm.tsx      # Create/Edit form
+│   ├── EntityNameItem.tsx      # Individual item
+│   └── EntityNameDetail.tsx    # Detail view
+```
+
+#### 3.2 API Integration Pattern
+```typescript
+// Sử dụng auto-generated client
+import { EntityService } from "@/client"
+
+// React Query hooks
+const { data, isLoading, error } = useQuery({
+  queryKey: ["entities"],
+  queryFn: () => EntityService.readEntities()
+})
+```
+
+#### 3.3 Routing (`frontend/src/routes/`)
+- Tạo route files trong `_layout/`
+- Sử dụng TanStack Router patterns
+- Implement nested routing nếu cần
+
+## 🔄 Data Flow Pattern
+
+### Backend → Frontend Flow:
+1. **Model Definition** → `models.py`
+2. **CRUD Operations** → `crud/entity.py`
+3. **API Endpoints** → `api/routes/entity.py`
+4. **OpenAPI Schema** → Auto-generated
+5. **TypeScript Client** → `client/sdk.gen.ts`
+6. **React Components** → `components/Entity/`
+7. **Routes** → `routes/_layout/`
+
+## 📁 File Organization Rules
+
+### Backend Structure:
+```
+backend/app/
+├── models.py              # All SQLModel definitions
+├── crud/                  # Database operations
+├── api/routes/           # API endpoints
+├── core/                 # Configuration & security
+└── alembic/versions/     # Database migrations
+```
+
+### Frontend Structure:
+```
+frontend/src/
+├── components/           # React components
+├── routes/              # TanStack Router routes
+├── client/              # Auto-generated API client
+├── hooks/               # Custom React hooks
+└── utils/               # Utility functions
+```
+
+## 🎯 Naming Conventions
+
+### Backend:
+- **Models**: PascalCase (`User`, `Transaction`)
+- **API Routes**: snake_case (`/api/v1/accounts/`)
+- **CRUD Functions**: snake_case (`create_account`)
+- **Database Tables**: snake_case (auto-generated)
+
+### Frontend:
+- **Components**: PascalCase (`AccountList`, `TransactionForm`)
+- **Files**: PascalCase (`AccountList.tsx`)
+- **Hooks**: camelCase (`useAccountData`)
+- **API Calls**: camelCase (`readAccounts`)
+
+## 🔐 Authentication & Authorization
+
+### Backend:
+- Sử dụng JWT tokens
+- Dependency injection cho current user
+- Role-based access control với `is_superuser`
+
+### Frontend:
+- Store JWT trong React Query cache
+- Protected routes với authentication check
+- Role-based UI rendering
+
+## 🧪 Testing Strategy
+
+### Backend Testing:
+- Unit tests cho CRUD operations: `source .venv/bin/activate && pytest`
+- Integration tests cho API endpoints: `source .venv/bin/activate && pytest tests/integration/`
+- Database fixtures cho test data
+
+### Frontend Testing:
+- Testing script: `npx tsc --noEmit`
+- Component tests với React Testing Library: `npm test`
+- E2E tests với Playwright: `npm run test:e2e`
+- API mocking cho unit tests
+- Linting: `npm run lint`
+
+## 📊 State Management
+
+### Frontend State:
+- **Server State**: React Query (TanStack Query)
+- **Client State**: React useState/useReducer
+- **Form State**: React Hook Form
+- **UI State**: Chakra UI components
+
+## 🚀 Development Workflow
+
+1. **Design Database Schema** → Update `models.py`
+2. **Create Migration** → `source .venv/bin/activate && alembic revision --autogenerate`
+3. **Implement CRUD** → `crud/entity.py`
+4. **Create API Routes** → `api/routes/entity.py`
+5. **Test Backend** → `source .venv/bin/activate && pytest`
+6. **Generate Client** → `source .venv/bin/activate && ./scripts/generate-client.sh`
+7. **Create Components** → `components/Entity/`
+8. **Add Routes** → `routes/_layout/`
+9. **Test Frontend** → `npm run lint && npx tsc --noEmit`
+
+## 🔧 Code Quality Rules
+
+### Backend:
+- Type hints cho tất cả functions
+- Pydantic validation cho input/output
+- SQLModel cho database operations
+- Alembic cho migrations
+
+### Frontend:
+- TypeScript strict mode
+- ESLint + Prettier formatting
+- Component composition over inheritance
+- Custom hooks cho business logic
+
+## 🔄 Code Refactoring Rules
+
+### DRY Principle (Don't Repeat Yourself):
+- **Utility Functions**: Tạo utility functions trong `backend/app/utils.py` cho logic chung
+- **Validation Logic**: Sử dụng shared validators thay vì duplicate code
+- **Component Logic**: Extract reusable logic vào custom hooks
+
+### Refactoring Guidelines:
+
+#### Backend Refactoring:
+```python
+# ❌ BAD: Duplicate validation functions
+class IncomeCreate(IncomeBase):
+    @field_validator('sprint_id', mode='before')
+    @classmethod
+    def convert_empty_string_to_none(cls, v):
+        if v == "": return None
+        return v
+
+class TransactionCreate(TransactionBase):
+    @field_validator('sprint_id', mode='before')
+    @classmethod
+    def convert_empty_string_to_none(cls, v):
+        if v == "": return None
+        return v
+
+# ✅ GOOD: Shared utility function
+# In utils.py
+def convert_empty_string_to_none(v: Any) -> Any:
+    """Convert empty string to None for optional UUID fields"""
+    if v == "": return None
+    return v
+
+# In models.py
+from app.utils import convert_empty_string_to_none
+
+class IncomeCreate(IncomeBase):
+    @field_validator('sprint_id', mode='before')
+    @classmethod
+    def validate_sprint_id(cls, v):
+        return convert_empty_string_to_none(v)
+```
+
+#### Frontend Refactoring:
+```typescript
+// ❌ BAD: Duplicate form processing
+const onSubmitIncome = (data: IncomeCreate) => {
+  const processedData = {
+    ...data,
+    sprint_id: data.sprint_id === "" ? null : data.sprint_id,
+  }
+  mutation.mutate(processedData)
+}
+
+const onSubmitTransaction = (data: TransactionCreate) => {
+  const processedData = {
+    ...data,
+    category_id: data.category_id === "" ? null : data.category_id,
+    sprint_id: data.sprint_id === "" ? null : data.sprint_id,
+  }
+  mutation.mutate(processedData)
+}
+
+// ✅ GOOD: Shared utility function
+// In utils.ts
+export const processOptionalFields = <T extends Record<string, any>>(
+  data: T,
+  optionalFields: (keyof T)[]
+): T => {
+  const processed = { ...data }
+  optionalFields.forEach(field => {
+    if (processed[field] === "") {
+      processed[field] = null
+    }
+  })
+  return processed
+}
+
+// In components
+const onSubmitIncome = (data: IncomeCreate) => {
+  const processedData = processOptionalFields(data, ['sprint_id'])
+  mutation.mutate(processedData)
+}
+```
+
+### Refactoring Checklist:
+1. **Identify Duplicates**: Tìm code được lặp lại 3+ lần
+2. **Extract Utilities**: Tạo utility functions trong `utils.py` hoặc `utils.ts`
+3. **Update Imports**: Import và sử dụng utility functions
+4. **Test Changes**: Đảm bảo functionality không thay đổi
+5. **Update Documentation**: Cập nhật docstrings và comments
+
+### File Organization for Utilities:
+```
+backend/app/
+├── utils.py              # Backend utility functions
+├── models.py             # Import from utils.py
+└── crud/                 # Import from utils.py
+
+frontend/src/
+├── utils.ts              # Frontend utility functions
+├── components/           # Import from utils.ts
+└── hooks/                # Import from utils.ts
+```
+
+## 📝 Documentation Standards
+
+- **API Documentation**: Auto-generated từ FastAPI
+- **Component Props**: TypeScript interfaces
+- **Database Schema**: Alembic migration comments
+- **README**: Update khi thêm tính năng mới
+
+## 🎨 UI/UX Guidelines
+
+- Sử dụng Chakra UI components
+- Responsive design với mobile-first
+- Consistent spacing và typography
+- Loading states và error handling
+- Form validation với user feedback
+
+## 🔍 Debugging Tips
+
+### Backend:
+- Sử dụng FastAPI automatic docs (`/docs`)
+- Database query logging
+- Pydantic validation errors
+
+### Frontend:
+- React DevTools
+- TanStack Query DevTools
+- Browser Network tab cho API calls
+- Console logging cho state changes
+
+---
+
+**Lưu ý**: Luôn tuân theo pattern này để đảm bảo consistency và maintainability của codebase.

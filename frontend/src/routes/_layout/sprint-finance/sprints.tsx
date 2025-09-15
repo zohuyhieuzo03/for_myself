@@ -1,12 +1,12 @@
-import { 
-  Container, 
-  Heading, 
-  Table, 
-  VStack,
-  Text,
+import {
   Badge,
+  Button,
+  Container,
+  Heading,
   HStack,
-  Button
+  Table,
+  Text,
+  VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
@@ -21,7 +21,11 @@ export const Route = createFileRoute("/_layout/sprint-finance/sprints")({
 })
 
 function SprintsPage() {
-  const { data: sprints, isLoading, error } = useQuery({
+  const {
+    data: sprints,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["sprints"],
     queryFn: () => SprintsService.readSprints(),
   })
@@ -29,10 +33,10 @@ function SprintsPage() {
   // Format date to display as DD/MM/YYYY
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     })
   }
 
@@ -86,11 +90,7 @@ function SprintsPage() {
                       to="/sprint-finance/sprint-detail"
                       search={{ sprintId: sprint.id }}
                     >
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        colorPalette="blue"
-                      >
+                      <Button variant="ghost" size="sm" colorPalette="blue">
                         <FiEye />
                       </Button>
                     </Link>
@@ -114,7 +114,8 @@ function SprintsPage() {
           <VStack gap={4} py={8}>
             <FiCalendar size="48px" color="gray" />
             <Text color="gray.500" textAlign="center">
-              No sprints found. Create your first sprint to start managing your budget.
+              No sprints found. Create your first sprint to start managing your
+              budget.
             </Text>
             <AddSprint />
           </VStack>

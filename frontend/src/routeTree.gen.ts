@@ -18,6 +18,7 @@ import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutTodosRouteImport } from './routes/_layout/todos'
 import { Route as LayoutSprintFinanceRouteImport } from './routes/_layout/sprint-finance'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
+import { Route as LayoutMonthlyFinanceRouteImport } from './routes/_layout/monthly-finance'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutSprintFinanceIndexRouteImport } from './routes/_layout/sprint-finance/index'
@@ -71,6 +72,11 @@ const LayoutSprintFinanceRoute = LayoutSprintFinanceRouteImport.update({
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutMonthlyFinanceRoute = LayoutMonthlyFinanceRouteImport.update({
+  id: '/monthly-finance',
+  path: '/monthly-finance',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutItemsRoute = LayoutItemsRouteImport.update({
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
   '/items': typeof LayoutItemsRoute
+  '/monthly-finance': typeof LayoutMonthlyFinanceRoute
   '/settings': typeof LayoutSettingsRoute
   '/sprint-finance': typeof LayoutSprintFinanceRouteWithChildren
   '/todos': typeof LayoutTodosRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
   '/items': typeof LayoutItemsRoute
+  '/monthly-finance': typeof LayoutMonthlyFinanceRoute
   '/settings': typeof LayoutSettingsRoute
   '/todos': typeof LayoutTodosRoute
   '/': typeof LayoutIndexRoute
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/items': typeof LayoutItemsRoute
+  '/_layout/monthly-finance': typeof LayoutMonthlyFinanceRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/sprint-finance': typeof LayoutSprintFinanceRouteWithChildren
   '/_layout/todos': typeof LayoutTodosRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/admin'
     | '/items'
+    | '/monthly-finance'
     | '/settings'
     | '/sprint-finance'
     | '/todos'
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/admin'
     | '/items'
+    | '/monthly-finance'
     | '/settings'
     | '/todos'
     | '/'
@@ -242,6 +253,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_layout/admin'
     | '/_layout/items'
+    | '/_layout/monthly-finance'
     | '/_layout/settings'
     | '/_layout/sprint-finance'
     | '/_layout/todos'
@@ -327,6 +339,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof LayoutSettingsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/monthly-finance': {
+      id: '/_layout/monthly-finance'
+      path: '/monthly-finance'
+      fullPath: '/monthly-finance'
+      preLoaderRoute: typeof LayoutMonthlyFinanceRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/items': {
@@ -431,6 +450,7 @@ const LayoutSprintFinanceRouteWithChildren =
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutItemsRoute: typeof LayoutItemsRoute
+  LayoutMonthlyFinanceRoute: typeof LayoutMonthlyFinanceRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutSprintFinanceRoute: typeof LayoutSprintFinanceRouteWithChildren
   LayoutTodosRoute: typeof LayoutTodosRoute
@@ -440,6 +460,7 @@ interface LayoutRouteChildren {
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
   LayoutItemsRoute: LayoutItemsRoute,
+  LayoutMonthlyFinanceRoute: LayoutMonthlyFinanceRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutSprintFinanceRoute: LayoutSprintFinanceRouteWithChildren,
   LayoutTodosRoute: LayoutTodosRoute,

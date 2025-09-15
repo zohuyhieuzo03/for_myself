@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, date
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +14,68 @@ from app.core.config import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+# ========= MONTH UTILITIES =========
+def get_month_from_date(date_obj: date) -> tuple[int, int]:
+    """
+    Extract year and month from a date object.
+    
+    Args:
+        date_obj: The date to extract year and month from
+        
+    Returns:
+        Tuple of (year, month)
+    """
+    return date_obj.year, date_obj.month
+
+
+def create_month_key(year: int, month: int) -> str:
+    """
+    Create a unique key for a month.
+    
+    Args:
+        year: The year
+        month: The month (1-12)
+        
+    Returns:
+        String key in format "YYYY-MM"
+    """
+    return f"{year}-{month:02d}"
+
+
+def get_month_key_from_date(date_obj: date) -> str:
+    """
+    Get month key from a date object.
+    
+    Args:
+        date_obj: The date to get month key from
+        
+    Returns:
+        String key in format "YYYY-MM"
+    """
+    year, month = get_month_from_date(date_obj)
+    return create_month_key(year, month)
+
+
+# ========= VALIDATION UTILITIES =========
+def convert_empty_string_to_none(v: Any) -> Any:
+    """
+    Convert empty string to None for optional UUID fields.
+    
+    This utility function is used in Pydantic field validators to handle
+    empty strings from frontend forms and convert them to None for optional
+    database fields.
+    
+    Args:
+        v: The value to validate (usually a string or UUID)
+        
+    Returns:
+        None if v is empty string, otherwise returns v unchanged
+    """
+    if v == "":
+        return None
+    return v
 
 
 @dataclass

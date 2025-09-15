@@ -13,7 +13,7 @@ import { useState } from "react"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type UserPublic, UsersService, type UserUpdate } from "@/client"
+import { type UserPublic, UsersService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { emailPattern, handleError } from "@/utils"
@@ -32,8 +32,13 @@ interface EditUserProps {
   user: UserPublic
 }
 
-interface UserUpdateForm extends UserUpdate {
+interface UserUpdateForm {
+  email?: string | null
+  password?: string | null
   confirm_password?: string
+  is_superuser?: boolean | null
+  full_name?: string | null
+  is_active?: boolean | null
 }
 
 const EditUser = ({ user }: EditUserProps) => {
@@ -166,7 +171,7 @@ const EditUser = ({ user }: EditUserProps) => {
                 render={({ field }) => (
                   <Field disabled={field.disabled} colorPalette="teal">
                     <Checkbox
-                      checked={field.value}
+                      checked={field.value ?? false}
                       onCheckedChange={({ checked }) => field.onChange(checked)}
                     >
                       Is superuser?
@@ -180,7 +185,7 @@ const EditUser = ({ user }: EditUserProps) => {
                 render={({ field }) => (
                   <Field disabled={field.disabled} colorPalette="teal">
                     <Checkbox
-                      checked={field.value}
+                      checked={field.value ?? false}
                       onCheckedChange={({ checked }) => field.onChange(checked)}
                     >
                       Is active?

@@ -7,6 +7,7 @@ from app.api.routes import (
     incomes,
     items,
     login,
+    monthly_reports,
     private,
     sprints,
     todos,
@@ -28,6 +29,7 @@ api_router.include_router(categories.router)
 api_router.include_router(incomes.router)
 api_router.include_router(transactions.router)
 api_router.include_router(allocation_rules.router)
+api_router.include_router(monthly_reports.router, prefix="/monthly-reports", tags=["monthly-reports"])
 
 
 if settings.ENVIRONMENT == "local":

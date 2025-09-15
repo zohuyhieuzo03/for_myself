@@ -44,7 +44,7 @@ const AddTransaction = ({
   // Function to get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date()
-    return today.toISOString().split('T')[0]
+    return today.toISOString().split("T")[0]
   }
 
   const {
@@ -64,7 +64,7 @@ const AddTransaction = ({
       note: "",
       account_id: "",
       category_id: "",
-      sprint_id: "",
+      sprint_id: null,
     },
   })
 
@@ -82,7 +82,7 @@ const AddTransaction = ({
         note: "",
         account_id: "",
         category_id: "",
-        sprint_id: "",
+        sprint_id: null,
       })
       setIsOpen(false)
     },
@@ -95,7 +95,13 @@ const AddTransaction = ({
   })
 
   const onSubmit: SubmitHandler<TransactionCreate> = (data) => {
-    mutation.mutate(data)
+    // Convert empty string to null for optional fields
+    const processedData = {
+      ...data,
+      category_id: data.category_id === "" ? null : data.category_id,
+      sprint_id: data.sprint_id === "" ? null : data.sprint_id,
+    }
+    mutation.mutate(processedData)
   }
 
   return (
@@ -250,7 +256,7 @@ const AddTransaction = ({
                 label="Sprint"
               >
                 <select {...register("sprint_id")}>
-                  <option value="">Select Sprint</option>
+                  <option value="">Select Sprint (Optional)</option>
                   {sprints.map((sprint) => (
                     <option key={sprint.id} value={sprint.id}>
                       {sprint.start_date} - {sprint.end_date}

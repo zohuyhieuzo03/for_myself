@@ -61,7 +61,7 @@ const EditAllocationRule = ({
   const mutation = useMutation({
     mutationFn: (data: AllocationRuleUpdate) =>
       AllocationRulesService.updateAllocationRule({
-        id: allocationRule.id,
+        allocationRuleId: allocationRule.id,
         requestBody: data,
       }),
     onSuccess: () => {
@@ -78,7 +78,12 @@ const EditAllocationRule = ({
   })
 
   const onSubmit: SubmitHandler<AllocationRuleUpdate> = async (data) => {
-    mutation.mutate(data)
+    // Convert empty string to null for optional fields
+    const processedData = {
+      ...data,
+      sprint_id: data.sprint_id === "" ? null : data.sprint_id,
+    }
+    mutation.mutate(processedData)
   }
 
   return (
@@ -144,17 +149,12 @@ const EditAllocationRule = ({
               </Field>
 
               <Field
-                required
                 invalid={!!errors.sprint_id}
                 errorText={errors.sprint_id?.message}
                 label="Sprint"
               >
-                <select
-                  {...register("sprint_id", {
-                    required: "Sprint is required",
-                  })}
-                >
-                  <option value="">Select Sprint</option>
+                <select {...register("sprint_id")}>
+                  <option value="">Select Sprint (Optional)</option>
                   {sprints.map((sprint) => (
                     <option key={sprint.id} value={sprint.id}>
                       {sprint.start_date} - {sprint.end_date}

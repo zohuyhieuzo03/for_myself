@@ -24,6 +24,26 @@ export const Route = createFileRoute(
   component: AllocationRulesPage,
 })
 
+const AllocationRuleActionsMenu = ({
+  allocationRule,
+  sprints,
+}: {
+  allocationRule: any
+  sprints: Array<{ id: string; start_date: string; end_date: string }>
+}) => (
+  <MenuRoot>
+    <MenuTrigger asChild>
+      <IconButton variant="ghost" color="inherit">
+        <BsThreeDotsVertical />
+      </IconButton>
+    </MenuTrigger>
+    <MenuContent>
+      <EditAllocationRule allocationRule={allocationRule} sprints={sprints} />
+      <DeleteAllocationRule id={allocationRule.id} />
+    </MenuContent>
+  </MenuRoot>
+)
+
 function AllocationRulesPage() {
   const {
     data: allocationRules,
@@ -67,27 +87,6 @@ function AllocationRulesPage() {
       start_date: sprint.start_date,
       end_date: sprint.end_date,
     })) || []
-
-  const AllocationRuleActionsMenu = ({
-    allocationRule,
-  }: {
-    allocationRule: any
-  }) => (
-    <MenuRoot>
-      <MenuTrigger asChild>
-        <IconButton variant="ghost" color="inherit">
-          <BsThreeDotsVertical />
-        </IconButton>
-      </MenuTrigger>
-      <MenuContent>
-        <EditAllocationRule
-          allocationRule={allocationRule}
-          sprints={sprintsList}
-        />
-        <DeleteAllocationRule id={allocationRule.id} />
-      </MenuContent>
-    </MenuRoot>
-  )
 
   return (
     <Container maxW="full">
@@ -138,7 +137,10 @@ function AllocationRulesPage() {
                         : "-"}
                     </Table.Cell>
                     <Table.Cell>
-                      <AllocationRuleActionsMenu allocationRule={rule} />
+                      <AllocationRuleActionsMenu
+                        allocationRule={rule}
+                        sprints={sprintsList}
+                      />
                     </Table.Cell>
                   </Table.Row>
                 )
