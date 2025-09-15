@@ -10,6 +10,16 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+    allowedHosts: [
+      "localhost",
+      "127.0.0.1",
+      "fastapi-dev.local",
+      ".local"
+    ],
+  },
   plugins: [
     tanstackRouter({
       target: "react",

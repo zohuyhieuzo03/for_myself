@@ -1,0 +1,48 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DOMAIN=fastapi-dev.local
+      - FRONTEND_HOST=http://fastapi-dev.local:5173
+      - ENVIRONMENT=local
+      - PROJECT_NAME=FastAPI Template
+      - BACKEND_CORS_ORIGINS=["http://fastapi-dev.local:5173","http://fastapi-dev.local:8000","http://localhost:5173","http://localhost:8000"]
+      - SECRET_KEY=OMOrH-1eg4PSCuzw2Aj9g2JmvxiVlcv6zi0nxpeCFl8
+      - FIRST_SUPERUSER=admin@example.com
+      - FIRST_SUPERUSER_PASSWORD=admin123
+      - SMTP_HOST=mailcatcher
+      - SMTP_PORT=1025
+      - SMTP_TLS=false
+      - EMAILS_FROM_EMAIL=noreply@example.com
+      - POSTGRES_SERVER=host.docker.internal
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=app
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    command: ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "app/main.py"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+      args:
+        - VITE_API_URL=http://fastapi-dev.local:8000
+        - NODE_ENV=development
+    ports:
+      - "5173:5173"
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMINER_DESIGN=pepa-linha-dark
+
+  mailcatcher:
+    image: schickling/mailcatcher
+    ports:
+      - "1080:1080"
+      - "1025:1025"
