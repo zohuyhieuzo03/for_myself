@@ -619,23 +619,27 @@ class EmailTransactionUpdate(BaseModel):
     transaction_type: str | None = Field(default=None, max_length=50)
     status: EmailTransactionStatus | None = None
     linked_transaction_id: uuid.UUID | None = None
+    category_id: uuid.UUID | None = None
 
 
 class EmailTransaction(EmailTransactionBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     gmail_connection_id: uuid.UUID = Field(foreign_key="gmailconnection.id", nullable=False)
     linked_transaction_id: uuid.UUID | None = Field(default=None, foreign_key="transaction.id")
+    category_id: uuid.UUID | None = Field(default=None, foreign_key="category.id")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     gmail_connection: GmailConnection | None = Relationship(back_populates="email_transactions")
     linked_transaction: Transaction | None = Relationship()
+    category: Category | None = Relationship()
 
 
 class EmailTransactionPublic(EmailTransactionBase):
     id: uuid.UUID
     gmail_connection_id: uuid.UUID
     linked_transaction_id: uuid.UUID | None
+    category_id: uuid.UUID | None
     created_at: datetime
     updated_at: datetime
 

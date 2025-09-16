@@ -580,6 +580,18 @@ export const EmailTransactionPublicSchema = {
             ],
             title: 'Linked Transaction Id'
         },
+        category_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Category Id'
+        },
         created_at: {
             type: 'string',
             format: 'date-time',
@@ -592,7 +604,7 @@ export const EmailTransactionPublicSchema = {
         }
     },
     type: 'object',
-    required: ['email_id', 'subject', 'sender', 'received_at', 'id', 'gmail_connection_id', 'linked_transaction_id', 'created_at', 'updated_at'],
+    required: ['email_id', 'subject', 'sender', 'received_at', 'id', 'gmail_connection_id', 'linked_transaction_id', 'category_id', 'created_at', 'updated_at'],
     title: 'EmailTransactionPublic'
 } as const;
 
@@ -672,6 +684,18 @@ export const EmailTransactionUpdateSchema = {
                 }
             ],
             title: 'Linked Transaction Id'
+        },
+        category_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Category Id'
         }
     },
     type: 'object',

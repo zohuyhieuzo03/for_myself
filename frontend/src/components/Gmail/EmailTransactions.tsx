@@ -16,7 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { FiEdit, FiEye, FiMail, FiRefreshCw, FiTrash2 } from "react-icons/fi"
 import { useNavigate } from "@tanstack/react-router"
-import { GmailService } from "@/client"
+import { CategoriesService, GmailService } from "@/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   DialogBody,
@@ -47,12 +47,15 @@ interface EmailTransactionRowProps {
     transaction_type: string | null
     status: string
     raw_content: string | null
+    category_id?: string | null
   }
   isSelected: boolean
   onSelect: (id: string, selected: boolean) => void
   onView: (transaction: any) => void
   onEdit: (transaction: any) => void
   onDelete: (id: string) => void
+  categories: { id: string; name: string }[]
+  onAssignCategory: (transactionId: string, categoryId: string | null) => void
 }
 
 function EmailTransactionRow({
@@ -62,6 +65,8 @@ function EmailTransactionRow({
   onView,
   onEdit,
   onDelete,
+  categories,
+  onAssignCategory,
 }: EmailTransactionRowProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString()
@@ -124,6 +129,24 @@ function EmailTransactionRow({
             {transaction.merchant}
           </Text>
         )}
+      </Table.Cell>
+      <Table.Cell>
+        <select
+          value={transaction.category_id || ""}
+          onChange={(e) =>
+            onAssignCategory(
+              transaction.id,
+              e.target.value === "" ? null : e.target.value,
+            )
+          }
+        >
+          <option value="">Uncategorized</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
       </Table.Cell>
       <Table.Cell>
         <Badge
@@ -370,10 +393,12 @@ const PER_PAGE = 10
 // Query options function for all email transactions (independent of connections)
 function getEmailTransactionsQueryOptions({ 
   page, 
-  statusFilter 
+  statusFilter,
+  sortBy,
 }: { 
   page: number
-  statusFilter?: string 
+  statusFilter?: string,
+  sortBy: "date_desc" | "amount_desc" | "amount_asc"
 }) {
   return {
     queryFn: async () => {
@@ -413,10 +438,25 @@ function getEmailTransactionsQueryOptions({
         }
       }
 
-      // Sort by received_at descending
-      allTransactions.sort((a, b) => 
-        new Date(b.received_at).getTime() - new Date(a.received_at).getTime()
-      )
+      // Sort before pagination
+      if (sortBy === "amount_desc") {
+        allTransactions.sort((a, b) => {
+          const av = a.amount ?? Number.NEGATIVE_INFINITY
+          const bv = b.amount ?? Number.NEGATIVE_INFINITY
+          return (bv as number) - (av as number)
+        })
+      } else if (sortBy === "amount_asc") {
+        allTransactions.sort((a, b) => {
+          const av = a.amount ?? Number.POSITIVE_INFINITY
+          const bv = b.amount ?? Number.POSITIVE_INFINITY
+          return (av as number) - (bv as number)
+        })
+      } else {
+        // Default: date desc
+        allTransactions.sort((a, b) => 
+          new Date(b.received_at).getTime() - new Date(a.received_at).getTime()
+        )
+      }
 
       // Apply pagination
       const startIndex = (page - 1) * PER_PAGE
@@ -428,7 +468,7 @@ function getEmailTransactionsQueryOptions({
         count: totalCount
       }
     },
-    queryKey: ["email-transactions", { page, statusFilter }],
+    queryKey: ["email-transactions", { page, statusFilter, sortBy }],
   }
 }
 
@@ -447,6 +487,7 @@ export function EmailTransactionsTable({
 
   const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(new Set())
   const [currentStatusFilter, setCurrentStatusFilter] = useState<string>(statusFilter)
+  const [currentSortBy, setCurrentSortBy] = useState<"date_desc" | "amount_desc" | "amount_asc">("date_desc")
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
   const currentPage = page
 
@@ -454,9 +495,17 @@ export function EmailTransactionsTable({
   const { data: transactions, isLoading } = useQuery({
     ...getEmailTransactionsQueryOptions({ 
       page: currentPage, 
-      statusFilter: currentStatusFilter 
+      statusFilter: currentStatusFilter,
+      sortBy: currentSortBy,
     }),
     placeholderData: (prevData) => prevData,
+  })
+
+  // Load categories for selector
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categories", { page: 1 }],
+    queryFn: async () => CategoriesService.readCategories({ skip: 0, limit: 1000 }),
+    staleTime: 5 * 60 * 1000,
   })
 
   const syncEmailsMutation = useMutation({
@@ -507,6 +556,22 @@ export function EmailTransactionsTable({
     },
   })
 
+  const assignCategoryMutation = useMutation({
+    mutationFn: async ({ transactionId, categoryId }: { transactionId: string; categoryId: string | null }) => {
+      await GmailService.updateEmailTransaction({
+        transactionId,
+        requestBody: { category_id: categoryId },
+      })
+    },
+    onSuccess: () => {
+      showSuccessToast("Category assigned")
+      queryClient.invalidateQueries({ queryKey: ["email-transactions"] })
+    },
+    onError: (error) => {
+      showErrorToast(`Failed to assign category: ${error.message}`)
+    },
+  })
+
   const handleSelectTransaction = (id: string, selected: boolean) => {
     const newSelected = new Set(selectedTransactions)
     if (selected) {
@@ -542,6 +607,10 @@ export function EmailTransactionsTable({
     }
   }
 
+  const handleAssignCategory = (transactionId: string, categoryId: string | null) => {
+    assignCategoryMutation.mutate({ transactionId, categoryId })
+  }
+
   // Page change handler (similar to admin page)
   const setPage = (page: number) => {
     navigate({
@@ -549,7 +618,8 @@ export function EmailTransactionsTable({
       search: (prev) => ({ 
         ...prev, 
         page,
-        statusFilter: currentStatusFilter 
+        statusFilter: currentStatusFilter,
+        sortBy: currentSortBy,
       }),
     })
     setSelectedTransactions(new Set()) // Clear selection when changing pages
@@ -563,7 +633,21 @@ export function EmailTransactionsTable({
       search: (prev) => ({ 
         ...prev, 
         page: 1,
-        statusFilter: status 
+        statusFilter: status,
+        sortBy: currentSortBy,
+      }),
+    })
+  }
+
+  const handleSortChange = (value: "date_desc" | "amount_desc" | "amount_asc") => {
+    setCurrentSortBy(value)
+    navigate({
+      to: "/email-transactions",
+      search: (prev) => ({
+        ...prev,
+        page: 1,
+        statusFilter: currentStatusFilter,
+        sortBy: value,
       }),
     })
   }
@@ -599,6 +683,20 @@ export function EmailTransactionsTable({
                 <option value="pending">Pending</option>
                 <option value="processed">Processed</option>
                 <option value="ignored">Ignored</option>
+              </select>
+            </Box>
+
+            <Box minW="180px">
+              <Text fontSize="sm" mb={1}>
+                Sort by
+              </Text>
+              <select
+                value={currentSortBy}
+                onChange={(e) => handleSortChange(e.target.value as any)}
+              >
+                <option value="date_desc">Date (newest)</option>
+                <option value="amount_desc">Amount (high → low)</option>
+                <option value="amount_asc">Amount (low → high)</option>
               </select>
             </Box>
 
@@ -693,6 +791,7 @@ export function EmailTransactionsTable({
                     <Table.ColumnHeader />
                     <Table.ColumnHeader>Email</Table.ColumnHeader>
                     <Table.ColumnHeader>Amount</Table.ColumnHeader>
+                    <Table.ColumnHeader>Category</Table.ColumnHeader>
                     <Table.ColumnHeader>Type</Table.ColumnHeader>
                     <Table.ColumnHeader>Status</Table.ColumnHeader>
                     <Table.ColumnHeader>Date</Table.ColumnHeader>
@@ -709,6 +808,8 @@ export function EmailTransactionsTable({
                       onView={handleViewTransaction}
                       onEdit={handleEditTransaction}
                       onDelete={handleDeleteTransaction}
+                      categories={categoriesData?.data || []}
+                      onAssignCategory={handleAssignCategory}
                     />
                   ))}
                 </Table.Body>

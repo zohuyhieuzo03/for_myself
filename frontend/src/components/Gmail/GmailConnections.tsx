@@ -194,6 +194,10 @@ export function GmailConnections() {
       </HStack>
 
       {connections && connections.data.length > 0 ? (
+        <>
+        <Text fontSize="sm" color="gray.600">
+          Lưu ý: Bấm "Sync" để đồng bộ tối đa 500 email trong 180 ngày gần nhất.
+        </Text>
         <VStack gap={4} align="stretch">
           {connections.data.map((connection) => (
             <GmailConnectionCard
@@ -214,6 +218,7 @@ export function GmailConnections() {
             }}
           />
         </VStack>
+        </>
       ) : (
         <Card.Root>
           <Card.Body textAlign="center" py={12}>

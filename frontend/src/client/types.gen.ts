@@ -111,6 +111,7 @@ export type EmailTransactionPublic = {
     id: string;
     gmail_connection_id: string;
     linked_transaction_id: (string | null);
+    category_id: (string | null);
     created_at: string;
     updated_at: string;
 };
@@ -129,6 +130,7 @@ export type EmailTransactionUpdate = {
     transaction_type?: (string | null);
     status?: (EmailTransactionStatus | null);
     linked_transaction_id?: (string | null);
+    category_id?: (string | null);
 };
 
 export type GmailConnectionPublic = {

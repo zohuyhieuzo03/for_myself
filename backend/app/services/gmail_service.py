@@ -108,6 +108,20 @@ class GmailService:
         credentials = Credentials(token=access_token)
         return build('gmail', 'v1', credentials=credentials, cache_discovery=False)
     
+    def get_user_email(self, access_token: str) -> Optional[str]:
+        """Return the authenticated user's primary email address using Gmail profile API.
+
+        This avoids relying on headers of arbitrary messages which can be from any sender
+        (e.g., notification@github.com).
+        """
+        try:
+            service = self.get_gmail_service(access_token)
+            profile = service.users().getProfile(userId='me').execute()
+            # The profile contains 'emailAddress'
+            return profile.get('emailAddress')
+        except HttpError:
+            return None
+    
     def list_emails(
         self,
         access_token: str,

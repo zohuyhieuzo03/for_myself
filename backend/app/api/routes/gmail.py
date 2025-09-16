@@ -109,16 +109,10 @@ def handle_gmail_callback(
         # Exchange code for tokens
         tokens = gmail_service.exchange_code_for_tokens(code)
         
-        # Get user info from Gmail API
-        emails = gmail_service.list_emails(tokens['access_token'], max_results=1)
-        if not emails:
-            raise HTTPException(status_code=400, detail="Could not access Gmail account")
-        
-        # Extract Gmail address from the first email
-        gmail_email = emails[0].get('recipient', '')
-        if '@gmail.com' not in gmail_email:
-            # Try to extract from sender if recipient is not available
-            gmail_email = emails[0].get('sender', '')
+        # Get authenticated user's email from Gmail profile API
+        gmail_email = gmail_service.get_user_email(tokens['access_token'])
+        if not gmail_email:
+            raise HTTPException(status_code=400, detail="Could not retrieve Gmail profile")
         
         # Check if connection already exists
         existing_connection = crud.get_active_gmail_connection(
