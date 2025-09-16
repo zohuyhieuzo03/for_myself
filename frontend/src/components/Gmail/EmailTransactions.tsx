@@ -13,9 +13,9 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 import { FiEdit, FiEye, FiMail, FiRefreshCw, FiTrash2 } from "react-icons/fi"
-import { useNavigate } from "@tanstack/react-router"
 import { CategoriesService, GmailService } from "@/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -391,13 +391,13 @@ function EmailTransactionDetailModal({
 const PER_PAGE = 10
 
 // Query options function for all email transactions (independent of connections)
-function getEmailTransactionsQueryOptions({ 
-  page, 
+function getEmailTransactionsQueryOptions({
+  page,
   statusFilter,
   sortBy,
-}: { 
+}: {
   page: number
-  statusFilter?: string,
+  statusFilter?: string
   sortBy: "date_desc" | "amount_desc" | "amount_asc"
 }) {
   return {
@@ -413,15 +413,20 @@ function getEmailTransactionsQueryOptions({
       let totalCount = 0
 
       for (const connection of connectionsResponse.data) {
-        console.log('Processing connection:', connection.id, typeof connection.id)
-        
+        console.log(
+          "Processing connection:",
+          connection.id,
+          typeof connection.id,
+        )
+
         // Validate UUID format
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+        const uuidRegex =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
         if (!uuidRegex.test(connection.id)) {
-          console.error('Invalid UUID format for connection:', connection.id)
+          console.error("Invalid UUID format for connection:", connection.id)
           continue
         }
-        
+
         try {
           const response = await GmailService.getEmailTransactions({
             connectionId: connection.id,
@@ -429,11 +434,15 @@ function getEmailTransactionsQueryOptions({
             skip: 0, // We'll handle pagination after combining all results
             limit: 1000, // Get all transactions from each connection
           })
-          
+
           allTransactions.push(...response.data)
           totalCount += response.count
         } catch (error) {
-          console.error('Error fetching transactions for connection', connection.id, error)
+          console.error(
+            "Error fetching transactions for connection",
+            connection.id,
+            error,
+          )
           // Continue with other connections
         }
       }
@@ -453,8 +462,10 @@ function getEmailTransactionsQueryOptions({
         })
       } else {
         // Default: date desc
-        allTransactions.sort((a, b) => 
-          new Date(b.received_at).getTime() - new Date(a.received_at).getTime()
+        allTransactions.sort(
+          (a, b) =>
+            new Date(b.received_at).getTime() -
+            new Date(a.received_at).getTime(),
         )
       }
 
@@ -465,7 +476,7 @@ function getEmailTransactionsQueryOptions({
 
       return {
         data: paginatedTransactions,
-        count: totalCount
+        count: totalCount,
       }
     },
     queryKey: ["email-transactions", { page, statusFilter, sortBy }],
@@ -473,9 +484,9 @@ function getEmailTransactionsQueryOptions({
 }
 
 // Main component that uses URL search params (similar to admin page)
-export function EmailTransactionsTable({ 
-  page = 1, 
-  statusFilter = "all" 
+export function EmailTransactionsTable({
+  page = 1,
+  statusFilter = "all",
 }: {
   page?: number
   statusFilter?: string
@@ -485,16 +496,21 @@ export function EmailTransactionsTable({
   const { open, onOpen, onClose } = useDisclosure()
   const navigate = useNavigate()
 
-  const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(new Set())
-  const [currentStatusFilter, setCurrentStatusFilter] = useState<string>(statusFilter)
-  const [currentSortBy, setCurrentSortBy] = useState<"date_desc" | "amount_desc" | "amount_asc">("date_desc")
+  const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(
+    new Set(),
+  )
+  const [currentStatusFilter, setCurrentStatusFilter] =
+    useState<string>(statusFilter)
+  const [currentSortBy, setCurrentSortBy] = useState<
+    "date_desc" | "amount_desc" | "amount_asc"
+  >("date_desc")
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
   const currentPage = page
 
   // Get email transactions using the new query options function
   const { data: transactions, isLoading } = useQuery({
-    ...getEmailTransactionsQueryOptions({ 
-      page: currentPage, 
+    ...getEmailTransactionsQueryOptions({
+      page: currentPage,
       statusFilter: currentStatusFilter,
       sortBy: currentSortBy,
     }),
@@ -504,7 +520,8 @@ export function EmailTransactionsTable({
   // Load categories for selector
   const { data: categoriesData } = useQuery({
     queryKey: ["categories", { page: 1 }],
-    queryFn: async () => CategoriesService.readCategories({ skip: 0, limit: 1000 }),
+    queryFn: async () =>
+      CategoriesService.readCategories({ skip: 0, limit: 1000 }),
     staleTime: 5 * 60 * 1000,
   })
 
@@ -525,14 +542,14 @@ export function EmailTransactionsTable({
         })
         totalSynced += response.message ? 1 : 0 // Count successful syncs
       }
-      
+
       return { message: `Synced emails from ${totalSynced} connections` }
     },
     onSuccess: () => {
       showSuccessToast("Emails synced successfully")
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ 
-        queryKey: ["email-transactions"]
+      queryClient.invalidateQueries({
+        queryKey: ["email-transactions"],
       })
     },
     onError: (error) => {
@@ -547,8 +564,8 @@ export function EmailTransactionsTable({
     onSuccess: () => {
       showSuccessToast("Transaction deleted")
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ 
-        queryKey: ["email-transactions"]
+      queryClient.invalidateQueries({
+        queryKey: ["email-transactions"],
       })
     },
     onError: (error) => {
@@ -557,7 +574,13 @@ export function EmailTransactionsTable({
   })
 
   const assignCategoryMutation = useMutation({
-    mutationFn: async ({ transactionId, categoryId }: { transactionId: string; categoryId: string | null }) => {
+    mutationFn: async ({
+      transactionId,
+      categoryId,
+    }: {
+      transactionId: string
+      categoryId: string | null
+    }) => {
       await GmailService.updateEmailTransaction({
         transactionId,
         requestBody: { category_id: categoryId },
@@ -607,7 +630,10 @@ export function EmailTransactionsTable({
     }
   }
 
-  const handleAssignCategory = (transactionId: string, categoryId: string | null) => {
+  const handleAssignCategory = (
+    transactionId: string,
+    categoryId: string | null,
+  ) => {
     assignCategoryMutation.mutate({ transactionId, categoryId })
   }
 
@@ -615,8 +641,8 @@ export function EmailTransactionsTable({
   const setPage = (page: number) => {
     navigate({
       to: "/email-transactions",
-      search: (prev) => ({ 
-        ...prev, 
+      search: (prev) => ({
+        ...prev,
         page,
         statusFilter: currentStatusFilter,
         sortBy: currentSortBy,
@@ -630,8 +656,8 @@ export function EmailTransactionsTable({
     // Reset to page 1 when changing filter
     navigate({
       to: "/email-transactions",
-      search: (prev) => ({ 
-        ...prev, 
+      search: (prev) => ({
+        ...prev,
         page: 1,
         statusFilter: status,
         sortBy: currentSortBy,
@@ -639,7 +665,9 @@ export function EmailTransactionsTable({
     })
   }
 
-  const handleSortChange = (value: "date_desc" | "amount_desc" | "amount_asc") => {
+  const handleSortChange = (
+    value: "date_desc" | "amount_desc" | "amount_asc",
+  ) => {
     setCurrentSortBy(value)
     navigate({
       to: "/email-transactions",

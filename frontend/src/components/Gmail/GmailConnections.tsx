@@ -195,29 +195,32 @@ export function GmailConnections() {
 
       {connections && connections.data.length > 0 ? (
         <>
-        <Text fontSize="sm" color="gray.600">
-          Lưu ý: Bấm "Sync" để đồng bộ tối đa 500 email trong 180 ngày gần nhất.
-        </Text>
-        <VStack gap={4} align="stretch">
-          {connections.data.map((connection) => (
-            <GmailConnectionCard
-              key={connection.id}
-              connection={connection}
-              onDelete={handleDeleteConnection}
-            />
-          ))}
+          <Text fontSize="sm" color="gray.600">
+            Lưu ý: Bấm "Sync" để đồng bộ tối đa 500 email trong 180 ngày gần
+            nhất.
+          </Text>
+          <VStack gap={4} align="stretch">
+            {connections.data.map((connection) => (
+              <GmailConnectionCard
+                key={connection.id}
+                connection={connection}
+                onDelete={handleDeleteConnection}
+              />
+            ))}
 
-          {/* Monthly Sync Section */}
-          <MonthlySync
-            connectionId={connections.data[0].id}
-            onSyncComplete={() => {
-              queryClient.invalidateQueries({ queryKey: ["gmail-connections"] })
-              queryClient.invalidateQueries({
-                queryKey: ["email-transactions"],
-              })
-            }}
-          />
-        </VStack>
+            {/* Monthly Sync Section */}
+            <MonthlySync
+              connectionId={connections.data[0].id}
+              onSyncComplete={() => {
+                queryClient.invalidateQueries({
+                  queryKey: ["gmail-connections"],
+                })
+                queryClient.invalidateQueries({
+                  queryKey: ["email-transactions"],
+                })
+              }}
+            />
+          </VStack>
         </>
       ) : (
         <Card.Root>

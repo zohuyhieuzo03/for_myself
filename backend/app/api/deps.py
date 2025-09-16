@@ -2,7 +2,7 @@ from collections.abc import Generator
 from datetime import datetime, timezone
 from typing import Annotated
 import uuid
-
+import logging
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -17,6 +17,8 @@ from app.core.db import engine
 from app.models import GmailConnection, TokenPayload, User
 from app.services.gmail_service import GmailService
 from app.utils import decrypt_token, encrypt_token, is_token_expired, normalize_to_utc
+
+logger = logging.getLogger(__name__)
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -88,6 +90,7 @@ def get_valid_gmail_connection_with_token(
     
     # If decryption failed or token missing, try to refresh using refresh token
     if not access_token:
+        logger.error(f"Access token is missing for connection {connection.id}")
         refresh_token = decrypt_token(connection.refresh_token)
         if refresh_token:
             gmail_service = GmailService()
@@ -108,6 +111,7 @@ def get_valid_gmail_connection_with_token(
     # Check if token is expired
     if is_token_expired(connection.expires_at):
         # Try to refresh token
+        logger.error(f"Access token is expired for connection {connection.id}")
         refresh_token = decrypt_token(connection.refresh_token)
         if refresh_token:
             gmail_service = GmailService()

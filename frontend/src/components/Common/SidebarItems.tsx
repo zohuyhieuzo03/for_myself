@@ -10,13 +10,13 @@ import {
   FiCreditCard,
   FiDollarSign,
   FiHome,
+  FiInbox,
   FiMail,
   FiSettings,
   FiTag,
   FiTarget,
   FiTrendingUp,
   FiUsers,
-  FiInbox,
 } from "react-icons/fi"
 import type { IconType } from "react-icons/lib"
 
@@ -29,6 +29,11 @@ const items = [
   { icon: FiCheckSquare, title: "Todos", path: "/todos" },
   { icon: FiMail, title: "Gmail Integration", path: "/gmail" },
   { icon: FiInbox, title: "Email Transactions", path: "/email-transactions" },
+  {
+    icon: FiBarChart,
+    title: "Email Txn Dashboard",
+    path: "/email-transactions-dashboard",
+  },
   { icon: FiSettings, title: "User Settings", path: "/settings" },
 ]
 

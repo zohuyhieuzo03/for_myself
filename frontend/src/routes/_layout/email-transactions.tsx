@@ -1,4 +1,4 @@
-import { Container, Heading } from "@chakra-ui/react"
+import { Container } from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
 import { z } from "zod"
 
@@ -16,13 +16,10 @@ export const Route = createFileRoute("/_layout/email-transactions")({
 
 function EmailTransactions() {
   const { page, statusFilter } = Route.useSearch()
-  
+
   return (
     <Container maxW="full">
-      <EmailTransactionsTable 
-        page={page}
-        statusFilter={statusFilter}
-      />
+      <EmailTransactionsTable page={page} statusFilter={statusFilter} />
     </Container>
   )
 }

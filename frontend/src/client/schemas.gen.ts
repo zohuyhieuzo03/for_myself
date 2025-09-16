@@ -721,6 +721,85 @@ export const EmailTransactionsPublicSchema = {
     title: 'EmailTransactionsPublic'
 } as const;
 
+export const EmailTxnCategoryAmountSchema = {
+    properties: {
+        category_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Category Id'
+        },
+        category_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Category Name'
+        },
+        total_amount: {
+            type: 'number',
+            title: 'Total Amount',
+            default: 0
+        }
+    },
+    type: 'object',
+    title: 'EmailTxnCategoryAmount'
+} as const;
+
+export const EmailTxnDashboardSchema = {
+    properties: {
+        by_category: {
+            items: {
+                '$ref': '#/components/schemas/EmailTxnCategoryAmount'
+            },
+            type: 'array',
+            title: 'By Category',
+            default: []
+        },
+        monthly: {
+            items: {
+                '$ref': '#/components/schemas/EmailTxnMonthlyAmount'
+            },
+            type: 'array',
+            title: 'Monthly',
+            default: []
+        }
+    },
+    type: 'object',
+    title: 'EmailTxnDashboard'
+} as const;
+
+export const EmailTxnMonthlyAmountSchema = {
+    properties: {
+        year: {
+            type: 'integer',
+            title: 'Year'
+        },
+        month: {
+            type: 'integer',
+            title: 'Month'
+        },
+        total_amount: {
+            type: 'number',
+            title: 'Total Amount',
+            default: 0
+        }
+    },
+    type: 'object',
+    required: ['year', 'month'],
+    title: 'EmailTxnMonthlyAmount'
+} as const;
+
 export const GmailConnectionPublicSchema = {
     properties: {
         gmail_email: {

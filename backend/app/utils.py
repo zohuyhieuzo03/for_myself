@@ -11,6 +11,7 @@ from jwt.exceptions import InvalidTokenError
 
 from app.core import security
 from app.core.config import settings
+from zoneinfo import ZoneInfo
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -207,7 +208,8 @@ def decrypt_token(encrypted_token: str) -> str:
     
     try:
         # Create a Fernet cipher with the encryption key
-        key = base64.urlsafe_b64encode(settings.GMAIL_ENCRYPTION_KEY.encode()[:32])
+        key_bytes = settings.GMAIL_ENCRYPTION_KEY.encode()[:32].ljust(32, b'0')
+        key = base64.urlsafe_b64encode(key_bytes)
         cipher = Fernet(key)
         
         # Decode and decrypt the token
@@ -228,9 +230,24 @@ def normalize_to_utc(dt: datetime | None) -> datetime | None:
 
 
 def is_token_expired(expires_at: datetime | None) -> bool:
-    """Check if a token is expired (compare in UTC, handle naive)."""
-    expires_utc = normalize_to_utc(expires_at)
-    if not expires_utc:
+    """Check if a token is expired.
+
+    - If expires_at is naive, assume it's in Vietnam time (Asia/Ho_Chi_Minh)
+      then convert to UTC for a correct comparison with current UTC time.
+    - If it's timezone-aware, convert to UTC.
+    """
+    if expires_at is None:
         return True
+
+    if expires_at.tzinfo is None:
+        try:
+            vn_tz = ZoneInfo("Asia/Ho_Chi_Minh")
+            expires_utc = expires_at.replace(tzinfo=vn_tz).astimezone(timezone.utc)
+        except Exception:
+            # Fallback: treat naive as UTC
+            expires_utc = expires_at.replace(tzinfo=timezone.utc)
+    else:
+        expires_utc = expires_at.astimezone(timezone.utc)
+
     now_utc = datetime.now(timezone.utc)
     return now_utc >= expires_utc

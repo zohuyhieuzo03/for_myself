@@ -133,6 +133,23 @@ export type EmailTransactionUpdate = {
     category_id?: (string | null);
 };
 
+export type EmailTxnCategoryAmount = {
+    category_id?: (string | null);
+    category_name?: (string | null);
+    total_amount?: number;
+};
+
+export type EmailTxnDashboard = {
+    by_category?: Array<EmailTxnCategoryAmount>;
+    monthly?: Array<EmailTxnMonthlyAmount>;
+};
+
+export type EmailTxnMonthlyAmount = {
+    year: number;
+    month: number;
+    total_amount?: number;
+};
+
 export type GmailConnectionPublic = {
     gmail_email: string;
     is_active?: boolean;
@@ -635,6 +652,23 @@ export type GmailDeleteEmailTransactionData = {
 };
 
 export type GmailDeleteEmailTransactionResponse = (Message);
+
+export type GmailGetEmailTransactionsDashboardData = {
+    /**
+     * Gmail connection ID
+     */
+    connectionId: string;
+    /**
+     * Month filter (1-12)
+     */
+    month?: (number | null);
+    /**
+     * Year filter for monthly chart
+     */
+    year?: (number | null);
+};
+
+export type GmailGetEmailTransactionsDashboardResponse = (EmailTxnDashboard);
 
 export type IncomesReadIncomesData = {
     limit?: number;

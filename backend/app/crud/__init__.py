@@ -73,6 +73,7 @@ from .email_transaction import (
     get_email_transaction_by_email_id,
     get_email_transactions,
     get_pending_email_transactions,
+    get_email_txn_dashboard,
     update_email_transaction,
 )
 
@@ -142,5 +143,6 @@ __all__ = [
     "get_email_transaction_by_email_id",
     "get_email_transactions",
     "get_pending_email_transactions",
+    "get_email_txn_dashboard",
     "update_email_transaction",
 ]

@@ -647,3 +647,21 @@ class EmailTransactionPublic(EmailTransactionBase):
 class EmailTransactionsPublic(SQLModel):
     data: list[EmailTransactionPublic]
     count: int
+
+
+# ========= EMAIL TRANSACTION DASHBOARD RESPONSES =========
+class EmailTxnCategoryAmount(SQLModel):
+    category_id: uuid.UUID | None = None
+    category_name: str | None = None
+    total_amount: float = 0.0
+
+
+class EmailTxnMonthlyAmount(SQLModel):
+    year: int
+    month: int
+    total_amount: float = 0.0
+
+
+class EmailTxnDashboard(SQLModel):
+    by_category: list[EmailTxnCategoryAmount] = []
+    monthly: list[EmailTxnMonthlyAmount] = []

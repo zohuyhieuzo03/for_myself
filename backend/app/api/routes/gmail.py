@@ -14,6 +14,7 @@ from app.models import (
     EmailTransactionPublic,
     EmailTransactionUpdate,
     EmailTransactionsPublic,
+    EmailTxnDashboard,
     GmailConnection,
     GmailConnectionCreate,
     GmailConnectionPublic,
@@ -423,3 +424,34 @@ def delete_email_transaction(
     crud.delete_email_transaction(session=session, transaction_id=transaction_id)
     
     return Message(message="Email transaction deleted successfully")
+
+
+@router.get("/email-transactions/dashboard", response_model=EmailTxnDashboard)
+def get_email_transactions_dashboard(
+    session: SessionDep,
+    current_user: CurrentUser,
+    connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
+    year: int | None = Query(None, description="Year filter for monthly chart"),
+    month: int | None = Query(None, description="Month filter (1-12)"),
+) -> Any:
+    """Email transaction dashboard data by category and monthly totals, filterable by month.
+
+    If year and month are provided, results are restricted to that month; otherwise, all-time.
+    """
+    # Verify connection belongs to user
+    connection = crud.get_gmail_connection(session=session, connection_id=connection_id)
+    if not connection or connection.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Gmail connection not found")
+
+    if (year is None) ^ (month is None):
+        raise HTTPException(status_code=400, detail="Both year and month must be provided together")
+    if month is not None and (month < 1 or month > 12):
+        raise HTTPException(status_code=400, detail="Month must be between 1 and 12")
+
+    dashboard = crud.get_email_txn_dashboard(
+        session=session,
+        gmail_connection_id=connection_id,
+        year=year,
+        month=month,
+    )
+    return dashboard

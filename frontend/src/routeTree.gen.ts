@@ -21,7 +21,9 @@ import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutMonthlyFinanceRouteImport } from './routes/_layout/monthly-finance'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutGmailRouteImport } from './routes/_layout/gmail'
+import { Route as LayoutEmailTransactionsDashboardRouteImport } from './routes/_layout/email-transactions-dashboard'
 import { Route as LayoutEmailTransactionsRouteImport } from './routes/_layout/email-transactions'
+import { Route as LayoutEmailDashboardRouteImport } from './routes/_layout/email-dashboard'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutSprintFinanceIndexRouteImport } from './routes/_layout/sprint-finance/index'
 import { Route as LayoutGmailIndexRouteImport } from './routes/_layout/gmail/index'
@@ -93,9 +95,20 @@ const LayoutGmailRoute = LayoutGmailRouteImport.update({
   path: '/gmail',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutEmailTransactionsDashboardRoute =
+  LayoutEmailTransactionsDashboardRouteImport.update({
+    id: '/email-transactions-dashboard',
+    path: '/email-transactions-dashboard',
+    getParentRoute: () => LayoutRoute,
+  } as any)
 const LayoutEmailTransactionsRoute = LayoutEmailTransactionsRouteImport.update({
   id: '/email-transactions',
   path: '/email-transactions',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutEmailDashboardRoute = LayoutEmailDashboardRouteImport.update({
+  id: '/email-dashboard',
+  path: '/email-dashboard',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutAdminRoute = LayoutAdminRouteImport.update({
@@ -168,7 +181,9 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/email-dashboard': typeof LayoutEmailDashboardRoute
   '/email-transactions': typeof LayoutEmailTransactionsRoute
+  '/email-transactions-dashboard': typeof LayoutEmailTransactionsDashboardRoute
   '/gmail': typeof LayoutGmailRouteWithChildren
   '/items': typeof LayoutItemsRoute
   '/monthly-finance': typeof LayoutMonthlyFinanceRoute
@@ -193,7 +208,9 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/email-dashboard': typeof LayoutEmailDashboardRoute
   '/email-transactions': typeof LayoutEmailTransactionsRoute
+  '/email-transactions-dashboard': typeof LayoutEmailTransactionsDashboardRoute
   '/items': typeof LayoutItemsRoute
   '/monthly-finance': typeof LayoutMonthlyFinanceRoute
   '/settings': typeof LayoutSettingsRoute
@@ -218,7 +235,9 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
+  '/_layout/email-dashboard': typeof LayoutEmailDashboardRoute
   '/_layout/email-transactions': typeof LayoutEmailTransactionsRoute
+  '/_layout/email-transactions-dashboard': typeof LayoutEmailTransactionsDashboardRoute
   '/_layout/gmail': typeof LayoutGmailRouteWithChildren
   '/_layout/items': typeof LayoutItemsRoute
   '/_layout/monthly-finance': typeof LayoutMonthlyFinanceRoute
@@ -245,7 +264,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/email-dashboard'
     | '/email-transactions'
+    | '/email-transactions-dashboard'
     | '/gmail'
     | '/items'
     | '/monthly-finance'
@@ -270,7 +291,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/email-dashboard'
     | '/email-transactions'
+    | '/email-transactions-dashboard'
     | '/items'
     | '/monthly-finance'
     | '/settings'
@@ -294,7 +317,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_layout/admin'
+    | '/_layout/email-dashboard'
     | '/_layout/email-transactions'
+    | '/_layout/email-transactions-dashboard'
     | '/_layout/gmail'
     | '/_layout/items'
     | '/_layout/monthly-finance'
@@ -408,11 +433,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutGmailRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/email-transactions-dashboard': {
+      id: '/_layout/email-transactions-dashboard'
+      path: '/email-transactions-dashboard'
+      fullPath: '/email-transactions-dashboard'
+      preLoaderRoute: typeof LayoutEmailTransactionsDashboardRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/email-transactions': {
       id: '/_layout/email-transactions'
       path: '/email-transactions'
       fullPath: '/email-transactions'
       preLoaderRoute: typeof LayoutEmailTransactionsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/email-dashboard': {
+      id: '/_layout/email-dashboard'
+      path: '/email-dashboard'
+      fullPath: '/email-dashboard'
+      preLoaderRoute: typeof LayoutEmailDashboardRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/admin': {
@@ -537,7 +576,9 @@ const LayoutSprintFinanceRouteWithChildren =
 
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
+  LayoutEmailDashboardRoute: typeof LayoutEmailDashboardRoute
   LayoutEmailTransactionsRoute: typeof LayoutEmailTransactionsRoute
+  LayoutEmailTransactionsDashboardRoute: typeof LayoutEmailTransactionsDashboardRoute
   LayoutGmailRoute: typeof LayoutGmailRouteWithChildren
   LayoutItemsRoute: typeof LayoutItemsRoute
   LayoutMonthlyFinanceRoute: typeof LayoutMonthlyFinanceRoute
@@ -549,7 +590,9 @@ interface LayoutRouteChildren {
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
+  LayoutEmailDashboardRoute: LayoutEmailDashboardRoute,
   LayoutEmailTransactionsRoute: LayoutEmailTransactionsRoute,
+  LayoutEmailTransactionsDashboardRoute: LayoutEmailTransactionsDashboardRoute,
   LayoutGmailRoute: LayoutGmailRouteWithChildren,
   LayoutItemsRoute: LayoutItemsRoute,
   LayoutMonthlyFinanceRoute: LayoutMonthlyFinanceRoute,
