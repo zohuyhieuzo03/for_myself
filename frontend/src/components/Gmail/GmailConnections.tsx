@@ -65,23 +65,6 @@ function GmailConnectionCard({
     return date.toLocaleString()
   }
 
-<<<<<<< Updated upstream
-  const parseAsUtcIfNaive = (iso: string) => {
-    if (!iso) return null
-    // Consider timezone present only if string ends with Z or +HH:MM/-HH:MM
-    const hasTz = /(?:Z|[+-]\d{2}:\d{2})$/i.test(iso)
-    const normalized = hasTz ? iso : `${iso}Z`
-    return new Date(normalized)
-  }
-
-  const isExpired = (() => {
-    if (!connection.expires_at) return false
-    const expires = parseAsUtcIfNaive(connection.expires_at)
-    return expires ? expires.getTime() < Date.now() : false
-  })()
-
-=======
->>>>>>> Stashed changes
   return (
     <Card.Root>
       <Card.Header>
@@ -91,14 +74,6 @@ function GmailConnectionCard({
             <Heading size="md">{connection.gmail_email}</Heading>
           </HStack>
           <HStack>
-<<<<<<< Updated upstream
-            {isExpired && (
-              <Text color="red.500" fontSize="sm">
-                Expired — click Sync to refresh
-              </Text>
-            )}
-=======
->>>>>>> Stashed changes
             <Button
               size="sm"
               colorPalette="blue"
@@ -135,15 +110,6 @@ function GmailConnectionCard({
           <Text fontSize="sm" color="gray.600">
             Last sync: {formatLastSync(connection.last_sync_at)}
           </Text>
-<<<<<<< Updated upstream
-          {isExpired && (
-            <Text fontSize="sm" color="red.500">
-              Access token expired. Click Sync to auto-refresh using your
-              refresh token.
-            </Text>
-          )}
-=======
->>>>>>> Stashed changes
         </VStack>
       </Card.Body>
     </Card.Root>
