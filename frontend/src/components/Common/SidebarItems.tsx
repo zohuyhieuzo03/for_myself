@@ -16,6 +16,7 @@ import {
   FiTarget,
   FiTrendingUp,
   FiUsers,
+  FiInbox,
 } from "react-icons/fi"
 import type { IconType } from "react-icons/lib"
 
@@ -27,6 +28,7 @@ const items = [
   { icon: FiBriefcase, title: "Items", path: "/items" },
   { icon: FiCheckSquare, title: "Todos", path: "/todos" },
   { icon: FiMail, title: "Gmail Integration", path: "/gmail" },
+  { icon: FiInbox, title: "Email Transactions", path: "/email-transactions" },
   { icon: FiSettings, title: "User Settings", path: "/settings" },
 ]
 

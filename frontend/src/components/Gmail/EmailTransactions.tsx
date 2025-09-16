@@ -1,4 +1,22 @@
-import { Badge, Box, Button, Card, Heading, HStack, Spinner, Table, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Heading,
+  HStack,
+  Spinner,
+  Table,
+  Text,
+  useDisclosure,
+  VStack,
+} from "@chakra-ui/react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { FiEdit, FiEye, FiMail, FiRefreshCw, FiTrash2 } from "react-icons/fi"
+import { useNavigate } from "@tanstack/react-router"
+import { GmailService } from "@/client"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   DialogBody,
@@ -8,11 +26,12 @@ import {
   DialogRoot,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
-import { FiEdit, FiEye, FiMail, FiRefreshCw, FiTrash2 } from "react-icons/fi"
-
-import { GmailService } from "@/client"
+import {
+  PaginationItems,
+  PaginationNextTrigger,
+  PaginationPrevTrigger,
+  PaginationRoot,
+} from "@/components/ui/pagination"
 import useCustomToast from "@/hooks/useCustomToast"
 
 interface EmailTransactionRowProps {
@@ -85,7 +104,9 @@ function EmailTransactionRow({
       <Table.Cell>
         <Checkbox
           checked={isSelected}
-          onCheckedChange={(checked) => onSelect(transaction.id, Boolean(checked))}
+          onCheckedChange={(checked) =>
+            onSelect(transaction.id, Boolean(checked))
+          }
         />
       </Table.Cell>
       <Table.Cell>
@@ -173,12 +194,17 @@ function EmailTransactionDetailModal({
   onClose,
   onEdit,
 }: EmailTransactionDetailModalProps) {
-  if (!transaction) return null
-
   const [showRaw, setShowRaw] = useState<boolean>(false)
 
+  if (!transaction) return null
+
   return (
-    <DialogRoot open={isOpen} onOpenChange={(e) => { if (!e.open) onClose() }}>
+    <DialogRoot
+      open={isOpen}
+      onOpenChange={(e) => {
+        if (!e.open) onClose()
+      }}
+    >
       <DialogContent maxW="xl">
         <DialogHeader>
           <HStack>
@@ -274,10 +300,18 @@ function EmailTransactionDetailModal({
                 <HStack justify="space-between" mb={2}>
                   <Text fontWeight="semibold">Email Content</Text>
                   <HStack gap={2}>
-                    <Button size="xs" variant="outline" onClick={() => setShowRaw(false)}>
+                    <Button
+                      size="xs"
+                      variant="outline"
+                      onClick={() => setShowRaw(false)}
+                    >
                       Rendered
                     </Button>
-                    <Button size="xs" variant="outline" onClick={() => setShowRaw(true)}>
+                    <Button
+                      size="xs"
+                      variant="outline"
+                      onClick={() => setShowRaw(true)}
+                    >
                       View Source
                     </Button>
                   </HStack>
@@ -291,12 +325,19 @@ function EmailTransactionDetailModal({
                     overflowY="auto"
                     fontSize="sm"
                   >
-                    <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit" }}>
+                    <pre
+                      style={{ whiteSpace: "pre-wrap", fontFamily: "inherit" }}
+                    >
                       {transaction.raw_content}
                     </pre>
                   </Box>
                 ) : (
-                  <Box border="1px solid" borderColor="gray.200" borderRadius="md" overflow="hidden">
+                  <Box
+                    border="1px solid"
+                    borderColor="gray.200"
+                    borderRadius="md"
+                    overflow="hidden"
+                  >
                     <iframe
                       title="email-html"
                       style={{ width: "100%", height: 300, border: 0 }}
@@ -324,61 +365,126 @@ function EmailTransactionDetailModal({
   )
 }
 
-export function EmailTransactions() {
+const PER_PAGE = 10
+
+// Query options function for all email transactions (independent of connections)
+function getEmailTransactionsQueryOptions({ 
+  page, 
+  statusFilter 
+}: { 
+  page: number
+  statusFilter?: string 
+}) {
+  return {
+    queryFn: async () => {
+      // Get all Gmail connections first
+      const connectionsResponse = await GmailService.getGmailConnections()
+      if (!connectionsResponse.data.length) {
+        return { data: [], count: 0 }
+      }
+
+      // Get email transactions from all connections
+      const allTransactions = []
+      let totalCount = 0
+
+      for (const connection of connectionsResponse.data) {
+        console.log('Processing connection:', connection.id, typeof connection.id)
+        
+        // Validate UUID format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+        if (!uuidRegex.test(connection.id)) {
+          console.error('Invalid UUID format for connection:', connection.id)
+          continue
+        }
+        
+        try {
+          const response = await GmailService.getEmailTransactions({
+            connectionId: connection.id,
+            status: statusFilter === "all" ? undefined : statusFilter,
+            skip: 0, // We'll handle pagination after combining all results
+            limit: 1000, // Get all transactions from each connection
+          })
+          
+          allTransactions.push(...response.data)
+          totalCount += response.count
+        } catch (error) {
+          console.error('Error fetching transactions for connection', connection.id, error)
+          // Continue with other connections
+        }
+      }
+
+      // Sort by received_at descending
+      allTransactions.sort((a, b) => 
+        new Date(b.received_at).getTime() - new Date(a.received_at).getTime()
+      )
+
+      // Apply pagination
+      const startIndex = (page - 1) * PER_PAGE
+      const endIndex = startIndex + PER_PAGE
+      const paginatedTransactions = allTransactions.slice(startIndex, endIndex)
+
+      return {
+        data: paginatedTransactions,
+        count: totalCount
+      }
+    },
+    queryKey: ["email-transactions", { page, statusFilter }],
+  }
+}
+
+// Main component that uses URL search params (similar to admin page)
+export function EmailTransactionsTable({ 
+  page = 1, 
+  statusFilter = "all" 
+}: {
+  page?: number
+  statusFilter?: string
+}) {
   const { showSuccessToast, showErrorToast } = useCustomToast()
   const queryClient = useQueryClient()
   const { open, onOpen, onClose } = useDisclosure()
+  const navigate = useNavigate()
 
-  const [selectedConnectionId, setSelectedConnectionId] = useState<string>("")
-  const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(
-    new Set(),
-  )
-  const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(new Set())
+  const [currentStatusFilter, setCurrentStatusFilter] = useState<string>(statusFilter)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
+  const currentPage = page
 
-  // Get Gmail connections
-  const { data: connections } = useQuery({
-    queryKey: ["gmail-connections"],
-    queryFn: async () => {
-      const response = await GmailService.getGmailConnections()
-      return response
-    },
-  })
-
-  // Auto-select the first Gmail connection when available
-  useEffect(() => {
-    if (!selectedConnectionId && connections && connections.data.length > 0) {
-      setSelectedConnectionId(connections.data[0].id)
-    }
-  }, [connections, selectedConnectionId])
-
-  // Get email transactions
+  // Get email transactions using the new query options function
   const { data: transactions, isLoading } = useQuery({
-    queryKey: ["email-transactions", selectedConnectionId, statusFilter],
-    queryFn: async () => {
-      if (!selectedConnectionId) return { data: [], count: 0 }
-
-      const response = await GmailService.getEmailTransactions({
-        connectionId: selectedConnectionId,
-        status: statusFilter === "all" ? undefined : statusFilter,
-        limit: 10000, // Increased limit to show more emails
-      })
-      return response
-    },
-    enabled: !!selectedConnectionId,
+    ...getEmailTransactionsQueryOptions({ 
+      page: currentPage, 
+      statusFilter: currentStatusFilter 
+    }),
+    placeholderData: (prevData) => prevData,
   })
 
   const syncEmailsMutation = useMutation({
     mutationFn: async () => {
-      if (!selectedConnectionId) throw new Error("No connection selected")
-      const response = await GmailService.syncEmails({
-        connectionId: selectedConnectionId,
-      })
-      return response
+      // Get all Gmail connections
+      const connectionsResponse = await GmailService.getGmailConnections()
+      if (!connectionsResponse.data.length) {
+        throw new Error("No Gmail connections found")
+      }
+
+      // Sync emails from all connections
+      let totalSynced = 0
+      for (const connection of connectionsResponse.data) {
+        const response = await GmailService.syncEmails({
+          connectionId: connection.id,
+          maxResults: 2000,
+        })
+        totalSynced += response.message ? 1 : 0 // Count successful syncs
+      }
+      
+      return { message: `Synced emails from ${totalSynced} connections` }
     },
     onSuccess: () => {
       showSuccessToast("Emails synced successfully")
-      queryClient.invalidateQueries({ queryKey: ["email-transactions"] })
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ 
+        queryKey: ["email-transactions"]
+      })
     },
     onError: (error) => {
       showErrorToast(`Failed to sync emails: ${error.message}`)
@@ -391,7 +497,10 @@ export function EmailTransactions() {
     },
     onSuccess: () => {
       showSuccessToast("Transaction deleted")
-      queryClient.invalidateQueries({ queryKey: ["email-transactions"] })
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ 
+        queryKey: ["email-transactions"]
+      })
     },
     onError: (error) => {
       showErrorToast(`Failed to delete transaction: ${error.message}`)
@@ -433,6 +542,32 @@ export function EmailTransactions() {
     }
   }
 
+  // Page change handler (similar to admin page)
+  const setPage = (page: number) => {
+    navigate({
+      to: "/email-transactions",
+      search: (prev) => ({ 
+        ...prev, 
+        page,
+        statusFilter: currentStatusFilter 
+      }),
+    })
+    setSelectedTransactions(new Set()) // Clear selection when changing pages
+  }
+
+  const handleStatusFilterChange = (status: string) => {
+    setCurrentStatusFilter(status)
+    // Reset to page 1 when changing filter
+    navigate({
+      to: "/email-transactions",
+      search: (prev) => ({ 
+        ...prev, 
+        page: 1,
+        statusFilter: status 
+      }),
+    })
+  }
+
   const isAllSelected =
     Boolean(transactions?.data?.length) &&
     selectedTransactions.size === (transactions?.data?.length || 0)
@@ -452,25 +587,13 @@ export function EmailTransactions() {
       <Card.Root>
         <Card.Body>
           <HStack gap={4} wrap="wrap">
-            <Box minW="200px">
-              <Text fontSize="sm" mb={1}>Gmail Connection</Text>
-              <select
-                value={selectedConnectionId}
-                onChange={(e) => setSelectedConnectionId(e.target.value)}
-              >
-                {connections?.data.map((conn: any) => (
-                  <option key={conn.id} value={conn.id}>
-                    {conn.gmail_email}
-                  </option>
-                ))}
-              </select>
-            </Box>
-
             <Box minW="150px">
-              <Text fontSize="sm" mb={1}>Status</Text>
+              <Text fontSize="sm" mb={1}>
+                Status
+              </Text>
               <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                value={currentStatusFilter}
+                onChange={(e) => handleStatusFilterChange(e.target.value)}
               >
                 <option value="all">All</option>
                 <option value="pending">Pending</option>
@@ -484,11 +607,10 @@ export function EmailTransactions() {
                 colorPalette="blue"
                 onClick={() => syncEmailsMutation.mutate()}
                 loading={syncEmailsMutation.isPending}
-                disabled={!selectedConnectionId}
               >
                 <HStack>
                   <FiRefreshCw />
-                  <span>Sync Emails</span>
+                  <span>Sync All Emails</span>
                 </HStack>
               </Button>
             </Box>
@@ -497,19 +619,7 @@ export function EmailTransactions() {
       </Card.Root>
 
       {/* Transactions Table */}
-      {!selectedConnectionId ? (
-        <Card.Root>
-          <Card.Body textAlign="center" py={12}>
-            <FiMail size={48} color="var(--chakra-colors-gray-400)" />
-            <Heading size="md" color="gray.600" mb={2}>
-              Select a Gmail connection
-            </Heading>
-            <Text color="gray.500">
-              Choose a Gmail connection to view email transactions.
-            </Text>
-          </Card.Body>
-        </Card.Root>
-      ) : isLoading ? (
+      {isLoading ? (
         <Box textAlign="center" py={8}>
           <Spinner size="lg" />
           <Text mt={4}>Loading email transactions...</Text>
@@ -522,7 +632,7 @@ export function EmailTransactions() {
               No email transactions found
             </Heading>
             <Text color="gray.500" mb={6}>
-              Sync emails to import transaction data from your Gmail account.
+              Sync emails to import transaction data from your Gmail accounts.
             </Text>
             <Button
               colorPalette="blue"
@@ -531,7 +641,7 @@ export function EmailTransactions() {
             >
               <HStack>
                 <FiRefreshCw />
-                <span>Sync Emails Now</span>
+                <span>Sync All Emails Now</span>
               </HStack>
             </Button>
           </Card.Body>
@@ -604,6 +714,22 @@ export function EmailTransactions() {
                 </Table.Body>
               </Table.Root>
             </Box>
+            {/* Pagination - similar to admin page */}
+            {transactions && transactions.count > PER_PAGE && (
+              <Flex justifyContent="flex-end" mt={4}>
+                <PaginationRoot
+                  count={transactions.count}
+                  pageSize={PER_PAGE}
+                  onPageChange={({ page }) => setPage(page)}
+                >
+                  <Flex>
+                    <PaginationPrevTrigger />
+                    <PaginationItems />
+                    <PaginationNextTrigger />
+                  </Flex>
+                </PaginationRoot>
+              </Flex>
+            )}
           </Card.Body>
         </Card.Root>
       )}
@@ -617,4 +743,9 @@ export function EmailTransactions() {
       />
     </VStack>
   )
+}
+
+// Main export function (wrapper for backward compatibility)
+export function EmailTransactions() {
+  return <EmailTransactionsTable />
 }

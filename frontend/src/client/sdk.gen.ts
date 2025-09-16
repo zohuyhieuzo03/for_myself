@@ -451,8 +451,6 @@ export class GmailService {
      * @param data.skip
      * @param data.limit
      * @param data.status Filter by status (pending, processed, ignored)
-     * @param data.year Filter by year (e.g., 2024)
-     * @param data.month Filter by month (1-12)
      * @returns EmailTransactionsPublic Successful Response
      * @throws ApiError
      */
@@ -464,9 +462,7 @@ export class GmailService {
                 connection_id: data.connectionId,
                 skip: data.skip,
                 limit: data.limit,
-                status: data.status,
-                year: data.year,
-                month: data.month
+                status: data.status
             },
             errors: {
                 422: 'Validation Error'
@@ -479,6 +475,7 @@ export class GmailService {
      * Sync emails from Gmail and extract transaction information.
      * @param data The data for the request.
      * @param data.connectionId Gmail connection ID
+     * @param data.maxResults Maximum number of emails to sync
      * @returns Message Successful Response
      * @throws ApiError
      */
@@ -487,7 +484,8 @@ export class GmailService {
             method: 'POST',
             url: '/api/v1/gmail/sync-emails',
             query: {
-                connection_id: data.connectionId
+                connection_id: data.connectionId,
+                max_results: data.maxResults
             },
             errors: {
                 422: 'Validation Error'
@@ -502,6 +500,7 @@ export class GmailService {
      * @param data.connectionId Gmail connection ID
      * @param data.year Year to sync (e.g., 2024)
      * @param data.month Month to sync (1-12)
+     * @param data.maxResults Maximum number of emails to sync
      * @returns Message Successful Response
      * @throws ApiError
      */
@@ -512,7 +511,8 @@ export class GmailService {
             query: {
                 connection_id: data.connectionId,
                 year: data.year,
-                month: data.month
+                month: data.month,
+                max_results: data.maxResults
             },
             errors: {
                 422: 'Validation Error'

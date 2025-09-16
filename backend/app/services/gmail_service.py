@@ -235,6 +235,7 @@ class GmailService:
         self,
         access_token: str,
         newer_than_days: int = 180,
+        max_results: int = 1000,
     ) -> List[Dict[str, Any]]:
         """Search only emails from the specific VCB sender.
 
@@ -243,13 +244,14 @@ class GmailService:
         sender_filter = 'from:VCBDigibank@info.vietcombank.com.vn'
         query = f"{sender_filter} label:inbox newer_than:{newer_than_days}d -in:chats"
 
-        return self.list_emails(access_token, query)
+        return self.list_emails(access_token, query, max_results)
 
     def search_transaction_emails_by_month(
         self,
         access_token: str,
         year: int,
         month: int,
+        max_results: int = 1000,
     ) -> List[Dict[str, Any]]:
         """Search emails from VCB sender for a specific month.
 
@@ -257,6 +259,7 @@ class GmailService:
             access_token: Gmail API access token
             year: Year to search (e.g., 2024)
             month: Month to search (1-12)
+            max_results: Maximum number of emails to retrieve
 
         Returns:
             List of email dictionaries
@@ -280,7 +283,7 @@ class GmailService:
         # Build Gmail query with date range
         query = f"{sender_filter} label:inbox after:{start_date_str} before:{end_date_str} -in:chats"
         
-        return self.list_emails(access_token, query)
+        return self.list_emails(access_token, query, max_results)
 
 
 class EmailTransactionProcessor:

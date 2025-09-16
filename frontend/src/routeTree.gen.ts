@@ -21,6 +21,7 @@ import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutMonthlyFinanceRouteImport } from './routes/_layout/monthly-finance'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutGmailRouteImport } from './routes/_layout/gmail'
+import { Route as LayoutEmailTransactionsRouteImport } from './routes/_layout/email-transactions'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutSprintFinanceIndexRouteImport } from './routes/_layout/sprint-finance/index'
 import { Route as LayoutGmailIndexRouteImport } from './routes/_layout/gmail/index'
@@ -90,6 +91,11 @@ const LayoutItemsRoute = LayoutItemsRouteImport.update({
 const LayoutGmailRoute = LayoutGmailRouteImport.update({
   id: '/gmail',
   path: '/gmail',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutEmailTransactionsRoute = LayoutEmailTransactionsRouteImport.update({
+  id: '/email-transactions',
+  path: '/email-transactions',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutAdminRoute = LayoutAdminRouteImport.update({
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/email-transactions': typeof LayoutEmailTransactionsRoute
   '/gmail': typeof LayoutGmailRouteWithChildren
   '/items': typeof LayoutItemsRoute
   '/monthly-finance': typeof LayoutMonthlyFinanceRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/email-transactions': typeof LayoutEmailTransactionsRoute
   '/items': typeof LayoutItemsRoute
   '/monthly-finance': typeof LayoutMonthlyFinanceRoute
   '/settings': typeof LayoutSettingsRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
+  '/_layout/email-transactions': typeof LayoutEmailTransactionsRoute
   '/_layout/gmail': typeof LayoutGmailRouteWithChildren
   '/_layout/items': typeof LayoutItemsRoute
   '/_layout/monthly-finance': typeof LayoutMonthlyFinanceRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/email-transactions'
     | '/gmail'
     | '/items'
     | '/monthly-finance'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/email-transactions'
     | '/items'
     | '/monthly-finance'
     | '/settings'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_layout/admin'
+    | '/_layout/email-transactions'
     | '/_layout/gmail'
     | '/_layout/items'
     | '/_layout/monthly-finance'
@@ -394,6 +406,13 @@ declare module '@tanstack/react-router' {
       path: '/gmail'
       fullPath: '/gmail'
       preLoaderRoute: typeof LayoutGmailRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/email-transactions': {
+      id: '/_layout/email-transactions'
+      path: '/email-transactions'
+      fullPath: '/email-transactions'
+      preLoaderRoute: typeof LayoutEmailTransactionsRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/admin': {
@@ -518,6 +537,7 @@ const LayoutSprintFinanceRouteWithChildren =
 
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
+  LayoutEmailTransactionsRoute: typeof LayoutEmailTransactionsRoute
   LayoutGmailRoute: typeof LayoutGmailRouteWithChildren
   LayoutItemsRoute: typeof LayoutItemsRoute
   LayoutMonthlyFinanceRoute: typeof LayoutMonthlyFinanceRoute
@@ -529,6 +549,7 @@ interface LayoutRouteChildren {
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
+  LayoutEmailTransactionsRoute: LayoutEmailTransactionsRoute,
   LayoutGmailRoute: LayoutGmailRouteWithChildren,
   LayoutItemsRoute: LayoutItemsRoute,
   LayoutMonthlyFinanceRoute: LayoutMonthlyFinanceRoute,

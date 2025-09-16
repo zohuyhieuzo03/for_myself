@@ -66,6 +66,7 @@ from .gmail_connection import (
 )
 from .email_transaction import (
     bulk_update_email_transactions,
+    count_email_transactions,
     create_email_transaction,
     delete_email_transaction,
     get_email_transaction,
@@ -134,6 +135,7 @@ __all__ = [
     "update_gmail_connection",
     # Email transaction functions
     "bulk_update_email_transactions",
+    "count_email_transactions",
     "create_email_transaction",
     "delete_email_transaction",
     "get_email_transaction",

@@ -218,7 +218,7 @@ def get_email_transactions(
     current_user: CurrentUser,
     connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
     skip: int = Query(0, ge=0),
-    limit: int = Query(1000, ge=1, le=10000),
+    limit: int = Query(100, ge=1, le=10000),
     status: str = Query(None, description="Filter by status (pending, processed, ignored)"),
 ) -> Any:
     """Get email transactions for a Gmail connection."""
@@ -227,19 +227,31 @@ def get_email_transactions(
     if not connection or connection.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Gmail connection not found")
     
+    # Get transactions based on status filter
     if status:
-        # Filter by status
-        transactions = crud.get_pending_email_transactions(
-            session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
-        ) if status == "pending" else []
+        if status == "pending":
+            transactions = crud.get_pending_email_transactions(
+                session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
+            )
+        else:
+            # For other statuses, we need to filter by status
+            transactions = crud.get_email_transactions(
+                session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
+            )
+            transactions = [t for t in transactions if t.status == status]
     else:
         transactions = crud.get_email_transactions(
             session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
         )
     
+    # Get total count for pagination
+    total_count = crud.count_email_transactions(
+        session=session, gmail_connection_id=connection_id, status=status
+    )
+    
     public_transactions = [EmailTransactionPublic.model_validate(t) for t in transactions]
     
-    return EmailTransactionsPublic(data=public_transactions, count=len(public_transactions))
+    return EmailTransactionsPublic(data=public_transactions, count=total_count)
 
 
 @router.post("/sync-emails", response_model=Message)
@@ -247,6 +259,7 @@ def sync_emails(
     session: SessionDep,
     current_user: CurrentUser,
     connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
+    max_results: int = Query(1000, ge=1, le=5000, description="Maximum number of emails to sync"),
 ) -> Any:
     """Sync emails from Gmail and extract transaction information."""
     # Use middleware to get valid connection and token
@@ -255,7 +268,7 @@ def sync_emails(
     try:
         # Sync emails
         gmail_service = GmailService()
-        emails = gmail_service.search_transaction_emails(access_token)
+        emails = gmail_service.search_transaction_emails(access_token, max_results=max_results)
         
         processor = EmailTransactionProcessor()
         synced_count = 0
@@ -309,6 +322,7 @@ def sync_emails_by_month(
     connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
     year: int = Query(..., description="Year to sync (e.g., 2024)"),
     month: int = Query(..., description="Month to sync (1-12)"),
+    max_results: int = Query(1000, ge=1, le=5000, description="Maximum number of emails to sync"),
 ) -> Any:
     """Sync emails from Gmail for a specific month and extract transaction information."""
     # Validate month
@@ -325,7 +339,7 @@ def sync_emails_by_month(
     try:
         # Sync emails for specific month
         gmail_service = GmailService()
-        emails = gmail_service.search_transaction_emails_by_month(access_token, year, month)
+        emails = gmail_service.search_transaction_emails_by_month(access_token, year, month, max_results=max_results)
         
         processor = EmailTransactionProcessor()
         synced_count = 0

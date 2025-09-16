@@ -37,6 +37,16 @@ def get_email_transactions(
     return session.exec(statement).all()
 
 
+def count_email_transactions(
+    *, session: Session, gmail_connection_id: uuid.UUID, status: str | None = None
+) -> int:
+    """Count email transactions for a Gmail connection."""
+    statement = select(EmailTransaction).where(EmailTransaction.gmail_connection_id == gmail_connection_id)
+    if status:
+        statement = statement.where(EmailTransaction.status == status)
+    return len(session.exec(statement).all())
+
+
 def get_pending_email_transactions(
     *, session: Session, gmail_connection_id: uuid.UUID, skip: int = 0, limit: int = 100
 ) -> list[EmailTransaction]:

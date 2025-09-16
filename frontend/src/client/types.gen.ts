@@ -578,19 +578,11 @@ export type GmailGetEmailTransactionsData = {
      */
     connectionId: string;
     limit?: number;
-    /**
-     * Filter by month (1-12)
-     */
-    month?: number;
     skip?: number;
     /**
      * Filter by status (pending, processed, ignored)
      */
     status?: string;
-    /**
-     * Filter by year (e.g., 2024)
-     */
-    year?: number;
 };
 
 export type GmailGetEmailTransactionsResponse = (EmailTransactionsPublic);
@@ -600,6 +592,10 @@ export type GmailSyncEmailsData = {
      * Gmail connection ID
      */
     connectionId: string;
+    /**
+     * Maximum number of emails to sync
+     */
+    maxResults?: number;
 };
 
 export type GmailSyncEmailsResponse = (Message);
@@ -609,6 +605,10 @@ export type GmailSyncEmailsByMonthData = {
      * Gmail connection ID
      */
     connectionId: string;
+    /**
+     * Maximum number of emails to sync
+     */
+    maxResults?: number;
     /**
      * Month to sync (1-12)
      */
