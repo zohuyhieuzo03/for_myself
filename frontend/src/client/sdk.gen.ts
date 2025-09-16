@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, IncomesReadIncomesData, IncomesReadIncomesResponse, IncomesCreateIncomeData, IncomesCreateIncomeResponse, IncomesUpdateIncomeData, IncomesUpdateIncomeResponse, IncomesReadIncomeData, IncomesReadIncomeResponse, IncomesDeleteIncomeData, IncomesDeleteIncomeResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, SprintsReadSprintsData, SprintsReadSprintsResponse, SprintsCreateSprintData, SprintsCreateSprintResponse, SprintsUpdateSprintData, SprintsUpdateSprintResponse, SprintsReadSprintData, SprintsReadSprintResponse, SprintsDeleteSprintData, SprintsDeleteSprintResponse, SprintsReadSprintDetailData, SprintsReadSprintDetailResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, IncomesReadIncomesData, IncomesReadIncomesResponse, IncomesCreateIncomeData, IncomesCreateIncomeResponse, IncomesUpdateIncomeData, IncomesUpdateIncomeResponse, IncomesReadIncomeData, IncomesReadIncomeResponse, IncomesDeleteIncomeData, IncomesDeleteIncomeResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, SprintsReadSprintsData, SprintsReadSprintsResponse, SprintsCreateSprintData, SprintsCreateSprintResponse, SprintsUpdateSprintData, SprintsUpdateSprintResponse, SprintsReadSprintData, SprintsReadSprintResponse, SprintsDeleteSprintData, SprintsDeleteSprintResponse, SprintsReadSprintDetailData, SprintsReadSprintDetailResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class AccountsService {
     /**
@@ -330,6 +330,234 @@ export class CategoriesService {
             url: '/api/v1/categories/{category_id}',
             path: {
                 category_id: data.categoryId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class GmailService {
+    /**
+     * Get Gmail Connections
+     * Get all Gmail connections for the current user.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns GmailConnectionsPublic Successful Response
+     * @throws ApiError
+     */
+    public static getGmailConnections(data: GmailGetGmailConnectionsData = {}): CancelablePromise<GmailGetGmailConnectionsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/gmail/connections',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Initiate Gmail Connection
+     * Initiate Gmail OAuth connection.
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static initiateGmailConnection(): CancelablePromise<GmailInitiateGmailConnectionResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/gmail/connect'
+        });
+    }
+    
+    /**
+     * Handle Gmail Callback
+     * Handle Gmail OAuth callback and create connection.
+     * @param data The data for the request.
+     * @param data.code Authorization code from Google
+     * @param data.state State parameter for security
+     * @returns GmailConnectionPublic Successful Response
+     * @throws ApiError
+     */
+    public static handleGmailCallback(data: GmailHandleGmailCallbackData): CancelablePromise<GmailHandleGmailCallbackResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/gmail/callback',
+            query: {
+                code: data.code,
+                state: data.state
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Gmail Connection
+     * Update a Gmail connection.
+     * @param data The data for the request.
+     * @param data.connectionId
+     * @param data.requestBody
+     * @returns GmailConnectionPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateGmailConnection(data: GmailUpdateGmailConnectionData): CancelablePromise<GmailUpdateGmailConnectionResponse> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/api/v1/gmail/connections/{connection_id}',
+            path: {
+                connection_id: data.connectionId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Gmail Connection
+     * Delete a Gmail connection.
+     * @param data The data for the request.
+     * @param data.connectionId
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteGmailConnection(data: GmailDeleteGmailConnectionData): CancelablePromise<GmailDeleteGmailConnectionResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/gmail/connections/{connection_id}',
+            path: {
+                connection_id: data.connectionId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Email Transactions
+     * Get email transactions for a Gmail connection.
+     * @param data The data for the request.
+     * @param data.connectionId Gmail connection ID
+     * @param data.skip
+     * @param data.limit
+     * @param data.status Filter by status (pending, processed, ignored)
+     * @param data.year Filter by year (e.g., 2024)
+     * @param data.month Filter by month (1-12)
+     * @returns EmailTransactionsPublic Successful Response
+     * @throws ApiError
+     */
+    public static getEmailTransactions(data: GmailGetEmailTransactionsData): CancelablePromise<GmailGetEmailTransactionsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/gmail/email-transactions',
+            query: {
+                connection_id: data.connectionId,
+                skip: data.skip,
+                limit: data.limit,
+                status: data.status,
+                year: data.year,
+                month: data.month
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Sync Emails
+     * Sync emails from Gmail and extract transaction information.
+     * @param data The data for the request.
+     * @param data.connectionId Gmail connection ID
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static syncEmails(data: GmailSyncEmailsData): CancelablePromise<GmailSyncEmailsResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/gmail/sync-emails',
+            query: {
+                connection_id: data.connectionId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Sync Emails By Month
+     * Sync emails from Gmail for a specific month and extract transaction information.
+     * @param data The data for the request.
+     * @param data.connectionId Gmail connection ID
+     * @param data.year Year to sync (e.g., 2024)
+     * @param data.month Month to sync (1-12)
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static syncEmailsByMonth(data: GmailSyncEmailsByMonthData): CancelablePromise<GmailSyncEmailsByMonthResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/gmail/sync-emails-by-month',
+            query: {
+                connection_id: data.connectionId,
+                year: data.year,
+                month: data.month
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Email Transaction
+     * Update an email transaction.
+     * @param data The data for the request.
+     * @param data.transactionId
+     * @param data.requestBody
+     * @returns EmailTransactionPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateEmailTransaction(data: GmailUpdateEmailTransactionData): CancelablePromise<GmailUpdateEmailTransactionResponse> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/api/v1/gmail/email-transactions/{transaction_id}',
+            path: {
+                transaction_id: data.transactionId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Email Transaction
+     * Delete an email transaction.
+     * @param data The data for the request.
+     * @param data.transactionId
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteEmailTransaction(data: GmailDeleteEmailTransactionData): CancelablePromise<GmailDeleteEmailTransactionResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/gmail/email-transactions/{transaction_id}',
+            path: {
+                transaction_id: data.transactionId
             },
             errors: {
                 422: 'Validation Error'

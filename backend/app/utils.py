@@ -183,3 +183,54 @@ def verify_password_reset_token(token: str) -> str | None:
         return str(decoded_token["sub"])
     except InvalidTokenError:
         return None
+
+
+# ========= GMAIL INTEGRATION UTILITIES =========
+def encrypt_token(token: str) -> str:
+    """Encrypt a token for secure storage."""
+    from cryptography.fernet import Fernet
+    import base64
+    
+    # Create a Fernet cipher with the encryption key
+    key = base64.urlsafe_b64encode(settings.GMAIL_ENCRYPTION_KEY.encode()[:32])
+    cipher = Fernet(key)
+    
+    # Encrypt the token
+    encrypted_token = cipher.encrypt(token.encode())
+    return base64.urlsafe_b64encode(encrypted_token).decode()
+
+
+def decrypt_token(encrypted_token: str) -> str:
+    """Decrypt a token from storage."""
+    from cryptography.fernet import Fernet
+    import base64
+    
+    try:
+        # Create a Fernet cipher with the encryption key
+        key = base64.urlsafe_b64encode(settings.GMAIL_ENCRYPTION_KEY.encode()[:32])
+        cipher = Fernet(key)
+        
+        # Decode and decrypt the token
+        encrypted_data = base64.urlsafe_b64decode(encrypted_token.encode())
+        decrypted_token = cipher.decrypt(encrypted_data)
+        return decrypted_token.decode()
+    except Exception:
+        return ""
+
+
+def normalize_to_utc(dt: datetime | None) -> datetime | None:
+    """Return a timezone-aware UTC datetime for reliable comparisons."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def is_token_expired(expires_at: datetime | None) -> bool:
+    """Check if a token is expired (compare in UTC, handle naive)."""
+    expires_utc = normalize_to_utc(expires_at)
+    if not expires_utc:
+        return True
+    now_utc = datetime.now(timezone.utc)
+    return now_utc >= expires_utc

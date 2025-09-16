@@ -474,6 +474,329 @@ export const CategoryUpdateSchema = {
     title: 'CategoryUpdate'
 } as const;
 
+export const EmailTransactionPublicSchema = {
+    properties: {
+        email_id: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Email Id'
+        },
+        subject: {
+            type: 'string',
+            maxLength: 500,
+            title: 'Subject'
+        },
+        sender: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Sender'
+        },
+        received_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Received At'
+        },
+        amount: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Amount'
+        },
+        merchant: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Merchant'
+        },
+        account_number: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Account Number'
+        },
+        transaction_type: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Transaction Type'
+        },
+        status: {
+            '$ref': '#/components/schemas/EmailTransactionStatus',
+            default: 'pending'
+        },
+        raw_content: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Raw Content'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        gmail_connection_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Gmail Connection Id'
+        },
+        linked_transaction_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Linked Transaction Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        }
+    },
+    type: 'object',
+    required: ['email_id', 'subject', 'sender', 'received_at', 'id', 'gmail_connection_id', 'linked_transaction_id', 'created_at', 'updated_at'],
+    title: 'EmailTransactionPublic'
+} as const;
+
+export const EmailTransactionStatusSchema = {
+    type: 'string',
+    enum: ['pending', 'processed', 'ignored'],
+    title: 'EmailTransactionStatus'
+} as const;
+
+export const EmailTransactionUpdateSchema = {
+    properties: {
+        amount: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Amount'
+        },
+        merchant: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Merchant'
+        },
+        account_number: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Account Number'
+        },
+        transaction_type: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Transaction Type'
+        },
+        status: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/EmailTransactionStatus'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        linked_transaction_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Linked Transaction Id'
+        }
+    },
+    type: 'object',
+    title: 'EmailTransactionUpdate'
+} as const;
+
+export const EmailTransactionsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/EmailTransactionPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'EmailTransactionsPublic'
+} as const;
+
+export const GmailConnectionPublicSchema = {
+    properties: {
+        gmail_email: {
+            type: 'string',
+            maxLength: 255,
+            format: 'email',
+            title: 'Gmail Email'
+        },
+        is_active: {
+            type: 'boolean',
+            title: 'Is Active',
+            default: true
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        user_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'User Id'
+        },
+        expires_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Expires At'
+        },
+        last_sync_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Last Sync At'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        }
+    },
+    type: 'object',
+    required: ['gmail_email', 'id', 'user_id', 'expires_at', 'last_sync_at', 'created_at', 'updated_at'],
+    title: 'GmailConnectionPublic'
+} as const;
+
+export const GmailConnectionUpdateSchema = {
+    properties: {
+        is_active: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Active'
+        }
+    },
+    type: 'object',
+    title: 'GmailConnectionUpdate'
+} as const;
+
+export const GmailConnectionsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/GmailConnectionPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'GmailConnectionsPublic'
+} as const;
+
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
