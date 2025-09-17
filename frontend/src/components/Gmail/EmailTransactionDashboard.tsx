@@ -300,7 +300,12 @@ export default function EmailTransactionDashboard() {
     error,
   } = useQuery({
     queryKey: ["email-transaction-dashboard", days],
-    queryFn: () => GmailService.getEmailTransactionsDashboard({ connectionId: "", year: undefined, month: undefined }) as any,
+    queryFn: () =>
+      GmailService.getEmailTransactionsDashboard({
+        connectionId: "",
+        year: undefined,
+        month: undefined,
+      }) as any,
   }) as { data: DashboardStats | undefined; isLoading: boolean; error: any }
 
   if (isLoading) {

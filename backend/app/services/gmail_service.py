@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -14,6 +15,8 @@ from sqlmodel import Session
 from app.core.config import settings
 from app.crud import gmail_connection as gmail_crud
 from app.models import GmailConnection
+
+logger = logging.getLogger(__name__)
 
 
 class GmailService:
@@ -298,6 +301,155 @@ class GmailService:
         query = f"{sender_filter} label:inbox after:{start_date_str} before:{end_date_str} -in:chats"
         
         return self.list_emails(access_token, query, max_results)
+
+    def search_recent_transaction_emails(
+        self,
+        access_token: str,
+        days: int = 7,
+        max_results: int = 500,
+    ) -> List[Dict[str, Any]]:
+        """Search for recent transaction emails from VCB sender.
+        
+        Args:
+            access_token: Gmail API access token
+            days: Number of days to look back (default: 7)
+            max_results: Maximum number of emails to retrieve
+            
+        Returns:
+            List of email dictionaries
+        """
+        sender_filter = 'from:VCBDigibank@info.vietcombank.com.vn'
+        query = f"{sender_filter} label:inbox newer_than:{days}d -in:chats"
+        
+        return self.list_emails(access_token, query, max_results)
+
+
+
+def sync_all_active_connections(days: int = 1) -> Dict[str, int]:
+    """Sync recent emails for all active Gmail connections.
+    
+    Args:
+        days: Number of days to look back
+        
+    Returns:
+        Dictionary with connection_id -> synced_count
+    """
+    from app.core.db import engine
+    from app.crud import email_transaction as email_crud, gmail_connection as gmail_crud
+    from app.models import EmailTransactionCreate
+    from app.utils import decrypt_token
+    
+    results = {}
+    
+    try:
+        with Session(engine) as session:
+            # Get all active Gmail connections
+            connections = gmail_crud.get_all_active_gmail_connections(session=session)
+            
+            for connection in connections:
+                try:
+                    # Get valid access token
+                    access_token = decrypt_token(connection.access_token)
+                    if not access_token:
+                        logger.error(f"Failed to decrypt access token for connection: {connection.id}")
+                        results[str(connection.id)] = 0
+                        continue
+                    
+                    # Get recent emails based on last sync time
+                    gmail_service = GmailService()
+                    
+                    # If we have a last sync time, only sync emails newer than that
+                    if connection.last_sync_at:
+                        # Ensure last_sync_at is timezone-aware
+                        last_sync_at = connection.last_sync_at
+                        if last_sync_at.tzinfo is None:
+                            last_sync_at = last_sync_at.replace(tzinfo=timezone.utc)
+                        
+                        # Calculate hours since last sync
+                        hours_since_sync = (datetime.now(timezone.utc) - last_sync_at).total_seconds() / 3600
+                        # Use minimum of calculated hours or requested days
+                        sync_hours = min(hours_since_sync + 1, days * 24)  # Add 1 hour buffer
+                        emails = gmail_service.search_recent_transaction_emails(
+                            access_token=access_token,
+                            days=sync_hours / 24,  # Convert to days
+                            max_results=500
+                        )
+                    else:
+                        # First sync - use the requested days
+                        emails = gmail_service.search_recent_transaction_emails(
+                            access_token=access_token,
+                            days=days,
+                            max_results=500
+                        )
+                    
+                    if not emails:
+                        logger.info(f"No recent transaction emails found for connection: {connection.id}")
+                        results[str(connection.id)] = 0
+                        continue
+                    
+                    # Process each email
+                    processor = EmailTransactionProcessor()
+                    synced_count = 0
+                    
+                    for email in emails:
+                        try:
+                            # Check if email already exists (improved logic)
+                            existing_transaction = email_crud.get_email_transaction_by_email_id(
+                                session=session,
+                                email_id=email['id'],
+                                gmail_connection_id=connection.id
+                            )
+                            
+                            if existing_transaction:
+                                continue  # Skip already processed emails
+                            
+                            # Extract transaction information
+                            transaction_info = processor.extract_transaction_info(email)
+                            
+                            # Create email transaction
+                            email_transaction_data = EmailTransactionCreate(
+                                gmail_connection_id=connection.id,
+                                email_id=email['id'],
+                                subject=email['subject'],
+                                sender=email['sender'],
+                                received_at=email['date'],
+                                amount=transaction_info.get('amount'),
+                                merchant=transaction_info.get('merchant'),
+                                account_number=transaction_info.get('account_number'),
+                                transaction_type=transaction_info.get('transaction_type'),
+                                raw_content=email['body']
+                            )
+                            
+                            email_crud.create_email_transaction(
+                                session=session,
+                                email_transaction_in=email_transaction_data
+                            )
+                            synced_count += 1
+                            
+                        except Exception as e:
+                            logger.error(f"Error processing email {email.get('id', 'unknown')}: {e}")
+                            continue
+                    
+                    # Update connection with last sync time
+                    connection.last_sync_at = datetime.now(timezone.utc)
+                    session.add(connection)
+                    session.commit()
+                    
+                    logger.info(f"Synced {synced_count} recent emails for connection: {connection.id}")
+                    results[str(connection.id)] = synced_count
+                    
+                except Exception as e:
+                    logger.error(f"Error syncing connection {connection.id}: {e}")
+                    results[str(connection.id)] = 0
+            
+            total_synced = sum(results.values())
+            logger.info(f"Periodic sync completed. Total emails synced: {total_synced}")
+            
+            return results
+            
+    except Exception as e:
+        logger.error(f"Error in periodic sync: {e}")
+        return {}
 
 
 class EmailTransactionProcessor:

@@ -83,3 +83,18 @@ def get_active_gmail_connection(*, session: Session, user_id: uuid.UUID) -> Gmai
         GmailConnection.is_active == True
     )
     return session.exec(statement).first()
+
+
+def get_gmail_connection_by_email(*, session: Session, gmail_email: str) -> GmailConnection | None:
+    """Get a Gmail connection by email address."""
+    statement = select(GmailConnection).where(
+        GmailConnection.gmail_email == gmail_email,
+        GmailConnection.is_active == True
+    )
+    return session.exec(statement).first()
+
+
+def get_all_active_gmail_connections(*, session: Session) -> list[GmailConnection]:
+    """Get all active Gmail connections."""
+    statement = select(GmailConnection).where(GmailConnection.is_active == True)
+    return session.exec(statement).all()

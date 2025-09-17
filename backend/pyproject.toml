@@ -26,6 +26,7 @@ dependencies = [
     "google-auth-httplib2<1.0.0,>=0.2.0",
     "google-api-python-client<3.0.0,>=2.100.0",
     "cryptography<42.0.0,>=41.0.0",
+    "apscheduler>=3.10.4,<4.0.0",
 ]
 
 [tool.uv]

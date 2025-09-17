@@ -72,6 +72,48 @@ def get_pending_email_transactions(
     return session.exec(statement).all()
 
 
+def get_unseen_email_transactions(
+    *, session: Session, gmail_connection_id: uuid.UUID, skip: int = 0, limit: int = 100
+) -> list[EmailTransaction]:
+    """Get unseen email transactions for a Gmail connection."""
+    statement = (
+        select(EmailTransaction)
+        .where(
+            EmailTransaction.gmail_connection_id == gmail_connection_id,
+            EmailTransaction.seen == False
+        )
+        .offset(skip)
+        .limit(limit)
+        .order_by(EmailTransaction.received_at.desc())
+    )
+    return session.exec(statement).all()
+
+
+def count_unseen_email_transactions(
+    *, session: Session, gmail_connection_id: uuid.UUID
+) -> int:
+    """Count unseen email transactions for a Gmail connection."""
+    statement = select(EmailTransaction).where(
+        EmailTransaction.gmail_connection_id == gmail_connection_id,
+        EmailTransaction.seen == False
+    )
+    return len(session.exec(statement).all())
+
+
+def mark_email_transaction_as_seen(
+    *, session: Session, transaction_id: uuid.UUID
+) -> EmailTransaction | None:
+    """Mark an email transaction as seen."""
+    statement = select(EmailTransaction).where(EmailTransaction.id == transaction_id)
+    transaction = session.exec(statement).first()
+    if transaction:
+        transaction.seen = True
+        session.add(transaction)
+        session.commit()
+        session.refresh(transaction)
+    return transaction
+
+
 def update_email_transaction(
     *, session: Session, db_transaction: EmailTransaction, transaction_in: EmailTransactionUpdate
 ) -> EmailTransaction:

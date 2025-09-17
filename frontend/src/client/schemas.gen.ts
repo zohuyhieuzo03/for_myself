@@ -547,6 +547,11 @@ export const EmailTransactionPublicSchema = {
             '$ref': '#/components/schemas/EmailTransactionStatus',
             default: 'pending'
         },
+        seen: {
+            type: 'boolean',
+            title: 'Seen',
+            default: false
+        },
         raw_content: {
             anyOf: [
                 {
@@ -672,6 +677,17 @@ export const EmailTransactionUpdateSchema = {
                     type: 'null'
                 }
             ]
+        },
+        seen: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Seen'
         },
         linked_transaction_id: {
             anyOf: [

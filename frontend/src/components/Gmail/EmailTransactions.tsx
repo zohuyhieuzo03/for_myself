@@ -17,7 +17,6 @@ import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 import { FiEdit, FiEye, FiMail, FiRefreshCw, FiTrash2 } from "react-icons/fi"
 import { CategoriesService, GmailService } from "@/client"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   DialogBody,
   DialogContent,
@@ -46,25 +45,24 @@ interface EmailTransactionRowProps {
     account_number: string | null
     transaction_type: string | null
     status: string
+    seen: boolean
     raw_content: string | null
     category_id?: string | null
   }
-  isSelected: boolean
-  onSelect: (id: string, selected: boolean) => void
   onView: (transaction: any) => void
   onEdit: (transaction: any) => void
   onDelete: (id: string) => void
+  onMarkSeen: (id: string) => void
   categories: { id: string; name: string }[]
   onAssignCategory: (transactionId: string, categoryId: string | null) => void
 }
 
 function EmailTransactionRow({
   transaction,
-  isSelected,
-  onSelect,
   onView,
   onEdit,
   onDelete,
+  onMarkSeen,
   categories,
   onAssignCategory,
 }: EmailTransactionRowProps) {
@@ -80,50 +78,34 @@ function EmailTransactionRow({
     }).format(amount)
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "yellow"
-      case "processed":
-        return "green"
-      case "ignored":
-        return "red"
-      default:
-        return "gray"
-    }
-  }
-
-  const getTransactionTypeColor = (type: string | null) => {
-    switch (type) {
-      case "debit":
-        return "red"
-      case "credit":
-        return "green"
-      default:
-        return "gray"
+  const getRowStyle = (seen: boolean) => {
+    return {
+      backgroundColor: seen ? "gray.50" : "white",
+      opacity: seen ? 0.8 : 1,
     }
   }
 
   return (
-    <Table.Row>
+    <Table.Row style={getRowStyle(transaction.seen)}>
       <Table.Cell>
-        <Checkbox
-          checked={isSelected}
-          onCheckedChange={(checked) =>
-            onSelect(transaction.id, Boolean(checked))
-          }
-        />
-      </Table.Cell>
-      <Table.Cell>
-        <Text fontSize="sm" fontWeight="medium">
-          {transaction.subject}
-        </Text>
+        <HStack gap={2}>
+          <Text fontSize="sm" fontWeight="medium" color={transaction.seen ? "gray.600" : "black"}>
+            {transaction.subject}
+          </Text>
+          {!transaction.seen && (
+            <Badge colorScheme="blue" size="sm">
+              New
+            </Badge>
+          )}
+        </HStack>
         <Text fontSize="xs" color="gray.500">
           {transaction.sender}
         </Text>
       </Table.Cell>
       <Table.Cell>
-        <Text fontSize="sm">{formatAmount(transaction.amount)}</Text>
+        <Text fontSize="sm" color={transaction.seen ? "gray.600" : "black"}>
+          {formatAmount(transaction.amount)}
+        </Text>
         {transaction.merchant && (
           <Text fontSize="xs" color="gray.500">
             {transaction.merchant}
@@ -139,6 +121,10 @@ function EmailTransactionRow({
               e.target.value === "" ? null : e.target.value,
             )
           }
+          style={{ 
+            backgroundColor: transaction.seen ? "gray.100" : "white",
+            color: transaction.seen ? "gray.600" : "black"
+          }}
         >
           <option value="">Uncategorized</option>
           {categories.map((c) => (
@@ -149,19 +135,7 @@ function EmailTransactionRow({
         </select>
       </Table.Cell>
       <Table.Cell>
-        <Badge
-          colorScheme={getTransactionTypeColor(transaction.transaction_type)}
-        >
-          {transaction.transaction_type || "Unknown"}
-        </Badge>
-      </Table.Cell>
-      <Table.Cell>
-        <Badge colorScheme={getStatusColor(transaction.status)}>
-          {transaction.status}
-        </Badge>
-      </Table.Cell>
-      <Table.Cell>
-        <Text fontSize="sm" color="gray.600">
+        <Text fontSize="sm" color={transaction.seen ? "gray.600" : "black"}>
           {formatDate(transaction.received_at)}
         </Text>
       </Table.Cell>
@@ -177,6 +151,19 @@ function EmailTransactionRow({
               <span>View</span>
             </HStack>
           </Button>
+          {!transaction.seen && (
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="green"
+              onClick={() => onMarkSeen(transaction.id)}
+            >
+              <HStack>
+                <FiEye />
+                <span>Mark Seen</span>
+              </HStack>
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"
@@ -395,10 +382,12 @@ function getEmailTransactionsQueryOptions({
   page,
   statusFilter,
   sortBy,
+  unseenOnly,
 }: {
   page: number
   statusFilter?: string
   sortBy: "date_desc" | "amount_desc" | "amount_asc"
+  unseenOnly?: boolean
 }) {
   return {
     queryFn: async () => {
@@ -431,6 +420,7 @@ function getEmailTransactionsQueryOptions({
           const response = await GmailService.getEmailTransactions({
             connectionId: connection.id,
             status: statusFilter === "all" ? undefined : statusFilter,
+            unseenOnly: unseenOnly,
             skip: 0, // We'll handle pagination after combining all results
             limit: 1000, // Get all transactions from each connection
           })
@@ -479,7 +469,10 @@ function getEmailTransactionsQueryOptions({
         count: totalCount,
       }
     },
-    queryKey: ["email-transactions", { page, statusFilter, sortBy }],
+    queryKey: [
+      "email-transactions",
+      { page, statusFilter, sortBy, unseenOnly },
+    ],
   }
 }
 
@@ -487,23 +480,24 @@ function getEmailTransactionsQueryOptions({
 export function EmailTransactionsTable({
   page = 1,
   statusFilter = "all",
+  unseenOnly = false,
 }: {
   page?: number
   statusFilter?: string
+  unseenOnly?: boolean
 }) {
   const { showSuccessToast, showErrorToast } = useCustomToast()
   const queryClient = useQueryClient()
   const { open, onOpen, onClose } = useDisclosure()
   const navigate = useNavigate()
 
-  const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(
-    new Set(),
-  )
   const [currentStatusFilter, setCurrentStatusFilter] =
     useState<string>(statusFilter)
   const [currentSortBy, setCurrentSortBy] = useState<
     "date_desc" | "amount_desc" | "amount_asc"
   >("date_desc")
+  const [currentUnseenOnly, setCurrentUnseenOnly] =
+    useState<boolean>(unseenOnly)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
   const currentPage = page
 
@@ -513,6 +507,7 @@ export function EmailTransactionsTable({
       page: currentPage,
       statusFilter: currentStatusFilter,
       sortBy: currentSortBy,
+      unseenOnly: currentUnseenOnly,
     }),
     placeholderData: (prevData) => prevData,
   })
@@ -525,7 +520,7 @@ export function EmailTransactionsTable({
     staleTime: 5 * 60 * 1000,
   })
 
-  const syncEmailsMutation = useMutation({
+  const syncRecentEmailsMutation = useMutation({
     mutationFn: async () => {
       // Get all Gmail connections
       const connectionsResponse = await GmailService.getGmailConnections()
@@ -533,27 +528,26 @@ export function EmailTransactionsTable({
         throw new Error("No Gmail connections found")
       }
 
-      // Sync emails from all connections
+      // Sync recent emails from all connections
       let totalSynced = 0
       for (const connection of connectionsResponse.data) {
-        const response = await GmailService.syncEmails({
+        const response = await GmailService.triggerAutoSync({
           connectionId: connection.id,
-          maxResults: 2000,
         })
         totalSynced += response.message ? 1 : 0 // Count successful syncs
       }
 
-      return { message: `Synced emails from ${totalSynced} connections` }
+      return { message: `Synced recent emails from ${totalSynced} connections` }
     },
     onSuccess: () => {
-      showSuccessToast("Emails synced successfully")
+      showSuccessToast("Recent emails synced successfully")
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({
         queryKey: ["email-transactions"],
       })
     },
     onError: (error) => {
-      showErrorToast(`Failed to sync emails: ${error.message}`)
+      showErrorToast(`Failed to sync recent emails: ${error.message}`)
     },
   })
 
@@ -595,24 +589,65 @@ export function EmailTransactionsTable({
     },
   })
 
-  const handleSelectTransaction = (id: string, selected: boolean) => {
-    const newSelected = new Set(selectedTransactions)
-    if (selected) {
-      newSelected.add(id)
-    } else {
-      newSelected.delete(id)
-    }
-    setSelectedTransactions(newSelected)
-  }
+  const markSeenMutation = useMutation({
+    mutationFn: async (transactionId: string) => {
+      await GmailService.markEmailTransactionAsSeen({ transactionId })
+    },
+    onSuccess: () => {
+      showSuccessToast("Email marked as seen")
+      queryClient.invalidateQueries({ queryKey: ["email-transactions"] })
+    },
+    onError: (error) => {
+      showErrorToast(`Failed to mark as seen: ${error.message}`)
+    },
+  })
 
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      const allIds = new Set(transactions?.data.map((t: any) => t.id) || [])
-      setSelectedTransactions(allIds)
-    } else {
-      setSelectedTransactions(new Set())
-    }
-  }
+  const markAllSeenMutation = useMutation({
+    mutationFn: async () => {
+      // Get all Gmail connections first
+      const connectionsResponse = await GmailService.getGmailConnections()
+      if (!connectionsResponse.data.length) {
+        throw new Error("No Gmail connections found")
+      }
+
+      // Get all unseen email transactions from all connections
+      const allUnseenTransactionIds = []
+      for (const connection of connectionsResponse.data) {
+        try {
+          const response = await GmailService.getUnseenEmailTransactions({
+            connectionId: connection.id,
+            skip: 0,
+            limit: 10000, // Get all unseen emails
+          })
+          allUnseenTransactionIds.push(...response.data.map((t: any) => t.id))
+        } catch (error) {
+          console.error(
+            "Error fetching unseen transactions for connection",
+            connection.id,
+            error,
+          )
+          // Continue with other connections
+        }
+      }
+
+      // Mark all unseen transactions as seen
+      const promises = allUnseenTransactionIds.map((id) =>
+        GmailService.markEmailTransactionAsSeen({ transactionId: id }),
+      )
+      await Promise.all(promises)
+      
+      return allUnseenTransactionIds.length
+    },
+    onSuccess: (count) => {
+      showSuccessToast(`${count} emails marked as seen`)
+      queryClient.invalidateQueries({ queryKey: ["email-transactions"] })
+      queryClient.invalidateQueries({ queryKey: ["unseen-email-transactions"] })
+    },
+    onError: (error) => {
+      showErrorToast(`Failed to mark all as seen: ${error.message}`)
+    },
+  })
+
 
   const handleViewTransaction = (transaction: any) => {
     setSelectedTransaction(transaction)
@@ -637,6 +672,16 @@ export function EmailTransactionsTable({
     assignCategoryMutation.mutate({ transactionId, categoryId })
   }
 
+  const handleMarkSeen = (transactionId: string) => {
+    markSeenMutation.mutate(transactionId)
+  }
+
+  const handleMarkAllSeen = () => {
+    if (confirm("Mark ALL unseen emails as seen? This will mark all unseen emails across all your Gmail connections.")) {
+      markAllSeenMutation.mutate()
+    }
+  }
+
   // Page change handler (similar to admin page)
   const setPage = (page: number) => {
     navigate({
@@ -646,9 +691,9 @@ export function EmailTransactionsTable({
         page,
         statusFilter: currentStatusFilter,
         sortBy: currentSortBy,
+        unseenOnly: currentUnseenOnly,
       }),
     })
-    setSelectedTransactions(new Set()) // Clear selection when changing pages
   }
 
   const handleStatusFilterChange = (status: string) => {
@@ -661,6 +706,7 @@ export function EmailTransactionsTable({
         page: 1,
         statusFilter: status,
         sortBy: currentSortBy,
+        unseenOnly: currentUnseenOnly,
       }),
     })
   }
@@ -676,13 +722,13 @@ export function EmailTransactionsTable({
         page: 1,
         statusFilter: currentStatusFilter,
         sortBy: value,
+        unseenOnly: currentUnseenOnly,
       }),
     })
   }
 
-  const isAllSelected =
-    Boolean(transactions?.data?.length) &&
-    selectedTransactions.size === (transactions?.data?.length || 0)
+  // Check if all emails are seen
+  const allEmailsSeen = transactions?.data?.every((t: any) => t.seen) || false
 
   return (
     <VStack gap={6} align="stretch">
@@ -728,17 +774,56 @@ export function EmailTransactionsTable({
               </select>
             </Box>
 
-            <Box alignSelf="end">
-              <Button
-                colorPalette="blue"
-                onClick={() => syncEmailsMutation.mutate()}
-                loading={syncEmailsMutation.isPending}
+            <Box minW="150px">
+              <Text fontSize="sm" mb={1}>
+                Filter
+              </Text>
+              <select
+                value={currentUnseenOnly ? "unseen" : "all"}
+                onChange={(e) => {
+                  const unseenOnly = e.target.value === "unseen"
+                  setCurrentUnseenOnly(unseenOnly)
+                  navigate({
+                    to: "/email-transactions",
+                    search: (prev) => ({
+                      ...prev,
+                      page: 1,
+                      statusFilter: currentStatusFilter,
+                      sortBy: currentSortBy,
+                      unseenOnly: unseenOnly,
+                    }),
+                  })
+                }}
               >
-                <HStack>
-                  <FiRefreshCw />
-                  <span>Sync All Emails</span>
-                </HStack>
-              </Button>
+                <option value="all">All emails</option>
+                <option value="unseen">Unseen only</option>
+              </select>
+            </Box>
+
+            <Box alignSelf="end">
+              <HStack gap={2}>
+                <Button
+                  colorPalette="green"
+                  variant="outline"
+                  onClick={handleMarkAllSeen}
+                  loading={markAllSeenMutation.isPending}
+                >
+                  <HStack>
+                    <FiEye />
+                    <span>Mark All Unseen as Seen</span>
+                  </HStack>
+                </Button>
+                <Button
+                  colorPalette="blue"
+                  onClick={() => syncRecentEmailsMutation.mutate()}
+                  loading={syncRecentEmailsMutation.isPending}
+                >
+                  <HStack>
+                    <FiRefreshCw />
+                    <span>Sync Recent Emails</span>
+                  </HStack>
+                </Button>
+              </HStack>
             </Box>
           </HStack>
         </Card.Body>
@@ -758,16 +843,17 @@ export function EmailTransactionsTable({
               No email transactions found
             </Heading>
             <Text color="gray.500" mb={6}>
-              Sync emails to import transaction data from your Gmail accounts.
+              Sync recent emails to import transaction data from your Gmail
+              accounts.
             </Text>
             <Button
               colorPalette="blue"
-              onClick={() => syncEmailsMutation.mutate()}
-              loading={syncEmailsMutation.isPending}
+              onClick={() => syncRecentEmailsMutation.mutate()}
+              loading={syncRecentEmailsMutation.isPending}
             >
               <HStack>
                 <FiRefreshCw />
-                <span>Sync All Emails Now</span>
+                <span>Sync Recent Emails Now</span>
               </HStack>
             </Button>
           </Card.Body>
@@ -776,39 +862,16 @@ export function EmailTransactionsTable({
         <Card.Root>
           <Card.Header>
             <HStack justify="space-between">
-              <Text fontSize="lg" fontWeight="semibold">
-                Email Transactions ({transactions.count})
-              </Text>
-              <HStack>
-                <Checkbox
-                  checked={isAllSelected}
-                  onCheckedChange={() => handleSelectAll(!isAllSelected)}
-                >
-                  Select All
-                </Checkbox>
-                {selectedTransactions.size > 0 && (
-                  <Button
-                    size="sm"
-                    colorPalette="red"
-                    variant="outline"
-                    onClick={() => {
-                      if (
-                        confirm(
-                          `Delete ${selectedTransactions.size} selected transactions?`,
-                        )
-                      ) {
-                        // TODO: Implement bulk delete
-                        showSuccessToast("Bulk delete coming soon")
-                      }
-                    }}
-                  >
-                    <HStack>
-                      <FiTrash2 />
-                      <span>Delete Selected</span>
-                    </HStack>
-                  </Button>
+              <VStack align="start" gap={1}>
+                <Text fontSize="lg" fontWeight="semibold">
+                  Email Transactions ({transactions.count})
+                </Text>
+                {allEmailsSeen && transactions.count > 0 && (
+                  <Text fontSize="sm" color="green.600" fontWeight="medium">
+                    ✅ Tất cả email đã được seen
+                  </Text>
                 )}
-              </HStack>
+              </VStack>
             </HStack>
           </Card.Header>
           <Card.Body p={0}>
@@ -816,12 +879,9 @@ export function EmailTransactionsTable({
               <Table.Root>
                 <Table.Header>
                   <Table.Row>
-                    <Table.ColumnHeader />
                     <Table.ColumnHeader>Email</Table.ColumnHeader>
                     <Table.ColumnHeader>Amount</Table.ColumnHeader>
                     <Table.ColumnHeader>Category</Table.ColumnHeader>
-                    <Table.ColumnHeader>Type</Table.ColumnHeader>
-                    <Table.ColumnHeader>Status</Table.ColumnHeader>
                     <Table.ColumnHeader>Date</Table.ColumnHeader>
                     <Table.ColumnHeader>Actions</Table.ColumnHeader>
                   </Table.Row>
@@ -831,11 +891,10 @@ export function EmailTransactionsTable({
                     <EmailTransactionRow
                       key={transaction.id}
                       transaction={transaction}
-                      isSelected={selectedTransactions.has(transaction.id)}
-                      onSelect={handleSelectTransaction}
                       onView={handleViewTransaction}
                       onEdit={handleEditTransaction}
                       onDelete={handleDeleteTransaction}
+                      onMarkSeen={handleMarkSeen}
                       categories={categoriesData?.data || []}
                       onAssignCategory={handleAssignCategory}
                     />

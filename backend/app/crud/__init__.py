@@ -67,13 +67,16 @@ from .gmail_connection import (
 from .email_transaction import (
     bulk_update_email_transactions,
     count_email_transactions,
+    count_unseen_email_transactions,
     create_email_transaction,
     delete_email_transaction,
     get_email_transaction,
     get_email_transaction_by_email_id,
     get_email_transactions,
     get_pending_email_transactions,
+    get_unseen_email_transactions,
     get_email_txn_dashboard,
+    mark_email_transaction_as_seen,
     update_email_transaction,
 )
 
@@ -137,12 +140,15 @@ __all__ = [
     # Email transaction functions
     "bulk_update_email_transactions",
     "count_email_transactions",
+    "count_unseen_email_transactions",
     "create_email_transaction",
     "delete_email_transaction",
     "get_email_transaction",
     "get_email_transaction_by_email_id",
     "get_email_transactions",
     "get_pending_email_transactions",
+    "get_unseen_email_transactions",
     "get_email_txn_dashboard",
+    "mark_email_transaction_as_seen",
     "update_email_transaction",
 ]

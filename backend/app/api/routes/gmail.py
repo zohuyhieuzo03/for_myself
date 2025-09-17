@@ -215,6 +215,7 @@ def get_email_transactions(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=10000),
     status: str = Query(None, description="Filter by status (pending, processed, ignored)"),
+    unseen_only: bool = Query(False, description="Filter to show only unseen emails"),
 ) -> Any:
     """Get email transactions for a Gmail connection."""
     # Verify connection belongs to user
@@ -222,8 +223,15 @@ def get_email_transactions(
     if not connection or connection.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Gmail connection not found")
     
-    # Get transactions based on status filter
-    if status:
+    # Get transactions based on filters
+    if unseen_only:
+        transactions = crud.get_unseen_email_transactions(
+            session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
+        )
+        total_count = crud.count_unseen_email_transactions(
+            session=session, gmail_connection_id=connection_id
+        )
+    elif status:
         if status == "pending":
             transactions = crud.get_pending_email_transactions(
                 session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
@@ -234,15 +242,16 @@ def get_email_transactions(
                 session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
             )
             transactions = [t for t in transactions if t.status == status]
+        total_count = crud.count_email_transactions(
+            session=session, gmail_connection_id=connection_id, status=status
+        )
     else:
         transactions = crud.get_email_transactions(
             session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
         )
-    
-    # Get total count for pagination
-    total_count = crud.count_email_transactions(
-        session=session, gmail_connection_id=connection_id, status=status
-    )
+        total_count = crud.count_email_transactions(
+            session=session, gmail_connection_id=connection_id, status=status
+        )
     
     public_transactions = [EmailTransactionPublic.model_validate(t) for t in transactions]
     
@@ -405,6 +414,29 @@ def update_email_transaction(
     return EmailTransactionPublic.model_validate(updated_transaction)
 
 
+@router.post("/email-transactions/{transaction_id}/mark-seen", response_model=EmailTransactionPublic)
+def mark_email_transaction_as_seen(
+    session: SessionDep,
+    current_user: CurrentUser,
+    transaction_id: uuid.UUID,
+) -> Any:
+    """Mark an email transaction as seen."""
+    transaction = crud.get_email_transaction(session=session, transaction_id=transaction_id)
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Email transaction not found")
+    
+    # Verify connection belongs to user
+    connection = crud.get_gmail_connection(session=session, connection_id=transaction.gmail_connection_id)
+    if not connection or connection.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    updated_transaction = crud.mark_email_transaction_as_seen(
+        session=session, transaction_id=transaction_id
+    )
+    
+    return EmailTransactionPublic.model_validate(updated_transaction)
+
+
 @router.delete("/email-transactions/{transaction_id}", response_model=Message)
 def delete_email_transaction(
     session: SessionDep,
@@ -455,3 +487,167 @@ def get_email_transactions_dashboard(
         month=month,
     )
     return dashboard
+
+
+@router.get("/email-transactions/unseen", response_model=EmailTransactionsPublic)
+def get_unseen_email_transactions(
+    session: SessionDep,
+    current_user: CurrentUser,
+    connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=10000),
+) -> Any:
+    """Get unseen email transactions for a Gmail connection."""
+    # Verify connection belongs to user
+    connection = crud.get_gmail_connection(session=session, connection_id=connection_id)
+    if not connection or connection.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Gmail connection not found")
+    
+    transactions = crud.get_unseen_email_transactions(
+        session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
+    )
+    total_count = crud.count_unseen_email_transactions(
+        session=session, gmail_connection_id=connection_id
+    )
+    
+    public_transactions = [EmailTransactionPublic.model_validate(t) for t in transactions]
+    
+    return EmailTransactionsPublic(data=public_transactions, count=total_count)
+
+
+@router.post("/auto-sync", response_model=Message)
+def trigger_auto_sync(
+    session: SessionDep,
+    current_user: CurrentUser,
+    connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
+) -> Any:
+    """Trigger automatic sync for recent emails (last 24 hours)."""
+    # Verify connection belongs to user
+    connection = crud.get_gmail_connection(session=session, connection_id=connection_id)
+    if not connection or connection.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Gmail connection not found")
+    
+    if not connection.is_active:
+        raise HTTPException(status_code=400, detail="Gmail connection is not active")
+    
+    try:
+        # Get valid access token
+        _, access_token = get_valid_gmail_connection_with_token(session, current_user, connection_id)
+        
+        # Sync recent emails (last 7 days)
+        gmail_service = GmailService()
+        emails = gmail_service.search_recent_transaction_emails(access_token, days=7)
+        
+        processor = EmailTransactionProcessor()
+        synced_count = 0
+        
+        for email in emails:
+            # Check if email already exists
+            existing_transaction = crud.get_email_transaction_by_email_id(
+                session=session, email_id=email['id'], gmail_connection_id=connection_id
+            )
+            
+            if existing_transaction:
+                continue  # Skip already processed emails
+            
+            # Extract transaction information
+            transaction_info = processor.extract_transaction_info(email)
+            
+            # Create email transaction
+            email_transaction_data = EmailTransactionCreate(
+                gmail_connection_id=connection_id,
+                email_id=email['id'],
+                subject=email['subject'],
+                sender=email['sender'],
+                received_at=email['date'],
+                amount=transaction_info.get('amount'),
+                merchant=transaction_info.get('merchant'),
+                account_number=transaction_info.get('account_number'),
+                transaction_type=transaction_info.get('transaction_type'),
+                raw_content=email['body']
+            )
+            
+            crud.create_email_transaction(
+                session=session, email_transaction_in=email_transaction_data
+            )
+            synced_count += 1
+        
+        # Update last sync time
+        connection.last_sync_at = datetime.now(timezone.utc)
+        session.add(connection)
+        session.commit()
+        
+        return Message(message=f"Auto-sync completed. Synced {synced_count} new emails.")
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Auto-sync failed: {str(e)}")
+
+
+# ========= SCHEDULER MANAGEMENT ROUTES =========
+@router.get("/scheduler/status", response_model=dict)
+def get_scheduler_status(
+    current_user: CurrentUser,
+) -> Any:
+    """Get the status of the Gmail sync scheduler."""
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    from app.services.scheduler_service import get_scheduler_status
+    return get_scheduler_status()
+
+
+@router.post("/scheduler/start", response_model=Message)
+def start_scheduler(
+    current_user: CurrentUser,
+) -> Any:
+    """Start the Gmail sync scheduler (admin only)."""
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    from app.services.scheduler_service import start_gmail_sync_scheduler
+    
+    try:
+        start_gmail_sync_scheduler()
+        return Message(message="Gmail sync scheduler started successfully")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to start scheduler: {str(e)}")
+
+
+@router.post("/scheduler/stop", response_model=Message)
+def stop_scheduler(
+    current_user: CurrentUser,
+) -> Any:
+    """Stop the Gmail sync scheduler (admin only)."""
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    from app.services.scheduler_service import stop_gmail_sync_scheduler
+    
+    try:
+        stop_gmail_sync_scheduler()
+        return Message(message="Gmail sync scheduler stopped successfully")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to stop scheduler: {str(e)}")
+
+
+@router.post("/scheduler/sync-all", response_model=Message)
+def trigger_sync_all_connections(
+    current_user: CurrentUser,
+    days: int = Query(1, ge=1, le=30, description="Number of days to sync back"),
+) -> Any:
+    """Trigger sync for all active Gmail connections (admin only)."""
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    from app.services.gmail_service import sync_all_active_connections
+    
+    try:
+        results = sync_all_active_connections(days=days)
+        total_synced = sum(results.values())
+        
+        return Message(
+            message=f"Sync completed for {len(results)} connections. "
+                   f"Total emails synced: {total_synced}"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to sync all connections: {str(e)}")

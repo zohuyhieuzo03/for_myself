@@ -27,6 +27,7 @@ import {
   SprintsService,
   TransactionsService,
 } from "@/client"
+import { UnseenEmailTransactions } from "@/components/Gmail/UnseenEmailTransactions"
 
 const FinancialDashboard = () => {
   // Fetch data for dashboard
@@ -263,6 +264,9 @@ const FinancialDashboard = () => {
             </Card.Body>
           </Card.Root>
         </Grid>
+
+        {/* Unseen Email Transactions */}
+        <UnseenEmailTransactions limit={5} />
 
         {/* Recent Activity */}
         <Card.Root>

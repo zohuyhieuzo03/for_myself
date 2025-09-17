@@ -9,12 +9,12 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import {
+  Area,
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
   ComposedChart,
-  Area,
   Line,
   Pie,
   PieChart,
@@ -56,10 +56,7 @@ export default function EmailTransactionsDashboard() {
   const connectionId = connections?.data?.[0]?.id
 
   const { data: dashboard } = useQuery({
-    queryKey: [
-      "email-txn-dashboard",
-      { connectionId, year, month },
-    ],
+    queryKey: ["email-txn-dashboard", { connectionId, year, month }],
     enabled: Boolean(connectionId),
     queryFn: () =>
       GmailService.getEmailTransactionsDashboard({
@@ -78,7 +75,9 @@ export default function EmailTransactionsDashboard() {
     ],
     enabled:
       Boolean(connectionId) &&
-      (filterType === "last7" || filterType === "last30" || filterType === "custom"),
+      (filterType === "last7" ||
+        filterType === "last30" ||
+        filterType === "custom"),
     queryFn: async () => {
       // determine start/end
       let start: Date
@@ -110,13 +109,18 @@ export default function EmailTransactionsDashboard() {
       }
       const weekKey = (d: Date) => {
         const yearStart = new Date(d.getFullYear(), 0, 1)
-        const days = Math.floor((Number(d) - Number(yearStart)) / (24 * 3600 * 1000))
+        const days = Math.floor(
+          (Number(d) - Number(yearStart)) / (24 * 3600 * 1000),
+        )
         const week = Math.ceil((days + yearStart.getDay() + 1) / 7)
         return `${d.getFullYear()}-W${String(week).padStart(2, "0")}`
       }
 
       // fetch categories to map id->name
-      const categories = await CategoriesService.readCategories({ skip: 0, limit: 1000 })
+      const categories = await CategoriesService.readCategories({
+        skip: 0,
+        limit: 1000,
+      })
       const catMap = new Map<string, string>()
       categories.data.forEach((c: any) => catMap.set(c.id, c.name))
 
@@ -151,7 +155,10 @@ export default function EmailTransactionsDashboard() {
           const key = new Date(t.received_at).toISOString().slice(0, 10)
           map.set(key, (map.get(key) || 0) + (t.amount || 0))
         })
-        monthly = Array.from(map.entries()).map(([label, value]) => ({ label, value }))
+        monthly = Array.from(map.entries()).map(([label, value]) => ({
+          label,
+          value,
+        }))
       } else if (filterType === "last30") {
         // group by week
         const map = new Map<string, number>()
@@ -167,7 +174,10 @@ export default function EmailTransactionsDashboard() {
           const key = weekKey(startOfWeek(new Date(t.received_at)))
           map.set(key, (map.get(key) || 0) + (t.amount || 0))
         })
-        monthly = Array.from(map.entries()).map(([label, value]) => ({ label, value }))
+        monthly = Array.from(map.entries()).map(([label, value]) => ({
+          label,
+          value,
+        }))
       } else {
         // default monthly
         const byMonthMap = new Map<string, number>()
@@ -184,18 +194,31 @@ export default function EmailTransactionsDashboard() {
       // aggregate by category
       const byCatMap = new Map<string, number>()
       inRange.forEach((t: any) => {
-        const name = t.category_id ? catMap.get(t.category_id) || "Uncategorized" : "Uncategorized"
+        const name = t.category_id
+          ? catMap.get(t.category_id) || "Uncategorized"
+          : "Uncategorized"
         byCatMap.set(name, (byCatMap.get(name) || 0) + (t.amount || 0))
       })
-      const byCategory = Array.from(byCatMap.entries()).map(([name, value]) => ({ name, value }))
+      const byCategory = Array.from(byCatMap.entries()).map(
+        ([name, value]) => ({ name, value }),
+      )
 
-      return { monthly, byCategory, start: start.toISOString(), end: end.toISOString() }
+      return {
+        monthly,
+        byCategory,
+        start: start.toISOString(),
+        end: end.toISOString(),
+      }
     },
     placeholderData: (prev) => prev,
   })
 
   const barData = useMemo(() => {
-    if (filterType === "last7" || filterType === "last30" || filterType === "custom") {
+    if (
+      filterType === "last7" ||
+      filterType === "last30" ||
+      filterType === "custom"
+    ) {
       return rangeAgg?.monthly ?? []
     }
     return (dashboard?.monthly ?? []).map((m) => ({
@@ -206,16 +229,19 @@ export default function EmailTransactionsDashboard() {
 
   const pieData = useMemo(() => {
     const arr =
-      filterType === "last7" || filterType === "last30" || filterType === "custom"
-        ? (rangeAgg?.byCategory ?? []).map((d: any) => ({ name: d.name, value: Number(d.value || 0) }))
+      filterType === "last7" ||
+      filterType === "last30" ||
+      filterType === "custom"
+        ? (rangeAgg?.byCategory ?? []).map((d: any) => ({
+            name: d.name,
+            value: Number(d.value || 0),
+          }))
         : (dashboard?.by_category ?? []).map((c) => ({
             name: c.category_name ?? "Uncategorized",
             value: Number(c.total_amount ?? 0),
           }))
 
-    return arr
-      .filter((d) => d.value > 0)
-      .sort((a, b) => b.value - a.value)
+    return arr.filter((d) => d.value > 0).sort((a, b) => b.value - a.value)
   }, [dashboard, rangeAgg, filterType])
 
   const years = useMemo(() => {
@@ -314,30 +340,73 @@ export default function EmailTransactionsDashboard() {
         <Box borderWidth="1px" borderRadius="md" p={4}>
           <HStack justify="space-between" mb={3}>
             <Heading size="sm">Monthly totals</Heading>
-            <Box fontSize="xs" color="gray.600">VND</Box>
+            <Box fontSize="xs" color="gray.600">
+              VND
+            </Box>
           </HStack>
           <Box height="260px">
             <ResponsiveContainer width="100%" height="100%">
               {chartType === "bar" ? (
-                <BarChart data={barData} margin={{ top: 8, right: 8, bottom: 24, left: 56 }}>
+                <BarChart
+                  data={barData}
+                  margin={{ top: 8, right: 8, bottom: 24, left: 56 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="label" fontSize={10} />
-                  <YAxis fontSize={10} allowDecimals={false} width={72} tickFormatter={(v: any) => `${Number(v).toLocaleString()}₫`} />
-                  <Tooltip formatter={(v: any) => [`${Number(v).toLocaleString()}₫`, "Total"]} />
+                  <YAxis
+                    fontSize={10}
+                    allowDecimals={false}
+                    width={72}
+                    tickFormatter={(v: any) => `${Number(v).toLocaleString()}₫`}
+                  />
+                  <Tooltip
+                    formatter={(v: any) => [
+                      `${Number(v).toLocaleString()}₫`,
+                      "Total",
+                    ]}
+                  />
                   <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                     {barData.map((_, i) => (
-                      <Cell key={`bar-${i}`} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                      <Cell
+                        key={`bar-${i}`}
+                        fill={CHART_COLORS[i % CHART_COLORS.length]}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
               ) : (
-                <ComposedChart data={barData} margin={{ top: 8, right: 16, bottom: 24, left: 56 }}>
+                <ComposedChart
+                  data={barData}
+                  margin={{ top: 8, right: 16, bottom: 24, left: 56 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="label" fontSize={10} />
-                  <YAxis fontSize={10} allowDecimals={false} width={72} tickFormatter={(v: any) => `${Number(v).toLocaleString()}₫`} />
-                  <Tooltip formatter={(v: any) => [`${Number(v).toLocaleString()}₫`, "Total"]} />
-                  <Area type="monotone" dataKey="value" stroke={CHART_COLORS[0]} fill={CHART_COLORS[0]} fillOpacity={0.2} />
-                  <Line type="monotone" dataKey="value" stroke={CHART_COLORS[0]} strokeWidth={2} dot={{ r: 3 }} />
+                  <YAxis
+                    fontSize={10}
+                    allowDecimals={false}
+                    width={72}
+                    tickFormatter={(v: any) => `${Number(v).toLocaleString()}₫`}
+                  />
+                  <Tooltip
+                    formatter={(v: any) => [
+                      `${Number(v).toLocaleString()}₫`,
+                      "Total",
+                    ]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke={CHART_COLORS[0]}
+                    fill={CHART_COLORS[0]}
+                    fillOpacity={0.2}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke={CHART_COLORS[0]}
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                  />
                 </ComposedChart>
               )}
             </ResponsiveContainer>
@@ -347,18 +416,35 @@ export default function EmailTransactionsDashboard() {
         <Box borderWidth="1px" borderRadius="md" p={4}>
           <HStack justify="space-between" mb={3}>
             <Heading size="sm">By category</Heading>
-            <Box fontSize="xs" color="gray.600">VND</Box>
+            <Box fontSize="xs" color="gray.600">
+              VND
+            </Box>
           </HStack>
           <HStack align="start" gap={6}>
             <Box height="260px" w="260px">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90}>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                  >
                     {pieData.map((_, i) => (
-                      <Cell key={`slice-${i}`} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                      <Cell
+                        key={`slice-${i}`}
+                        fill={CHART_COLORS[i % CHART_COLORS.length]}
+                      />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v: any, n: any) => [`${Number(v).toLocaleString()}₫`, n]} />
+                  <Tooltip
+                    formatter={(v: any, n: any) => [
+                      `${Number(v).toLocaleString()}₫`,
+                      n,
+                    ]}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </Box>
@@ -368,8 +454,17 @@ export default function EmailTransactionsDashboard() {
               ) : (
                 pieData.map((d, i) => (
                   <HStack key={d.name} gap={2}>
-                    <Box w="10px" h="10px" borderRadius="2px" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                    <Box fontSize="sm">{d.name}: {Number(d.value).toLocaleString()}₫</Box>
+                    <Box
+                      w="10px"
+                      h="10px"
+                      borderRadius="2px"
+                      style={{
+                        backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+                      }}
+                    />
+                    <Box fontSize="sm">
+                      {d.name}: {Number(d.value).toLocaleString()}₫
+                    </Box>
                   </HStack>
                 ))
               )}
@@ -380,5 +475,3 @@ export default function EmailTransactionsDashboard() {
     </Container>
   )
 }
-
-
