@@ -4,6 +4,9 @@ services:
       context: ./backend
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/scripts:/app/scripts
     environment:
       - DOMAIN=fastapi-dev.local
       - FRONTEND_HOST=http://fastapi-dev.local:5173
@@ -22,7 +25,7 @@ services:
       - POSTGRES_DB=app
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-    command: ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "app/main.py"]
+    command: ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "--reload", "app/main.py"]
 
   frontend:
     build:
@@ -33,6 +36,14 @@ services:
         - NODE_ENV=development
     ports:
       - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - ./frontend/tsconfig.build.json:/app/tsconfig.build.json
+      - ./frontend/tsconfig.node.json:/app/tsconfig.node.json
 
   adminer:
     image: adminer
