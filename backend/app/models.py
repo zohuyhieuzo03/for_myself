@@ -627,7 +627,7 @@ class EmailTransactionUpdate(BaseModel):
 class EmailTransaction(EmailTransactionBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     gmail_connection_id: uuid.UUID = Field(foreign_key="gmailconnection.id", nullable=False)
-    linked_transaction_id: uuid.UUID | None = Field(default=None, foreign_key="transaction.id")
+    linked_transaction_id: uuid.UUID | None = Field(default=None, foreign_key="transaction.id", ondelete="SET NULL")
     category_id: uuid.UUID | None = Field(default=None, foreign_key="category.id")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

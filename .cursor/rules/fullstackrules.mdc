@@ -50,7 +50,7 @@ Sau khi backend hoàn thành:
 #### 2.1 Generate OpenAPI Schema & Client
 ```bash
 # Chạy script để generate OpenAPI schema và TypeScript client
-source .venv/bin/activate && ./scripts/generate-client.sh
+cd backend && source .venv/bin/activate && cd .. && ./scripts/generate-client.sh
 ```
 
 ### 3. Frontend Implementation

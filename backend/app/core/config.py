@@ -98,7 +98,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/gmail/callback"
-    GMAIL_ENCRYPTION_KEY: str = secrets.token_urlsafe(32)
+    GMAIL_ENCRYPTION_KEY: str = ""
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":

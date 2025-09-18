@@ -21,9 +21,9 @@ function EmailTransactions() {
 
   return (
     <Container maxW="full">
-      <EmailTransactionsTable 
-        page={page} 
-        statusFilter={statusFilter} 
+      <EmailTransactionsTable
+        page={page}
+        statusFilter={statusFilter}
         unseenOnly={unseenOnly}
       />
     </Container>

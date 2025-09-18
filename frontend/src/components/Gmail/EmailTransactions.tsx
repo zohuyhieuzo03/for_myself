@@ -15,8 +15,15 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
-import { FiEdit, FiEye, FiMail, FiRefreshCw, FiTrash2 } from "react-icons/fi"
-import { CategoriesService, GmailService } from "@/client"
+import {
+  FiEdit,
+  FiEye,
+  FiMail,
+  FiPlus,
+  FiRefreshCw,
+  FiTrash2,
+} from "react-icons/fi"
+import { AccountsService, CategoriesService, GmailService } from "@/client"
 import {
   DialogBody,
   DialogContent,
@@ -53,6 +60,7 @@ interface EmailTransactionRowProps {
   onEdit: (transaction: any) => void
   onDelete: (id: string) => void
   onMarkSeen: (id: string) => void
+  onCreateTransaction: (transaction: any) => void
   categories: { id: string; name: string }[]
   onAssignCategory: (transactionId: string, categoryId: string | null) => void
 }
@@ -63,6 +71,7 @@ function EmailTransactionRow({
   onEdit,
   onDelete,
   onMarkSeen,
+  onCreateTransaction,
   categories,
   onAssignCategory,
 }: EmailTransactionRowProps) {
@@ -89,7 +98,11 @@ function EmailTransactionRow({
     <Table.Row style={getRowStyle(transaction.seen)}>
       <Table.Cell>
         <HStack gap={2}>
-          <Text fontSize="sm" fontWeight="medium" color={transaction.seen ? "gray.600" : "black"}>
+          <Text
+            fontSize="sm"
+            fontWeight="medium"
+            color={transaction.seen ? "gray.600" : "black"}
+          >
             {transaction.subject}
           </Text>
           {!transaction.seen && (
@@ -121,9 +134,9 @@ function EmailTransactionRow({
               e.target.value === "" ? null : e.target.value,
             )
           }
-          style={{ 
+          style={{
             backgroundColor: transaction.seen ? "gray.100" : "white",
-            color: transaction.seen ? "gray.600" : "black"
+            color: transaction.seen ? "gray.600" : "black",
           }}
         >
           <option value="">Uncategorized</option>
@@ -161,6 +174,19 @@ function EmailTransactionRow({
               <HStack>
                 <FiEye />
                 <span>Mark Seen</span>
+              </HStack>
+            </Button>
+          )}
+          {transaction.amount && transaction.transaction_type && (
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="blue"
+              onClick={() => onCreateTransaction(transaction)}
+            >
+              <HStack>
+                <FiPlus />
+                <span>Create Transaction</span>
               </HStack>
             </Button>
           )}
@@ -499,6 +525,10 @@ export function EmailTransactionsTable({
   const [currentUnseenOnly, setCurrentUnseenOnly] =
     useState<boolean>(unseenOnly)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
+  const [createTransactionModalOpen, setCreateTransactionModalOpen] =
+    useState(false)
+  const [selectedEmailTransaction, setSelectedEmailTransaction] =
+    useState<any>(null)
   const currentPage = page
 
   // Get email transactions using the new query options function
@@ -517,6 +547,13 @@ export function EmailTransactionsTable({
     queryKey: ["categories", { page: 1 }],
     queryFn: async () =>
       CategoriesService.readCategories({ skip: 0, limit: 1000 }),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // Load accounts for transaction creation
+  const { data: accountsData } = useQuery({
+    queryKey: ["accounts", { page: 1 }],
+    queryFn: async () => AccountsService.readAccounts({ skip: 0, limit: 1000 }),
     staleTime: 5 * 60 * 1000,
   })
 
@@ -635,7 +672,7 @@ export function EmailTransactionsTable({
         GmailService.markEmailTransactionAsSeen({ transactionId: id }),
       )
       await Promise.all(promises)
-      
+
       return allUnseenTransactionIds.length
     },
     onSuccess: (count) => {
@@ -648,6 +685,44 @@ export function EmailTransactionsTable({
     },
   })
 
+  const createTransactionFromEmailMutation = useMutation({
+    mutationFn: async ({
+      emailTransactionId,
+      accountId,
+      categoryId,
+      sprintId,
+      note,
+    }: {
+      emailTransactionId: string
+      accountId: string
+      categoryId?: string | null
+      sprintId?: string | null
+      note?: string
+    }) => {
+      return await GmailService.createTransactionFromEmail({
+        emailTransactionId,
+        accountId,
+        categoryId,
+        sprintId,
+        note,
+      })
+    },
+    onSuccess: () => {
+      showSuccessToast("Transaction created successfully from email")
+      setCreateTransactionModalOpen(false)
+      setSelectedEmailTransaction(null)
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({
+        queryKey: ["email-transactions"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["transactions"],
+      })
+    },
+    onError: (error) => {
+      showErrorToast(`Failed to create transaction: ${error.message}`)
+    },
+  })
 
   const handleViewTransaction = (transaction: any) => {
     setSelectedTransaction(transaction)
@@ -676,8 +751,17 @@ export function EmailTransactionsTable({
     markSeenMutation.mutate(transactionId)
   }
 
+  const handleCreateTransaction = (transaction: any) => {
+    setSelectedEmailTransaction(transaction)
+    setCreateTransactionModalOpen(true)
+  }
+
   const handleMarkAllSeen = () => {
-    if (confirm("Mark ALL unseen emails as seen? This will mark all unseen emails across all your Gmail connections.")) {
+    if (
+      confirm(
+        "Mark ALL unseen emails as seen? This will mark all unseen emails across all your Gmail connections.",
+      )
+    ) {
       markAllSeenMutation.mutate()
     }
   }
@@ -895,6 +979,7 @@ export function EmailTransactionsTable({
                       onEdit={handleEditTransaction}
                       onDelete={handleDeleteTransaction}
                       onMarkSeen={handleMarkSeen}
+                      onCreateTransaction={handleCreateTransaction}
                       categories={categoriesData?.data || []}
                       onAssignCategory={handleAssignCategory}
                     />
@@ -929,7 +1014,191 @@ export function EmailTransactionsTable({
         onClose={onClose}
         onEdit={handleEditTransaction}
       />
+
+      {/* Create Transaction Modal */}
+      <CreateTransactionModal
+        emailTransaction={selectedEmailTransaction}
+        isOpen={createTransactionModalOpen}
+        onClose={() => {
+          setCreateTransactionModalOpen(false)
+          setSelectedEmailTransaction(null)
+        }}
+        onCreateTransaction={createTransactionFromEmailMutation.mutate}
+        accounts={accountsData?.data || []}
+        categories={categoriesData?.data || []}
+        isLoading={createTransactionFromEmailMutation.isPending}
+      />
     </VStack>
+  )
+}
+
+// Create Transaction Modal Component
+interface CreateTransactionModalProps {
+  emailTransaction: any
+  isOpen: boolean
+  onClose: () => void
+  onCreateTransaction: (data: {
+    emailTransactionId: string
+    accountId: string
+    categoryId?: string | null
+    sprintId?: string | null
+    note?: string
+  }) => void
+  accounts: { id: string; name: string }[]
+  categories: { id: string; name: string }[]
+  isLoading: boolean
+}
+
+function CreateTransactionModal({
+  emailTransaction,
+  isOpen,
+  onClose,
+  onCreateTransaction,
+  accounts,
+  categories,
+  isLoading,
+}: CreateTransactionModalProps) {
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("")
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("")
+  const [note, setNote] = useState<string>("")
+
+  const handleSubmit = () => {
+    if (!selectedAccountId) {
+      alert("Please select an account")
+      return
+    }
+
+    onCreateTransaction({
+      emailTransactionId: emailTransaction.id,
+      accountId: selectedAccountId,
+      categoryId: selectedCategoryId || null,
+      note: note || `Created from email: ${emailTransaction.subject}`,
+    })
+  }
+
+  const formatAmount = (amount: number | null) => {
+    if (!amount) return "-"
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(amount)
+  }
+
+  if (!emailTransaction) return null
+
+  return (
+    <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
+      <DialogContent maxW="md">
+        <DialogHeader>
+          <DialogTitle>Create Transaction from Email</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <VStack gap={4} align="stretch">
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Email Details:
+              </Text>
+              <Box p={3} bg="gray.50" borderRadius="md">
+                <Text fontSize="sm">
+                  <strong>Subject:</strong> {emailTransaction.subject}
+                </Text>
+                <Text fontSize="sm">
+                  <strong>Amount:</strong>{" "}
+                  {formatAmount(emailTransaction.amount)}
+                </Text>
+                <Text fontSize="sm">
+                  <strong>Merchant:</strong>{" "}
+                  {emailTransaction.merchant || "N/A"}
+                </Text>
+                <Text fontSize="sm">
+                  <strong>Type:</strong>{" "}
+                  {emailTransaction.transaction_type || "N/A"}
+                </Text>
+              </Box>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Account *
+              </Text>
+              <select
+                value={selectedAccountId}
+                onChange={(e) => setSelectedAccountId(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "6px",
+                }}
+              >
+                <option value="">Select an account</option>
+                {accounts.map((account) => (
+                  <option key={account.id} value={account.id}>
+                    {account.name}
+                  </option>
+                ))}
+              </select>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Category (Optional)
+              </Text>
+              <select
+                value={selectedCategoryId}
+                onChange={(e) => setSelectedCategoryId(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "6px",
+                }}
+              >
+                <option value="">No category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Note (Optional)
+              </Text>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={`Created from email: ${emailTransaction.subject}`}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "6px",
+                  minHeight: "80px",
+                  resize: "vertical",
+                }}
+              />
+            </Box>
+          </VStack>
+        </DialogBody>
+        <DialogFooter>
+          <HStack gap={2}>
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              colorPalette="blue"
+              onClick={handleSubmit}
+              loading={isLoading}
+            >
+              Create Transaction
+            </Button>
+          </HStack>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   )
 }
 

@@ -21,6 +21,8 @@ from app.models import (
     GmailConnectionUpdate,
     GmailConnectionsPublic,
     Message,
+    TransactionCreate,
+    TransactionPublic,
 )
 from app.services.gmail_service import EmailTransactionProcessor, GmailService
 from app.utils import decrypt_token, encrypt_token, is_token_expired, normalize_to_utc
@@ -651,3 +653,78 @@ def trigger_sync_all_connections(
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to sync all connections: {str(e)}")
+
+
+# ========= EMAIL TRANSACTION TO TRANSACTION CONVERSION =========
+@router.post("/email-transactions/{email_transaction_id}/create-transaction", response_model=TransactionPublic)
+def create_transaction_from_email(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    email_transaction_id: uuid.UUID,
+    account_id: uuid.UUID = Query(...),
+    category_id: uuid.UUID | None = Query(None),
+    sprint_id: uuid.UUID | None = Query(None),
+    note: str | None = Query(None),
+) -> Any:
+    """
+    Create a transaction from an email transaction.
+    """
+    # Get the email transaction
+    email_transaction = crud.get_email_transaction(
+        session=session, transaction_id=email_transaction_id
+    )
+    if not email_transaction:
+        raise HTTPException(status_code=404, detail="Email transaction not found")
+    
+    # Verify the email transaction belongs to the current user
+    if email_transaction.gmail_connection.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    # Check if email transaction has required data
+    if not email_transaction.amount:
+        raise HTTPException(status_code=400, detail="Email transaction has no amount")
+    
+    if not email_transaction.transaction_type:
+        raise HTTPException(status_code=400, detail="Email transaction has no transaction type")
+    
+    # Determine transaction type
+    from app.models import TxnType
+    if email_transaction.transaction_type.lower() in ['debit', 'withdrawal', 'expense']:
+        txn_type = TxnType.expense
+    elif email_transaction.transaction_type.lower() in ['credit', 'deposit', 'income']:
+        txn_type = TxnType.income
+    else:
+        raise HTTPException(status_code=400, detail="Invalid transaction type in email")
+    
+    # Create transaction data
+    transaction_data = TransactionCreate(
+        txn_date=email_transaction.received_at.date(),
+        type=txn_type,
+        amount=email_transaction.amount,
+        currency="VND",
+        merchant=email_transaction.merchant,
+        note=note or f"Created from email: {email_transaction.subject}",
+        account_id=account_id,
+        category_id=category_id,
+        sprint_id=sprint_id,
+    )
+    
+    # Create the transaction
+    transaction = crud.create_transaction(
+        session=session, transaction_in=transaction_data, user_id=current_user.id
+    )
+    
+    # Update email transaction to link with the created transaction
+    email_transaction_update = EmailTransactionUpdate(
+        linked_transaction_id=transaction.id,
+        category_id=category_id,
+        status="processed"
+    )
+    crud.update_email_transaction(
+        session=session, 
+        db_transaction=email_transaction, 
+        transaction_in=email_transaction_update
+    )
+    
+    return transaction

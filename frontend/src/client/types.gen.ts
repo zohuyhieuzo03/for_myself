@@ -719,6 +719,16 @@ export type GmailTriggerSyncAllConnectionsData = {
 
 export type GmailTriggerSyncAllConnectionsResponse = (Message);
 
+export type GmailCreateTransactionFromEmailData = {
+    accountId: string;
+    categoryId?: (string | null);
+    emailTransactionId: string;
+    note?: (string | null);
+    sprintId?: (string | null);
+};
+
+export type GmailCreateTransactionFromEmailResponse = (TransactionPublic);
+
 export type IncomesReadIncomesData = {
     limit?: number;
     skip?: number;

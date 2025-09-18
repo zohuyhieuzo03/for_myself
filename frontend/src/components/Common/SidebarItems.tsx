@@ -5,10 +5,8 @@ import {
   FiArrowUpCircle,
   FiBarChart,
   FiBriefcase,
-  FiCalendar,
   FiCheckSquare,
   FiCreditCard,
-  FiDollarSign,
   FiHome,
   FiInbox,
   FiMail,
@@ -24,7 +22,6 @@ import type { UserPublic } from "@/client"
 
 const items = [
   { icon: FiHome, title: "Dashboard", path: "/" },
-  { icon: FiBarChart, title: "Monthly Finance", path: "/monthly-finance" },
   { icon: FiBriefcase, title: "Items", path: "/items" },
   { icon: FiCheckSquare, title: "Todos", path: "/todos" },
   { icon: FiMail, title: "Gmail Integration", path: "/gmail" },
@@ -38,8 +35,6 @@ const items = [
 ]
 
 const sprintFinanceItems = [
-  { icon: FiDollarSign, title: "Financial Dashboard", path: "/sprint-finance" },
-  { icon: FiCalendar, title: "Sprints", path: "/sprint-finance/sprints" },
   { icon: FiCreditCard, title: "Accounts", path: "/sprint-finance/accounts" },
   { icon: FiTag, title: "Categories", path: "/sprint-finance/categories" },
   { icon: FiArrowUpCircle, title: "Incomes", path: "/sprint-finance/incomes" },
@@ -117,10 +112,6 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
         Menu
       </Text>
       <Box>{listItems}</Box>
-
-      <Text fontSize="xs" px={4} py={2} fontWeight="bold" mt={4}>
-        Sprint Finance
-      </Text>
       <Box>{sprintFinanceListItems}</Box>
     </>
   )

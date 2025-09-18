@@ -193,7 +193,8 @@ def encrypt_token(token: str) -> str:
     import base64
     
     # Create a Fernet cipher with the encryption key
-    key = base64.urlsafe_b64encode(settings.GMAIL_ENCRYPTION_KEY.encode()[:32])
+    key_bytes = settings.GMAIL_ENCRYPTION_KEY.encode()[:32].ljust(32, b'0')
+    key = base64.urlsafe_b64encode(key_bytes)
     cipher = Fernet(key)
     
     # Encrypt the token

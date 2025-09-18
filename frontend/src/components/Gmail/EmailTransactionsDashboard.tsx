@@ -37,6 +37,86 @@ const CHART_COLORS = [
   "#718096",
 ]
 
+// Component for Savings/Debt categories chart
+function SavingsDebtChart({
+  data,
+}: {
+  data: Array<{ name: string; value: number }>
+}) {
+  return (
+    <Box borderWidth="1px" borderRadius="md" p={4}>
+      <HStack justify="space-between" mb={3}>
+        <Heading size="sm">Savings & Debts</Heading>
+        <Box fontSize="xs" color="gray.600">
+          VND
+        </Box>
+      </HStack>
+      <HStack align="start" gap={6}>
+        <Box height="300px" w="300px">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {data.map((_, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={CHART_COLORS[index % CHART_COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value: any, _: any, props: any) => {
+                  const total = data.reduce((sum, item) => sum + item.value, 0)
+                  const percentage = ((Number(value) / total) * 100).toFixed(1)
+                  return [
+                    `${Number(value).toLocaleString()}₫ (${percentage}%)`,
+                    props.payload.name,
+                  ]
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </Box>
+        <VStack align="start" gap={2} flex={1}>
+          {data.length === 0 ? (
+            <Box fontSize="sm" color="gray.500">
+              No savings/debt data available
+            </Box>
+          ) : (
+            data.map((d, i) => (
+              <HStack key={d.name} gap={2} justify="space-between" w="full">
+                <HStack gap={2}>
+                  <Box
+                    w="12px"
+                    h="12px"
+                    borderRadius="2px"
+                    style={{
+                      backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+                    }}
+                  />
+                  <Box fontSize="sm" fontWeight="medium">
+                    {d.name}
+                  </Box>
+                </HStack>
+                <Box fontSize="sm" fontWeight="bold" color="blue.600">
+                  {Number(d.value).toLocaleString()}₫
+                </Box>
+              </HStack>
+            ))
+          )}
+        </VStack>
+      </HStack>
+    </Box>
+  )
+}
+
 type FilterType = "all" | "month" | "last7" | "last30" | "custom"
 
 export default function EmailTransactionsDashboard() {
@@ -244,6 +324,50 @@ export default function EmailTransactionsDashboard() {
     return arr.filter((d) => d.value > 0).sort((a, b) => b.value - a.value)
   }, [dashboard, rangeAgg, filterType])
 
+  // Fetch categories to get group information
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => CategoriesService.readCategories({ skip: 0, limit: 1000 }),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // Calculate savings/debt categories data
+  const savingsDebtData = useMemo(() => {
+    const arr =
+      filterType === "last7" ||
+      filterType === "last30" ||
+      filterType === "custom"
+        ? (rangeAgg?.byCategory ?? []).map((d: any) => ({
+            name: d.name,
+            value: Number(d.value || 0),
+            categoryId: d.categoryId, // Assuming this is available
+          }))
+        : (dashboard?.by_category ?? []).map((c) => ({
+            name: c.category_name ?? "Uncategorized",
+            value: Number(c.total_amount ?? 0),
+            categoryId: c.category_id,
+          }))
+
+    // Create a map of category ID to group
+    const categoryGroupMap = new Map<string, string>()
+    categories?.data?.forEach((cat: any) => {
+      categoryGroupMap.set(cat.id, cat.grp)
+    })
+
+    // Filter categories that belong to savings_debt group
+    return arr
+      .filter((d) => d.value > 0)
+      .filter((d) => {
+        return (
+          d.categoryId &&
+          categoryGroupMap.has(d.categoryId) &&
+          categoryGroupMap.get(d.categoryId) === "savings_debt"
+        )
+      })
+      .map(({ name, value }) => ({ name, value })) // Remove categoryId from final data
+      .sort((a, b) => b.value - a.value)
+  }, [dashboard, rangeAgg, filterType, categories])
+
   const years = useMemo(() => {
     const y = new Date().getFullYear()
     return Array.from({ length: 6 }, (_, i) => y - i)
@@ -324,15 +448,6 @@ export default function EmailTransactionsDashboard() {
         <Heading size="lg">Email Transactions Dashboard</Heading>
         <HStack gap={3}>
           <DateRangeControls />
-          <select
-            value={chartType}
-            onChange={(e) => setChartType(e.target.value as "bar" | "line")}
-            style={{ height: 32, paddingInline: 8 }}
-            aria-label="Chart type"
-          >
-            <option value="bar">Bar</option>
-            <option value="line">Line</option>
-          </select>
         </HStack>
       </HStack>
 
@@ -340,9 +455,20 @@ export default function EmailTransactionsDashboard() {
         <Box borderWidth="1px" borderRadius="md" p={4}>
           <HStack justify="space-between" mb={3}>
             <Heading size="sm">Monthly totals</Heading>
-            <Box fontSize="xs" color="gray.600">
-              VND
-            </Box>
+            <HStack gap={2}>
+              <Box fontSize="xs" color="gray.600">
+                VND
+              </Box>
+              <select
+                value={chartType}
+                onChange={(e) => setChartType(e.target.value as "bar" | "line")}
+                style={{ height: 24, paddingInline: 6, fontSize: 12 }}
+                aria-label="Chart type"
+              >
+                <option value="bar">Bar</option>
+                <option value="line">Line</option>
+              </select>
+            </HStack>
           </HStack>
           <Box height="260px">
             <ResponsiveContainer width="100%" height="100%">
@@ -472,6 +598,13 @@ export default function EmailTransactionsDashboard() {
           </HStack>
         </Box>
       </SimpleGrid>
+
+      {/* Savings & Debts Chart */}
+      {savingsDebtData.length > 0 && (
+        <Box mt={6}>
+          <SavingsDebtChart data={savingsDebtData} />
+        </Box>
+      )}
     </Container>
   )
 }
