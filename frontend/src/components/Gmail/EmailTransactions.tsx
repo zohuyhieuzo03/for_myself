@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   FiEdit,
   FiEye,
@@ -22,8 +22,10 @@ import {
   FiPlus,
   FiRefreshCw,
   FiTrash2,
+  FiDollarSign,
+  FiCheck,
 } from "react-icons/fi"
-import { AccountsService, CategoriesService, GmailService } from "@/client"
+import { AccountsService, CategoriesService, GmailService, IncomesService, SprintsService } from "@/client"
 import {
   DialogBody,
   DialogContent,
@@ -61,6 +63,7 @@ interface EmailTransactionRowProps {
   onDelete: (id: string) => void
   onMarkSeen: (id: string) => void
   onCreateTransaction: (transaction: any) => void
+  onCreateIncome: (transaction: any) => void
   categories: { id: string; name: string }[]
   onAssignCategory: (transactionId: string, categoryId: string | null) => void
 }
@@ -72,6 +75,7 @@ function EmailTransactionRow({
   onDelete,
   onMarkSeen,
   onCreateTransaction,
+  onCreateIncome,
   categories,
   onAssignCategory,
 }: EmailTransactionRowProps) {
@@ -80,11 +84,20 @@ function EmailTransactionRow({
   }
 
   const formatAmount = (amount: number | null) => {
-    if (!amount) return "-"
+    if (!amount && amount !== 0) return "-"
+    // If Remitano, show crypto amount with decimals and USDT suffix
+    if ((transaction.merchant || "").toLowerCase() === "remitano") {
+      return `${Number(amount).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })} USDT`
+    }
+    // Default VND formatting
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(amount)
+      maximumFractionDigits: 0,
+    }).format(amount as number)
   }
 
   const getRowStyle = (seen: boolean) => {
@@ -153,16 +166,13 @@ function EmailTransactionRow({
         </Text>
       </Table.Cell>
       <Table.Cell>
-        <HStack gap={2}>
+        <HStack gap={1}>
           <Button
             size="sm"
             variant="outline"
             onClick={() => onView(transaction)}
           >
-            <HStack>
-              <FiEye />
-              <span>View</span>
-            </HStack>
+            <FiEye />
           </Button>
           {!transaction.seen && (
             <Button
@@ -171,10 +181,7 @@ function EmailTransactionRow({
               colorPalette="green"
               onClick={() => onMarkSeen(transaction.id)}
             >
-              <HStack>
-                <FiEye />
-                <span>Mark Seen</span>
-              </HStack>
+              <FiCheck />
             </Button>
           )}
           {transaction.amount && transaction.transaction_type && (
@@ -184,10 +191,18 @@ function EmailTransactionRow({
               colorPalette="blue"
               onClick={() => onCreateTransaction(transaction)}
             >
-              <HStack>
-                <FiPlus />
-                <span>Create Transaction</span>
-              </HStack>
+              <FiPlus />
+            </Button>
+          )}
+          {/* Add Income button for Remitano transactions */}
+          {(transaction.merchant || "").toLowerCase() === "remitano" && transaction.amount && (
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="green"
+              onClick={() => onCreateIncome(transaction)}
+            >
+              <FiDollarSign />
             </Button>
           )}
           <Button
@@ -195,10 +210,7 @@ function EmailTransactionRow({
             variant="outline"
             onClick={() => onEdit(transaction)}
           >
-            <HStack>
-              <FiEdit />
-              <span>Edit</span>
-            </HStack>
+            <FiEdit />
           </Button>
           <Button
             size="sm"
@@ -206,10 +218,7 @@ function EmailTransactionRow({
             colorPalette="red"
             onClick={() => onDelete(transaction.id)}
           >
-            <HStack>
-              <FiTrash2 />
-              <span>Delete</span>
-            </HStack>
+            <FiTrash2 />
           </Button>
         </HStack>
       </Table.Cell>
@@ -409,58 +418,51 @@ function getEmailTransactionsQueryOptions({
   statusFilter,
   sortBy,
   unseenOnly,
+  connectionId,
 }: {
   page: number
   statusFilter?: string
   sortBy: "date_desc" | "amount_desc" | "amount_asc"
   unseenOnly?: boolean
+  connectionId?: string | "all"
 }) {
   return {
     queryFn: async () => {
-      // Get all Gmail connections first
-      const connectionsResponse = await GmailService.getGmailConnections()
-      if (!connectionsResponse.data.length) {
-        return { data: [], count: 0 }
-      }
-
-      // Get email transactions from all connections
-      const allTransactions = []
+      const allTransactions: any[] = []
       let totalCount = 0
 
-      for (const connection of connectionsResponse.data) {
-        console.log(
-          "Processing connection:",
-          connection.id,
-          typeof connection.id,
-        )
+      const fetchForConnection = async (connId: string) => {
+        const response = await GmailService.getEmailTransactions({
+          connectionId: connId,
+          status: statusFilter === "all" ? undefined : statusFilter,
+          unseenOnly: unseenOnly,
+          skip: 0,
+          limit: 1000,
+        })
+        allTransactions.push(...response.data)
+        totalCount += response.count
+      }
 
-        // Validate UUID format
-        const uuidRegex =
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-        if (!uuidRegex.test(connection.id)) {
-          console.error("Invalid UUID format for connection:", connection.id)
-          continue
+      if (!connectionId || connectionId === "all") {
+        // Get all Gmail connections first
+        const connectionsResponse = await GmailService.getGmailConnections()
+        if (!connectionsResponse.data.length) {
+          return { data: [], count: 0 }
         }
-
-        try {
-          const response = await GmailService.getEmailTransactions({
-            connectionId: connection.id,
-            status: statusFilter === "all" ? undefined : statusFilter,
-            unseenOnly: unseenOnly,
-            skip: 0, // We'll handle pagination after combining all results
-            limit: 1000, // Get all transactions from each connection
-          })
-
-          allTransactions.push(...response.data)
-          totalCount += response.count
-        } catch (error) {
-          console.error(
-            "Error fetching transactions for connection",
-            connection.id,
-            error,
-          )
-          // Continue with other connections
+        for (const connection of connectionsResponse.data) {
+          try {
+            await fetchForConnection(connection.id)
+          } catch (error) {
+            console.error(
+              "Error fetching transactions for connection",
+              connection.id,
+              error,
+            )
+          }
         }
+      } else {
+        // Single connection only
+        await fetchForConnection(connectionId)
       }
 
       // Sort before pagination
@@ -497,7 +499,7 @@ function getEmailTransactionsQueryOptions({
     },
     queryKey: [
       "email-transactions",
-      { page, statusFilter, sortBy, unseenOnly },
+      { page, statusFilter, sortBy, unseenOnly, connectionId },
     ],
   }
 }
@@ -507,10 +509,12 @@ export function EmailTransactionsTable({
   page = 1,
   statusFilter = "all",
   unseenOnly = false,
+  connectionId = "all",
 }: {
   page?: number
   statusFilter?: string
   unseenOnly?: boolean
+  connectionId?: string | "all"
 }) {
   const { showSuccessToast, showErrorToast } = useCustomToast()
   const queryClient = useQueryClient()
@@ -529,7 +533,22 @@ export function EmailTransactionsTable({
     useState(false)
   const [selectedEmailTransaction, setSelectedEmailTransaction] =
     useState<any>(null)
+  const [createIncomeModalOpen, setCreateIncomeModalOpen] =
+    useState(false)
+  const [selectedIncomeTransaction, setSelectedIncomeTransaction] =
+    useState<any>(null)
   const currentPage = page
+
+  // Load connections for filter dropdown
+  const { data: connectionsData } = useQuery({
+    queryKey: ["gmail-connections"],
+    queryFn: async () => GmailService.getGmailConnections(),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const [currentConnectionId, setCurrentConnectionId] = useState<string | "all">(
+    connectionId,
+  )
 
   // Get email transactions using the new query options function
   const { data: transactions, isLoading } = useQuery({
@@ -538,6 +557,7 @@ export function EmailTransactionsTable({
       statusFilter: currentStatusFilter,
       sortBy: currentSortBy,
       unseenOnly: currentUnseenOnly,
+      connectionId: currentConnectionId,
     }),
     placeholderData: (prevData) => prevData,
   })
@@ -559,21 +579,22 @@ export function EmailTransactionsTable({
 
   const syncRecentEmailsMutation = useMutation({
     mutationFn: async () => {
-      // Get all Gmail connections
+      if (currentConnectionId && currentConnectionId !== "all") {
+        await GmailService.triggerAutoSync({ connectionId: currentConnectionId })
+        return { message: `Synced recent emails for selected connection` }
+      }
+      // All connections
       const connectionsResponse = await GmailService.getGmailConnections()
       if (!connectionsResponse.data.length) {
         throw new Error("No Gmail connections found")
       }
-
-      // Sync recent emails from all connections
       let totalSynced = 0
       for (const connection of connectionsResponse.data) {
         const response = await GmailService.triggerAutoSync({
           connectionId: connection.id,
         })
-        totalSynced += response.message ? 1 : 0 // Count successful syncs
+        totalSynced += response.message ? 1 : 0
       }
-
       return { message: `Synced recent emails from ${totalSynced} connections` }
     },
     onSuccess: () => {
@@ -641,33 +662,37 @@ export function EmailTransactionsTable({
 
   const markAllSeenMutation = useMutation({
     mutationFn: async () => {
-      // Get all Gmail connections first
-      const connectionsResponse = await GmailService.getGmailConnections()
-      if (!connectionsResponse.data.length) {
-        throw new Error("No Gmail connections found")
+      const collectUnseenIds = async (connId: string) => {
+        const response = await GmailService.getUnseenEmailTransactions({
+          connectionId: connId,
+          skip: 0,
+          limit: 10000,
+        })
+        return response.data.map((t: any) => t.id)
       }
 
-      // Get all unseen email transactions from all connections
-      const allUnseenTransactionIds = []
-      for (const connection of connectionsResponse.data) {
-        try {
-          const response = await GmailService.getUnseenEmailTransactions({
-            connectionId: connection.id,
-            skip: 0,
-            limit: 10000, // Get all unseen emails
-          })
-          allUnseenTransactionIds.push(...response.data.map((t: any) => t.id))
-        } catch (error) {
-          console.error(
-            "Error fetching unseen transactions for connection",
-            connection.id,
-            error,
-          )
-          // Continue with other connections
+      let allUnseenTransactionIds: string[] = []
+      if (currentConnectionId && currentConnectionId !== "all") {
+        allUnseenTransactionIds = await collectUnseenIds(currentConnectionId)
+      } else {
+        const connectionsResponse = await GmailService.getGmailConnections()
+        if (!connectionsResponse.data.length) {
+          throw new Error("No Gmail connections found")
+        }
+        for (const connection of connectionsResponse.data) {
+          try {
+            const ids = await collectUnseenIds(connection.id)
+            allUnseenTransactionIds.push(...ids)
+          } catch (error) {
+            console.error(
+              "Error fetching unseen transactions for connection",
+              connection.id,
+              error,
+            )
+          }
         }
       }
 
-      // Mark all unseen transactions as seen
       const promises = allUnseenTransactionIds.map((id) =>
         GmailService.markEmailTransactionAsSeen({ transactionId: id }),
       )
@@ -682,6 +707,56 @@ export function EmailTransactionsTable({
     },
     onError: (error) => {
       showErrorToast(`Failed to mark all as seen: ${error.message}`)
+    },
+  })
+
+  const createIncomeFromEmailMutation = useMutation({
+    mutationFn: async ({
+      emailTransactionId,
+      source,
+      amount,
+      currency,
+      sprintId,
+    }: {
+      emailTransactionId: string
+      source: string
+      amount: number
+      currency: string
+      sprintId?: string | null
+    }) => {
+      // Create income record using the IncomeService
+      const incomeData = {
+        received_at: new Date().toISOString().split('T')[0],
+        source,
+        amount,
+        currency,
+        sprint_id: sprintId,
+      }
+      
+      const income = await IncomesService.createIncome({
+        requestBody: incomeData
+      })
+      
+      // Update email transaction to link with income
+      await GmailService.updateEmailTransaction({
+        transactionId: emailTransactionId,
+        requestBody: { 
+          status: "processed",
+          linked_income_id: income.id 
+        }
+      })
+      
+      return income
+    },
+    onSuccess: () => {
+      showSuccessToast("Income created successfully from email")
+      setCreateIncomeModalOpen(false)
+      setSelectedIncomeTransaction(null)
+      queryClient.invalidateQueries({ queryKey: ["email-transactions"] })
+      queryClient.invalidateQueries({ queryKey: ["incomes"] })
+    },
+    onError: (error) => {
+      showErrorToast(`Failed to create income: ${error.message}`)
     },
   })
 
@@ -751,6 +826,11 @@ export function EmailTransactionsTable({
     markSeenMutation.mutate(transactionId)
   }
 
+  const handleCreateIncome = (transaction: any) => {
+    setSelectedIncomeTransaction(transaction)
+    setCreateIncomeModalOpen(true)
+  }
+
   const handleCreateTransaction = (transaction: any) => {
     setSelectedEmailTransaction(transaction)
     setCreateTransactionModalOpen(true)
@@ -759,7 +839,9 @@ export function EmailTransactionsTable({
   const handleMarkAllSeen = () => {
     if (
       confirm(
-        "Mark ALL unseen emails as seen? This will mark all unseen emails across all your Gmail connections.",
+        currentConnectionId && currentConnectionId !== "all"
+          ? "Mark ALL unseen emails as seen for the selected connection?"
+          : "Mark ALL unseen emails as seen across all your Gmail connections?",
       )
     ) {
       markAllSeenMutation.mutate()
@@ -829,6 +911,36 @@ export function EmailTransactionsTable({
       <Card.Root>
         <Card.Body>
           <HStack gap={4} wrap="wrap">
+          <Box minW="240px">
+            <Text fontSize="sm" mb={1}>
+              Gmail account
+            </Text>
+            <select
+              value={currentConnectionId}
+              onChange={(e) => {
+                const next = e.target.value as string
+                setCurrentConnectionId(next === "all" ? "all" : next)
+                navigate({
+                  to: "/email-transactions",
+                  search: (prev) => ({
+                    ...prev,
+                    page: 1,
+                    statusFilter: currentStatusFilter,
+                    sortBy: currentSortBy,
+                    unseenOnly: currentUnseenOnly,
+                    connectionId: next,
+                  }),
+                })
+              }}
+            >
+              <option value="all">All connections</option>
+              {connectionsData?.data?.map((c: any) => (
+                <option key={c.id} value={c.id}>
+                  {c.gmail_email}
+                </option>
+              ))}
+            </select>
+          </Box>
             <Box minW="150px">
               <Text fontSize="sm" mb={1}>
                 Status
@@ -874,7 +986,8 @@ export function EmailTransactionsTable({
                       page: 1,
                       statusFilter: currentStatusFilter,
                       sortBy: currentSortBy,
-                      unseenOnly: unseenOnly,
+                    unseenOnly: unseenOnly,
+                    connectionId: currentConnectionId,
                     }),
                   })
                 }}
@@ -980,6 +1093,7 @@ export function EmailTransactionsTable({
                       onDelete={handleDeleteTransaction}
                       onMarkSeen={handleMarkSeen}
                       onCreateTransaction={handleCreateTransaction}
+                      onCreateIncome={handleCreateIncome}
                       categories={categoriesData?.data || []}
                       onAssignCategory={handleAssignCategory}
                     />
@@ -1027,6 +1141,17 @@ export function EmailTransactionsTable({
         accounts={accountsData?.data || []}
         categories={categoriesData?.data || []}
         isLoading={createTransactionFromEmailMutation.isPending}
+      />
+      {/* Create Income Modal */}
+      <CreateIncomeModal
+        emailTransaction={selectedIncomeTransaction}
+        isOpen={createIncomeModalOpen}
+        onClose={() => {
+          setCreateIncomeModalOpen(false)
+          setSelectedIncomeTransaction(null)
+        }}
+        onCreateIncome={createIncomeFromEmailMutation.mutate}
+        isLoading={createIncomeFromEmailMutation.isPending}
       />
     </VStack>
   )
@@ -1194,6 +1319,197 @@ function CreateTransactionModal({
               loading={isLoading}
             >
               Create Transaction
+            </Button>
+          </HStack>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
+  )
+}
+
+// Create Income Modal Component
+interface CreateIncomeModalProps {
+  emailTransaction: any
+  isOpen: boolean
+  onClose: () => void
+  onCreateIncome: (data: {
+    emailTransactionId: string
+    source: string
+    amount: number
+    currency: string
+    sprintId?: string | null
+  }) => void
+  isLoading: boolean
+}
+
+function CreateIncomeModal({
+  emailTransaction,
+  isOpen,
+  onClose,
+  onCreateIncome,
+  isLoading,
+}: CreateIncomeModalProps) {
+  const [source, setSource] = useState<string>("")
+  const [amount, setAmount] = useState<number>(0)
+  const [currency, setCurrency] = useState<string>("USDT")
+  const [sprintId, setSprintId] = useState<string>("")
+
+  // Load sprints for selector
+  const { data: sprintsData } = useQuery({
+    queryKey: ["sprints"],
+    queryFn: async () => SprintsService.readSprints({ skip: 0, limit: 1000 }),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  useEffect(() => {
+    if (emailTransaction) {
+      setSource(emailTransaction.merchant || "Remitano")
+      setAmount(emailTransaction.amount || 0)
+      setCurrency("USDT")
+    }
+  }, [emailTransaction])
+
+  const handleSubmit = () => {
+    if (!source || amount <= 0) {
+      alert("Please fill in source and amount")
+      return
+    }
+
+    onCreateIncome({
+      emailTransactionId: emailTransaction.id,
+      source,
+      amount,
+      currency,
+      sprintId: sprintId || null,
+    })
+  }
+
+  const formatAmount = (amount: number | null) => {
+    if (!amount && amount !== 0) return "-"
+    return `${Number(amount).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} USDT`
+  }
+
+  if (!emailTransaction) return null
+
+  return (
+    <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
+      <DialogContent maxW="md">
+        <DialogHeader>
+          <DialogTitle>Create Income from Email</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <VStack gap={4} align="stretch">
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Email Details:
+              </Text>
+              <Box p={3} bg="gray.50" borderRadius="md">
+                <Text fontSize="sm">
+                  <strong>Subject:</strong> {emailTransaction.subject}
+                </Text>
+                <Text fontSize="sm">
+                  <strong>Amount:</strong> {formatAmount(emailTransaction.amount)}
+                </Text>
+                <Text fontSize="sm">
+                  <strong>Merchant:</strong> {emailTransaction.merchant || "N/A"}
+                </Text>
+              </Box>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Source *
+              </Text>
+              <input
+                type="text"
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
+                placeholder="e.g., Remitano, Salary, etc."
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "6px",
+                }}
+              />
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Amount *
+              </Text>
+              <input
+                type="number"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "6px",
+                }}
+              />
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Currency
+              </Text>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "6px",
+                }}
+              >
+                <option value="USDT">USDT</option>
+                <option value="USD">USD</option>
+                <option value="VND">VND</option>
+              </select>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Sprint (Optional)
+              </Text>
+              <select
+                value={sprintId}
+                onChange={(e) => setSprintId(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "6px",
+                }}
+              >
+                <option value="">No sprint</option>
+                {sprintsData?.data?.map((sprint: any) => (
+                  <option key={sprint.id} value={sprint.id}>
+                    {sprint.start_date} - {sprint.end_date}
+                  </option>
+                ))}
+              </select>
+            </Box>
+          </VStack>
+        </DialogBody>
+        <DialogFooter>
+          <HStack gap={2}>
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              colorPalette="green"
+              onClick={handleSubmit}
+              loading={isLoading}
+            >
+              Create Income
             </Button>
           </HStack>
         </DialogFooter>

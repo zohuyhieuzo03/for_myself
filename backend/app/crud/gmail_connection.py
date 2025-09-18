@@ -98,3 +98,14 @@ def get_all_active_gmail_connections(*, session: Session) -> list[GmailConnectio
     """Get all active Gmail connections."""
     statement = select(GmailConnection).where(GmailConnection.is_active == True)
     return session.exec(statement).all()
+
+
+def get_gmail_connection_by_user_and_email(
+    *, session: Session, user_id: uuid.UUID, gmail_email: str
+) -> GmailConnection | None:
+    """Get a Gmail connection by user and gmail email (any active state)."""
+    statement = select(GmailConnection).where(
+        GmailConnection.user_id == user_id,
+        GmailConnection.gmail_email == gmail_email,
+    )
+    return session.exec(statement).first()

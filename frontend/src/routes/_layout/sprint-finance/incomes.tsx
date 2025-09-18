@@ -76,8 +76,7 @@ function IncomesPage() {
               <Table.Row>
                 <Table.ColumnHeader>Received Date</Table.ColumnHeader>
                 <Table.ColumnHeader>Source</Table.ColumnHeader>
-                <Table.ColumnHeader>Gross Amount</Table.ColumnHeader>
-                <Table.ColumnHeader>Net Amount</Table.ColumnHeader>
+                <Table.ColumnHeader>Amount</Table.ColumnHeader>
                 <Table.ColumnHeader>Currency</Table.ColumnHeader>
                 <Table.ColumnHeader>Sprint</Table.ColumnHeader>
                 <Table.ColumnHeader>Actions</Table.ColumnHeader>
@@ -94,14 +93,8 @@ function IncomesPage() {
                     <Table.Cell>{income.received_at}</Table.Cell>
                     <Table.Cell>{income.source}</Table.Cell>
                     <Table.Cell>
-                      <Text fontWeight="bold" color="gray.600">
-                        {income.gross_amount.toLocaleString("vi-VN")}{" "}
-                        {income.currency}
-                      </Text>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Text fontWeight="bold" color="green.500">
-                        {income.net_amount.toLocaleString("vi-VN")}{" "}
+                      <Text fontWeight="bold" color="green.600">
+                        {Number(income.amount ?? 0).toLocaleString("vi-VN")} {" "}
                         {income.currency}
                       </Text>
                     </Table.Cell>

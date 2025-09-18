@@ -585,6 +585,18 @@ export const EmailTransactionPublicSchema = {
             ],
             title: 'Linked Transaction Id'
         },
+        linked_income_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Linked Income Id'
+        },
         category_id: {
             anyOf: [
                 {
@@ -609,7 +621,7 @@ export const EmailTransactionPublicSchema = {
         }
     },
     type: 'object',
-    required: ['email_id', 'subject', 'sender', 'received_at', 'id', 'gmail_connection_id', 'linked_transaction_id', 'category_id', 'created_at', 'updated_at'],
+    required: ['email_id', 'subject', 'sender', 'received_at', 'id', 'gmail_connection_id', 'linked_transaction_id', 'linked_income_id', 'category_id', 'created_at', 'updated_at'],
     title: 'EmailTransactionPublic'
 } as const;
 
@@ -700,6 +712,18 @@ export const EmailTransactionUpdateSchema = {
                 }
             ],
             title: 'Linked Transaction Id'
+        },
+        linked_income_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Linked Income Id'
         },
         category_id: {
             anyOf: [
@@ -942,13 +966,9 @@ export const IncomeCreateSchema = {
             maxLength: 255,
             title: 'Source'
         },
-        gross_amount: {
+        amount: {
             type: 'number',
-            title: 'Gross Amount'
-        },
-        net_amount: {
-            type: 'number',
-            title: 'Net Amount'
+            title: 'Amount'
         },
         currency: {
             type: 'string',
@@ -970,7 +990,7 @@ export const IncomeCreateSchema = {
         }
     },
     type: 'object',
-    required: ['received_at', 'source', 'gross_amount', 'net_amount'],
+    required: ['received_at', 'source', 'amount'],
     title: 'IncomeCreate'
 } as const;
 
@@ -986,13 +1006,9 @@ export const IncomePublicSchema = {
             maxLength: 255,
             title: 'Source'
         },
-        gross_amount: {
+        amount: {
             type: 'number',
-            title: 'Gross Amount'
-        },
-        net_amount: {
-            type: 'number',
-            title: 'Net Amount'
+            title: 'Amount'
         },
         currency: {
             type: 'string',
@@ -1034,7 +1050,7 @@ export const IncomePublicSchema = {
         }
     },
     type: 'object',
-    required: ['received_at', 'source', 'gross_amount', 'net_amount', 'id', 'user_id', 'sprint_id', 'created_at', 'updated_at'],
+    required: ['received_at', 'source', 'amount', 'id', 'user_id', 'sprint_id', 'created_at', 'updated_at'],
     title: 'IncomePublic'
 } as const;
 
@@ -1064,7 +1080,7 @@ export const IncomeUpdateSchema = {
             ],
             title: 'Source'
         },
-        gross_amount: {
+        amount: {
             anyOf: [
                 {
                     type: 'number'
@@ -1073,18 +1089,7 @@ export const IncomeUpdateSchema = {
                     type: 'null'
                 }
             ],
-            title: 'Gross Amount'
-        },
-        net_amount: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Net Amount'
+            title: 'Amount'
         },
         currency: {
             anyOf: [

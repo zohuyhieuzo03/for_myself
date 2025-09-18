@@ -65,7 +65,7 @@ def get_monthly_financial_summary(
     transactions = db.exec(transaction_statement).all()
     
     # Calculate totals
-    total_income = sum(income.net_amount for income in incomes)
+    total_income = sum(income.amount for income in incomes)
     total_expenses = sum(txn.amount for txn in transactions if txn.type == TxnType.expense)
     net_amount = total_income - total_expenses
     
@@ -154,7 +154,7 @@ def get_monthly_financial_report(
     allocation_rules = db.exec(allocation_statement).all()
     
     # Calculate totals
-    total_income = sum(income.net_amount for income in incomes)
+    total_income = sum(income.amount for income in incomes)
     total_expenses = sum(txn.amount for txn in transactions if txn.type == TxnType.expense)
     net_amount = total_income - total_expenses
     
@@ -223,7 +223,7 @@ def get_monthly_financial_reports_range(
         transactions = db.exec(transaction_statement).all()
         
         # Calculate totals
-        total_income = sum(income.net_amount for income in incomes)
+        total_income = sum(income.amount for income in incomes)
         total_expenses = sum(txn.amount for txn in transactions if txn.type == TxnType.expense)
         net_amount = total_income - total_expenses
         

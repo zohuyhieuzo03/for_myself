@@ -254,12 +254,15 @@ class GmailService:
         newer_than_days: int = 180,
         max_results: int = 1000,
     ) -> List[Dict[str, Any]]:
-        """Search only emails from the specific VCB sender.
+        """Search transaction-related emails from supported senders (VCB, Remitano).
 
-        Filters by sender, looks in Inbox, recent window, and includes read emails.
+        Filters by sender(s), looks in Inbox, recent window, and includes read emails.
         """
-        sender_filter = 'from:VCBDigibank@info.vietcombank.com.vn'
-        query = f"{sender_filter} label:inbox newer_than:{newer_than_days}d -in:chats"
+        sender_filter = (
+            'from:VCBDigibank@info.vietcombank.com.vn OR '
+            '(from:notifications@remitano.com (subject:"You have received" OR subject:"Bạn đã nhận được"))'
+        )
+        query = f"({sender_filter}) label:inbox newer_than:{newer_than_days}d -in:chats"
 
         return self.list_emails(access_token, query, max_results)
 
@@ -270,7 +273,7 @@ class GmailService:
         month: int,
         max_results: int = 1000,
     ) -> List[Dict[str, Any]]:
-        """Search emails from VCB sender for a specific month.
+        """Search emails from supported senders (VCB, Remitano) for a specific month.
 
         Args:
             access_token: Gmail API access token
@@ -281,7 +284,10 @@ class GmailService:
         Returns:
             List of email dictionaries
         """
-        sender_filter = 'from:VCBDigibank@info.vietcombank.com.vn'
+        sender_filter = (
+            'from:VCBDigibank@info.vietcombank.com.vn OR '
+            '(from:notifications@remitano.com (subject:"You have received" OR subject:"Bạn đã nhận được"))'
+        )
         
         # Create date range for the month
         from datetime import datetime, timezone
@@ -298,7 +304,7 @@ class GmailService:
         end_date_str = end_date.strftime('%Y/%m/%d')
         
         # Build Gmail query with date range
-        query = f"{sender_filter} label:inbox after:{start_date_str} before:{end_date_str} -in:chats"
+        query = f"({sender_filter}) label:inbox after:{start_date_str} before:{end_date_str} -in:chats"
         
         return self.list_emails(access_token, query, max_results)
 
@@ -308,7 +314,7 @@ class GmailService:
         days: int = 7,
         max_results: int = 500,
     ) -> List[Dict[str, Any]]:
-        """Search for recent transaction emails from VCB sender.
+        """Search for recent transaction emails from supported senders (VCB, Remitano).
         
         Args:
             access_token: Gmail API access token
@@ -318,8 +324,11 @@ class GmailService:
         Returns:
             List of email dictionaries
         """
-        sender_filter = 'from:VCBDigibank@info.vietcombank.com.vn'
-        query = f"{sender_filter} label:inbox newer_than:{days}d -in:chats"
+        sender_filter = (
+            'from:VCBDigibank@info.vietcombank.com.vn OR '
+            '(from:notifications@remitano.com (subject:"You have received" OR subject:"Bạn đã nhận được"))'
+        )
+        query = f"({sender_filter}) label:inbox newer_than:{days}d -in:chats"
         
         return self.list_emails(access_token, query, max_results)
 
@@ -469,7 +478,20 @@ class EmailTransactionProcessor:
         subject = email.get('subject', '')
         body = email.get('body', '')
         sender = email.get('sender', '')
+        lower_subject = subject.lower()
+        lower_sender = sender.lower()
         
+        # Special handling for Remitano emails: parse amount from subject and force credit
+        if 'remitano.com' in lower_sender or 'remitano' in lower_subject:
+            remitano_amount = self._extract_remitano_amount_from_subject(subject)
+            return {
+                'amount': remitano_amount,
+                'merchant': 'Remitano',
+                'transaction_type': 'credit' if remitano_amount is not None else None,
+                'account_number': None,
+                'confidence': self._calculate_confidence(remitano_amount, 'Remitano', 'credit' if remitano_amount is not None else None)
+            }
+
         # Extract amount
         amount = self._extract_amount(body + ' ' + subject)
         
@@ -522,12 +544,19 @@ class EmailTransactionProcessor:
     
     def _extract_merchant(self, sender: str, subject: str, body: str) -> Optional[str]:
         """Extract merchant/bank name."""
-        # Common Vietnamese banks
+        # Prioritize sender domain mapping first (avoids false positives like SHB in unrelated content)
+        if '@' in sender:
+            domain = sender.split('@')[1].lower()
+            if 'remitano.com' in domain:
+                return 'Remitano'
+
+        # Common Vietnamese banks and Remitano
         banks = [
             'Vietcombank', 'VCB', 'VietinBank', 'Vietinbank',
             'BIDV', 'Agribank', 'Techcombank', 'TPBank',
             'MB Bank', 'VPBank', 'ACB', 'Sacombank',
-            'HDBank', 'SHB', 'Eximbank', 'MSB'
+            'HDBank', 'SHB', 'Eximbank', 'MSB',
+            'Remitano'
         ]
         
         text = f"{sender} {subject} {body}".lower()
@@ -543,13 +572,69 @@ class EmailTransactionProcessor:
                 return domain.split('.')[0].title()
         
         return None
+
+    def _extract_remitano_amount_from_subject(self, subject: str) -> Optional[float]:
+        """Extract numeric amount from Remitano subject like:
+        'You have received 499.67 USDT from ...' or Vietnamese 'Bạn đã nhận được 499.67 USDT từ ...'
+        """
+        import re
+        text = subject
+        # Look for English 'You have received <num> USDT'
+        pattern_en = r"you have received\s+([\d,]+(?:\.\d+)?)\s*USDT"
+        m = re.search(pattern_en, text, re.IGNORECASE)
+        if m:
+            amt = m.group(1)
+            # Handle US format: 1,499.98 -> 1499.98
+            if ',' in amt and '.' in amt:
+                # US format: comma as thousands separator, dot as decimal
+                amt = amt.replace(',', '')
+            else:
+                # Other formats: remove commas
+                amt = amt.replace(',', '')
+            try:
+                return float(amt)
+            except ValueError:
+                return None
+        # Look for Vietnamese 'Bạn đã nhận được <num> USDT'
+        # Case-insensitive match for Vietnamese text
+        pattern_vi = r"bạn\s+đã\s+nhận\s+được\s+([\d,.]+)\s*USDT"
+        m2 = re.search(pattern_vi, text, re.IGNORECASE)
+        if m2:
+            amt = m2.group(1)
+            # Handle US format: 1,499.98 -> 1499.98
+            if ',' in amt and '.' in amt:
+                # US format: comma as thousands separator, dot as decimal
+                amt = amt.replace(',', '')
+            else:
+                # Other formats: remove commas
+                amt = amt.replace(',', '')
+            try:
+                return float(amt)
+            except ValueError:
+                return None
+        # Fallback: any '<num> USDT' in subject
+        fallback = re.search(r"([\d,]+(?:\.\d+)?)\s*USDT", text, re.IGNORECASE)
+        if fallback:
+            amt = fallback.group(1)
+            # Handle US format: 1,499.98 -> 1499.98
+            if ',' in amt and '.' in amt:
+                # US format: comma as thousands separator, dot as decimal
+                amt = amt.replace(',', '')
+            else:
+                # Other formats: remove commas
+                amt = amt.replace(',', '')
+            try:
+                return float(amt)
+            except ValueError:
+                return None
+        return None
     
     def _determine_transaction_type(self, subject: str, body: str) -> Optional[str]:
         """Determine transaction type (debit/credit)."""
         text = f"{subject} {body}".lower()
         
         debit_keywords = ['withdrawal', 'withdraw', 'debit', 'purchase', 'payment', 'transfer out']
-        credit_keywords = ['deposit', 'credit', 'transfer in', 'refund', 'income']
+        credit_keywords = ['deposit', 'credit', 'transfer in', 'refund', 'income', 'you have received', 'bạn đã nhận được']
         
         for keyword in debit_keywords:
             if keyword in text:

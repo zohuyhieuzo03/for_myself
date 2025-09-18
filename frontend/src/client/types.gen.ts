@@ -112,6 +112,7 @@ export type EmailTransactionPublic = {
     id: string;
     gmail_connection_id: string;
     linked_transaction_id: (string | null);
+    linked_income_id: (string | null);
     category_id: (string | null);
     created_at: string;
     updated_at: string;
@@ -132,6 +133,7 @@ export type EmailTransactionUpdate = {
     status?: (EmailTransactionStatus | null);
     seen?: (boolean | null);
     linked_transaction_id?: (string | null);
+    linked_income_id?: (string | null);
     category_id?: (string | null);
 };
 
@@ -179,8 +181,7 @@ export type HTTPValidationError = {
 export type IncomeCreate = {
     received_at: string;
     source: string;
-    gross_amount: number;
-    net_amount: number;
+    amount: number;
     currency?: string;
     sprint_id?: (string | null);
 };
@@ -188,8 +189,7 @@ export type IncomeCreate = {
 export type IncomePublic = {
     received_at: string;
     source: string;
-    gross_amount: number;
-    net_amount: number;
+    amount: number;
     currency?: string;
     id: string;
     user_id: string;
@@ -206,8 +206,7 @@ export type IncomesPublic = {
 export type IncomeUpdate = {
     received_at?: (string | null);
     source?: (string | null);
-    gross_amount?: (number | null);
-    net_amount?: (number | null);
+    amount?: (number | null);
     currency?: (string | null);
     sprint_id?: (string | null);
 };

@@ -47,8 +47,7 @@ const EditIncome = ({ income, sprints }: EditIncomeProps) => {
     defaultValues: {
       received_at: income.received_at,
       source: income.source,
-      gross_amount: income.gross_amount,
-      net_amount: income.net_amount,
+      amount: income.amount,
       currency: income.currency,
       sprint_id: income.sprint_id,
     },
@@ -132,33 +131,13 @@ const EditIncome = ({ income, sprints }: EditIncomeProps) => {
 
               <Field
                 required
-                invalid={!!errors.gross_amount}
-                errorText={errors.gross_amount?.message}
-                label="Gross Amount"
+                invalid={!!errors.amount}
+                errorText={errors.amount?.message}
+                label="Amount"
               >
                 <Input
-                  {...register("gross_amount", {
-                    required: "Gross amount is required",
-                    min: {
-                      value: 0.01,
-                      message: "Amount must be greater than 0",
-                    },
-                  })}
-                  placeholder="0.00"
-                  type="number"
-                  step="0.01"
-                />
-              </Field>
-
-              <Field
-                required
-                invalid={!!errors.net_amount}
-                errorText={errors.net_amount?.message}
-                label="Net Amount"
-              >
-                <Input
-                  {...register("net_amount", {
-                    required: "Net amount is required",
+                  {...register("amount", {
+                    required: "Amount is required",
                     min: {
                       value: 0.01,
                       message: "Amount must be greater than 0",

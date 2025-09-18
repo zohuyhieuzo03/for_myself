@@ -91,7 +91,7 @@ def get_sprint_detail(*, session: Session, sprint_id: uuid.UUID, user_id: uuid.U
     categories = list(session.exec(categories_statement).all())
     
     # Calculate financial summary
-    total_income = sum(income.net_amount for income in incomes)
+    total_income = sum(income.amount for income in incomes)
     total_expenses = sum(txn.amount for txn in transactions if txn.type == "out")
     total_inflows = sum(txn.amount for txn in transactions if txn.type == "in")
     net_cash_flow = total_income + total_inflows - total_expenses

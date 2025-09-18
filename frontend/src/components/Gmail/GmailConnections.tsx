@@ -9,6 +9,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
 import { Link as RouterLink } from "@tanstack/react-router"
 import { FiExternalLink, FiMail, FiRefreshCw, FiTrash2 } from "react-icons/fi"
 import type { GmailConnectionPublic } from "@/client"
@@ -128,6 +129,14 @@ export function GmailConnections() {
     },
   })
 
+  const [selectedConnectionId, setSelectedConnectionId] = useState<string>("")
+
+  useEffect(() => {
+    if (connections?.data?.length) {
+      setSelectedConnectionId((prev) => prev || connections.data[0].id)
+    }
+  }, [connections])
+
   const connectGmailMutation = useMutation({
     mutationFn: async () => {
       const response = await GmailService.initiateGmailConnection()
@@ -208,18 +217,55 @@ export function GmailConnections() {
               />
             ))}
 
-            {/* Monthly Sync Section */}
-            <MonthlySync
-              connectionId={connections.data[0].id}
-              onSyncComplete={() => {
-                queryClient.invalidateQueries({
-                  queryKey: ["gmail-connections"],
-                })
-                queryClient.invalidateQueries({
-                  queryKey: ["email-transactions"],
-                })
-              }}
-            />
+            {/* Monthly Sync Section with connection selector */}
+            <Card.Root p={4}>
+              <VStack gap={4} align="stretch">
+                <HStack justify="space-between">
+                  <Heading size="sm">Monthly Sync</Heading>
+                  <HStack>
+                    <Text fontSize="sm" color="gray.600">
+                      Chọn tài khoản Gmail
+                    </Text>
+                    <select
+                      value={selectedConnectionId}
+                      onChange={(e) => setSelectedConnectionId(e.target.value)}
+                      style={{
+                        padding: "6px 8px",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 6,
+                        fontSize: 13,
+                      }}
+                    >
+                      {connections.data.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.gmail_email}
+                        </option>
+                      ))}
+                    </select>
+                  </HStack>
+                </HStack>
+
+                {selectedConnectionId ? (
+                  <MonthlySync
+                    connectionId={selectedConnectionId}
+                    onSyncComplete={() => {
+                      queryClient.invalidateQueries({
+                        queryKey: ["gmail-connections"],
+                      })
+                      queryClient.invalidateQueries({
+                        queryKey: ["email-transactions"],
+                      })
+                    }}
+                  />
+                ) : (
+                  <Box>
+                    <Text fontSize="sm" color="gray.600">
+                      Vui lòng chọn tài khoản Gmail để sync theo tháng.
+                    </Text>
+                  </Box>
+                )}
+              </VStack>
+            </Card.Root>
           </VStack>
         </>
       ) : (

@@ -45,8 +45,7 @@ const AddIncome = ({ sprints }: AddIncomeProps) => {
     defaultValues: {
       received_at: "",
       source: "",
-      gross_amount: 0,
-      net_amount: 0,
+      amount: 0,
       currency: "VND",
       sprint_id: null,
     },
@@ -130,33 +129,13 @@ const AddIncome = ({ sprints }: AddIncomeProps) => {
 
               <Field
                 required
-                invalid={!!errors.gross_amount}
-                errorText={errors.gross_amount?.message}
-                label="Gross Amount"
+                invalid={!!errors.amount}
+                errorText={errors.amount?.message}
+                label="Amount"
               >
                 <Input
-                  {...register("gross_amount", {
-                    required: "Gross amount is required.",
-                    min: {
-                      value: 0.01,
-                      message: "Amount must be greater than 0",
-                    },
-                  })}
-                  placeholder="0.00"
-                  type="number"
-                  step="0.01"
-                />
-              </Field>
-
-              <Field
-                required
-                invalid={!!errors.net_amount}
-                errorText={errors.net_amount?.message}
-                label="Net Amount"
-              >
-                <Input
-                  {...register("net_amount", {
-                    required: "Net amount is required.",
+                  {...register("amount", {
+                    required: "Amount is required.",
                     min: {
                       value: 0.01,
                       message: "Amount must be greater than 0",

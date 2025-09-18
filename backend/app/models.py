@@ -333,8 +333,7 @@ class CategoriesPublic(SQLModel):
 class IncomeBase(SQLModel):
     received_at: date
     source: str = Field(max_length=255)
-    gross_amount: float
-    net_amount: float
+    amount: float
     currency: str = Field(default="VND", max_length=10)
 
 
@@ -350,8 +349,7 @@ class IncomeCreate(IncomeBase):
 class IncomeUpdate(BaseModel):
     received_at: date | None = None
     source: str | None = Field(default=None, max_length=255)
-    gross_amount: float | None = None
-    net_amount: float | None = None
+    amount: float | None = None
     currency: str | None = Field(default=None, max_length=10)
     sprint_id: uuid.UUID | None = None
     
@@ -621,6 +619,7 @@ class EmailTransactionUpdate(BaseModel):
     status: EmailTransactionStatus | None = None
     seen: bool | None = None
     linked_transaction_id: uuid.UUID | None = None
+    linked_income_id: uuid.UUID | None = None
     category_id: uuid.UUID | None = None
 
 
@@ -628,12 +627,14 @@ class EmailTransaction(EmailTransactionBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     gmail_connection_id: uuid.UUID = Field(foreign_key="gmailconnection.id", nullable=False)
     linked_transaction_id: uuid.UUID | None = Field(default=None, foreign_key="transaction.id", ondelete="SET NULL")
+    linked_income_id: uuid.UUID | None = Field(default=None, foreign_key="income.id", ondelete="SET NULL")
     category_id: uuid.UUID | None = Field(default=None, foreign_key="category.id")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     gmail_connection: GmailConnection | None = Relationship(back_populates="email_transactions")
     linked_transaction: Transaction | None = Relationship()
+    linked_income: Income | None = Relationship()
     category: Category | None = Relationship()
 
 
@@ -641,6 +642,7 @@ class EmailTransactionPublic(EmailTransactionBase):
     id: uuid.UUID
     gmail_connection_id: uuid.UUID
     linked_transaction_id: uuid.UUID | None
+    linked_income_id: uuid.UUID | None
     category_id: uuid.UUID | None
     created_at: datetime
     updated_at: datetime

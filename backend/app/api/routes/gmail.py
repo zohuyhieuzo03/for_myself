@@ -117,37 +117,35 @@ def handle_gmail_callback(
         if not gmail_email:
             raise HTTPException(status_code=400, detail="Could not retrieve Gmail profile")
         
-        # Check if connection already exists
-        existing_connection = crud.get_active_gmail_connection(
-            session=session, user_id=current_user.id
+        # Check if connection for this gmail_email already exists for the user
+        existing_same_email = crud.get_gmail_connection_by_user_and_email(
+            session=session, user_id=current_user.id, gmail_email=gmail_email
         )
-        
-        if existing_connection:
-            # Update existing connection
+
+        if existing_same_email:
+            # Update tokens for this email's existing connection; keep it active
             connection_update = GmailConnectionUpdate()
             connection_update.is_active = True
-            
-            # Update tokens
-            existing_connection.access_token = encrypt_token(tokens['access_token'])
-            existing_connection.refresh_token = encrypt_token(tokens['refresh_token'])
-            existing_connection.expires_at = (
+
+            existing_same_email.access_token = encrypt_token(tokens['access_token'])
+            existing_same_email.refresh_token = encrypt_token(tokens['refresh_token'])
+            existing_same_email.expires_at = (
                 normalize_to_utc(datetime.fromisoformat(tokens['expires_at']))
                 if tokens['expires_at'] else None
             )
-            existing_connection.last_sync_at = datetime.now(timezone.utc)
-            
+            existing_same_email.last_sync_at = datetime.now(timezone.utc)
+
             updated_connection = crud.update_gmail_connection(
-                session=session, db_connection=existing_connection, connection_in=connection_update
+                session=session, db_connection=existing_same_email, connection_in=connection_update
             )
-            
             return GmailConnectionPublic.model_validate(updated_connection)
         else:
-            # Create new connection with tokens
+            # Create a new active connection for this email. Do not deactivate others.
             connection_data = GmailConnectionCreate(
                 gmail_email=gmail_email,
-                is_active=True
+                is_active=True,
             )
-            
+
             new_connection = crud.create_gmail_connection(
                 session=session,
                 gmail_connection_in=connection_data,
@@ -160,7 +158,6 @@ def handle_gmail_callback(
                 ),
                 last_sync_at=datetime.now(timezone.utc),
             )
-            
             return GmailConnectionPublic.model_validate(new_connection)
             
     except Exception as e:
