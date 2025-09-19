@@ -14,18 +14,23 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import {
+  FiCheck,
+  FiDollarSign,
   FiEdit,
   FiEye,
   FiMail,
   FiPlus,
   FiRefreshCw,
   FiTrash2,
-  FiDollarSign,
-  FiCheck,
 } from "react-icons/fi"
-import { AccountsService, CategoriesService, GmailService, IncomesService } from "@/client"
+import {
+  AccountsService,
+  CategoriesService,
+  GmailService,
+  IncomesService,
+} from "@/client"
 import {
   DialogBody,
   DialogContent,
@@ -195,16 +200,17 @@ function EmailTransactionRow({
             </Button>
           )}
           {/* Add Income button for Remitano transactions */}
-          {(transaction.merchant || "").toLowerCase() === "remitano" && transaction.amount && (
-            <Button
-              size="sm"
-              variant="outline"
-              colorPalette="green"
-              onClick={() => onCreateIncome(transaction)}
-            >
-              <FiDollarSign />
-            </Button>
-          )}
+          {(transaction.merchant || "").toLowerCase() === "remitano" &&
+            transaction.amount && (
+              <Button
+                size="sm"
+                variant="outline"
+                colorPalette="green"
+                onClick={() => onCreateIncome(transaction)}
+              >
+                <FiDollarSign />
+              </Button>
+            )}
           <Button
             size="sm"
             variant="outline"
@@ -533,8 +539,7 @@ export function EmailTransactionsTable({
     useState(false)
   const [selectedEmailTransaction, setSelectedEmailTransaction] =
     useState<any>(null)
-  const [createIncomeModalOpen, setCreateIncomeModalOpen] =
-    useState(false)
+  const [createIncomeModalOpen, setCreateIncomeModalOpen] = useState(false)
   const [selectedIncomeTransaction, setSelectedIncomeTransaction] =
     useState<any>(null)
   const currentPage = page
@@ -546,9 +551,9 @@ export function EmailTransactionsTable({
     staleTime: 5 * 60 * 1000,
   })
 
-  const [currentConnectionId, setCurrentConnectionId] = useState<string | "all">(
-    connectionId,
-  )
+  const [currentConnectionId, setCurrentConnectionId] = useState<
+    string | "all"
+  >(connectionId)
 
   // Get email transactions using the new query options function
   const { data: transactions, isLoading } = useQuery({
@@ -580,7 +585,9 @@ export function EmailTransactionsTable({
   const syncRecentEmailsMutation = useMutation({
     mutationFn: async () => {
       if (currentConnectionId && currentConnectionId !== "all") {
-        await GmailService.triggerAutoSync({ connectionId: currentConnectionId })
+        await GmailService.triggerAutoSync({
+          connectionId: currentConnectionId,
+        })
         return { message: `Synced recent emails for selected connection` }
       }
       // All connections
@@ -726,26 +733,26 @@ export function EmailTransactionsTable({
     }) => {
       // Create income record using the IncomeService
       const incomeData = {
-        received_at: new Date().toISOString().split('T')[0],
+        received_at: new Date().toISOString().split("T")[0],
         source,
         amount,
         currency,
         sprint_id: sprintId,
       }
-      
+
       const income = await IncomesService.createIncome({
-        requestBody: incomeData
+        requestBody: incomeData,
       })
-      
+
       // Update email transaction to link with income
       await GmailService.updateEmailTransaction({
         transactionId: emailTransactionId,
-        requestBody: { 
+        requestBody: {
           status: "processed",
-          linked_income_id: income.id 
-        }
+          linked_income_id: income.id,
+        },
       })
-      
+
       return income
     },
     onSuccess: () => {
@@ -851,7 +858,7 @@ export function EmailTransactionsTable({
   // Page change handler (similar to admin page)
   const setPage = (page: number) => {
     navigate({
-      to: "/email-transactions",
+      to: "/email/transactions",
       search: (prev) => ({
         ...prev,
         page,
@@ -866,7 +873,7 @@ export function EmailTransactionsTable({
     setCurrentStatusFilter(status)
     // Reset to page 1 when changing filter
     navigate({
-      to: "/email-transactions",
+      to: "/email/transactions",
       search: (prev) => ({
         ...prev,
         page: 1,
@@ -882,7 +889,7 @@ export function EmailTransactionsTable({
   ) => {
     setCurrentSortBy(value)
     navigate({
-      to: "/email-transactions",
+      to: "/email/transactions",
       search: (prev) => ({
         ...prev,
         page: 1,
@@ -911,36 +918,36 @@ export function EmailTransactionsTable({
       <Card.Root>
         <Card.Body>
           <HStack gap={4} wrap="wrap">
-          <Box minW="240px">
-            <Text fontSize="sm" mb={1}>
-              Gmail account
-            </Text>
-            <select
-              value={currentConnectionId}
-              onChange={(e) => {
-                const next = e.target.value as string
-                setCurrentConnectionId(next === "all" ? "all" : next)
-                navigate({
-                  to: "/email-transactions",
-                  search: (prev) => ({
-                    ...prev,
-                    page: 1,
-                    statusFilter: currentStatusFilter,
-                    sortBy: currentSortBy,
-                    unseenOnly: currentUnseenOnly,
-                    connectionId: next,
-                  }),
-                })
-              }}
-            >
-              <option value="all">All connections</option>
-              {connectionsData?.data?.map((c: any) => (
-                <option key={c.id} value={c.id}>
-                  {c.gmail_email}
-                </option>
-              ))}
-            </select>
-          </Box>
+            <Box minW="240px">
+              <Text fontSize="sm" mb={1}>
+                Gmail account
+              </Text>
+              <select
+                value={currentConnectionId}
+                onChange={(e) => {
+                  const next = e.target.value as string
+                  setCurrentConnectionId(next === "all" ? "all" : next)
+                  navigate({
+                    to: "/email/transactions",
+                    search: (prev) => ({
+                      ...prev,
+                      page: 1,
+                      statusFilter: currentStatusFilter,
+                      sortBy: currentSortBy,
+                      unseenOnly: currentUnseenOnly,
+                      connectionId: next,
+                    }),
+                  })
+                }}
+              >
+                <option value="all">All connections</option>
+                {connectionsData?.data?.map((c: any) => (
+                  <option key={c.id} value={c.id}>
+                    {c.gmail_email}
+                  </option>
+                ))}
+              </select>
+            </Box>
             <Box minW="150px">
               <Text fontSize="sm" mb={1}>
                 Status
@@ -980,14 +987,14 @@ export function EmailTransactionsTable({
                   const unseenOnly = e.target.value === "unseen"
                   setCurrentUnseenOnly(unseenOnly)
                   navigate({
-                    to: "/email-transactions",
+                    to: "/email/transactions",
                     search: (prev) => ({
                       ...prev,
                       page: 1,
                       statusFilter: currentStatusFilter,
                       sortBy: currentSortBy,
-                    unseenOnly: unseenOnly,
-                    connectionId: currentConnectionId,
+                      unseenOnly: unseenOnly,
+                      connectionId: currentConnectionId,
                     }),
                   })
                 }}
@@ -1401,10 +1408,12 @@ function CreateIncomeModal({
                   <strong>Subject:</strong> {emailTransaction.subject}
                 </Text>
                 <Text fontSize="sm">
-                  <strong>Amount:</strong> {formatAmount(emailTransaction.amount)}
+                  <strong>Amount:</strong>{" "}
+                  {formatAmount(emailTransaction.amount)}
                 </Text>
                 <Text fontSize="sm">
-                  <strong>Merchant:</strong> {emailTransaction.merchant || "N/A"}
+                  <strong>Merchant:</strong>{" "}
+                  {emailTransaction.merchant || "N/A"}
                 </Text>
               </Box>
             </Box>

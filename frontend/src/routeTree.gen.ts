@@ -18,19 +18,17 @@ import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutTodosRouteImport } from './routes/_layout/todos'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
-import { Route as LayoutGmailRouteImport } from './routes/_layout/gmail'
 import { Route as LayoutFinanceRouteImport } from './routes/_layout/finance'
-import { Route as LayoutEmailTransactionsDashboardRouteImport } from './routes/_layout/email-transactions-dashboard'
-import { Route as LayoutEmailTransactionsRouteImport } from './routes/_layout/email-transactions'
-import { Route as LayoutEmailDashboardRouteImport } from './routes/_layout/email-dashboard'
+import { Route as LayoutEmailRouteImport } from './routes/_layout/email'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
-import { Route as LayoutGmailIndexRouteImport } from './routes/_layout/gmail/index'
-import { Route as LayoutGmailTransactionsRouteImport } from './routes/_layout/gmail/transactions'
+import { Route as LayoutEmailIndexRouteImport } from './routes/_layout/email/index'
 import { Route as LayoutFinanceTransactionsRouteImport } from './routes/_layout/finance/transactions'
 import { Route as LayoutFinanceIncomesRouteImport } from './routes/_layout/finance/incomes'
 import { Route as LayoutFinanceCategoriesRouteImport } from './routes/_layout/finance/categories'
 import { Route as LayoutFinanceAllocationRulesRouteImport } from './routes/_layout/finance/allocation-rules'
 import { Route as LayoutFinanceAccountsRouteImport } from './routes/_layout/finance/accounts'
+import { Route as LayoutEmailTransactionsRouteImport } from './routes/_layout/email/transactions'
+import { Route as LayoutEmailDashboardRouteImport } from './routes/_layout/email/dashboard'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -76,30 +74,14 @@ const LayoutItemsRoute = LayoutItemsRouteImport.update({
   path: '/items',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutGmailRoute = LayoutGmailRouteImport.update({
-  id: '/gmail',
-  path: '/gmail',
-  getParentRoute: () => LayoutRoute,
-} as any)
 const LayoutFinanceRoute = LayoutFinanceRouteImport.update({
   id: '/finance',
   path: '/finance',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutEmailTransactionsDashboardRoute =
-  LayoutEmailTransactionsDashboardRouteImport.update({
-    id: '/email-transactions-dashboard',
-    path: '/email-transactions-dashboard',
-    getParentRoute: () => LayoutRoute,
-  } as any)
-const LayoutEmailTransactionsRoute = LayoutEmailTransactionsRouteImport.update({
-  id: '/email-transactions',
-  path: '/email-transactions',
-  getParentRoute: () => LayoutRoute,
-} as any)
-const LayoutEmailDashboardRoute = LayoutEmailDashboardRouteImport.update({
-  id: '/email-dashboard',
-  path: '/email-dashboard',
+const LayoutEmailRoute = LayoutEmailRouteImport.update({
+  id: '/email',
+  path: '/email',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutAdminRoute = LayoutAdminRouteImport.update({
@@ -107,15 +89,10 @@ const LayoutAdminRoute = LayoutAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutGmailIndexRoute = LayoutGmailIndexRouteImport.update({
+const LayoutEmailIndexRoute = LayoutEmailIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => LayoutGmailRoute,
-} as any)
-const LayoutGmailTransactionsRoute = LayoutGmailTransactionsRouteImport.update({
-  id: '/transactions',
-  path: '/transactions',
-  getParentRoute: () => LayoutGmailRoute,
+  getParentRoute: () => LayoutEmailRoute,
 } as any)
 const LayoutFinanceTransactionsRoute =
   LayoutFinanceTransactionsRouteImport.update({
@@ -144,6 +121,16 @@ const LayoutFinanceAccountsRoute = LayoutFinanceAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => LayoutFinanceRoute,
 } as any)
+const LayoutEmailTransactionsRoute = LayoutEmailTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => LayoutEmailRoute,
+} as any)
+const LayoutEmailDashboardRoute = LayoutEmailDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => LayoutEmailRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
@@ -151,22 +138,20 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
-  '/email-dashboard': typeof LayoutEmailDashboardRoute
-  '/email-transactions': typeof LayoutEmailTransactionsRoute
-  '/email-transactions-dashboard': typeof LayoutEmailTransactionsDashboardRoute
+  '/email': typeof LayoutEmailRouteWithChildren
   '/finance': typeof LayoutFinanceRouteWithChildren
-  '/gmail': typeof LayoutGmailRouteWithChildren
   '/items': typeof LayoutItemsRoute
   '/settings': typeof LayoutSettingsRoute
   '/todos': typeof LayoutTodosRoute
   '/': typeof LayoutIndexRoute
+  '/email/dashboard': typeof LayoutEmailDashboardRoute
+  '/email/transactions': typeof LayoutEmailTransactionsRoute
   '/finance/accounts': typeof LayoutFinanceAccountsRoute
   '/finance/allocation-rules': typeof LayoutFinanceAllocationRulesRoute
   '/finance/categories': typeof LayoutFinanceCategoriesRoute
   '/finance/incomes': typeof LayoutFinanceIncomesRoute
   '/finance/transactions': typeof LayoutFinanceTransactionsRoute
-  '/gmail/transactions': typeof LayoutGmailTransactionsRoute
-  '/gmail/': typeof LayoutGmailIndexRoute
+  '/email/': typeof LayoutEmailIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -174,21 +159,19 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
-  '/email-dashboard': typeof LayoutEmailDashboardRoute
-  '/email-transactions': typeof LayoutEmailTransactionsRoute
-  '/email-transactions-dashboard': typeof LayoutEmailTransactionsDashboardRoute
   '/finance': typeof LayoutFinanceRouteWithChildren
   '/items': typeof LayoutItemsRoute
   '/settings': typeof LayoutSettingsRoute
   '/todos': typeof LayoutTodosRoute
   '/': typeof LayoutIndexRoute
+  '/email/dashboard': typeof LayoutEmailDashboardRoute
+  '/email/transactions': typeof LayoutEmailTransactionsRoute
   '/finance/accounts': typeof LayoutFinanceAccountsRoute
   '/finance/allocation-rules': typeof LayoutFinanceAllocationRulesRoute
   '/finance/categories': typeof LayoutFinanceCategoriesRoute
   '/finance/incomes': typeof LayoutFinanceIncomesRoute
   '/finance/transactions': typeof LayoutFinanceTransactionsRoute
-  '/gmail/transactions': typeof LayoutGmailTransactionsRoute
-  '/gmail': typeof LayoutGmailIndexRoute
+  '/email': typeof LayoutEmailIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -198,22 +181,20 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
-  '/_layout/email-dashboard': typeof LayoutEmailDashboardRoute
-  '/_layout/email-transactions': typeof LayoutEmailTransactionsRoute
-  '/_layout/email-transactions-dashboard': typeof LayoutEmailTransactionsDashboardRoute
+  '/_layout/email': typeof LayoutEmailRouteWithChildren
   '/_layout/finance': typeof LayoutFinanceRouteWithChildren
-  '/_layout/gmail': typeof LayoutGmailRouteWithChildren
   '/_layout/items': typeof LayoutItemsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/todos': typeof LayoutTodosRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/email/dashboard': typeof LayoutEmailDashboardRoute
+  '/_layout/email/transactions': typeof LayoutEmailTransactionsRoute
   '/_layout/finance/accounts': typeof LayoutFinanceAccountsRoute
   '/_layout/finance/allocation-rules': typeof LayoutFinanceAllocationRulesRoute
   '/_layout/finance/categories': typeof LayoutFinanceCategoriesRoute
   '/_layout/finance/incomes': typeof LayoutFinanceIncomesRoute
   '/_layout/finance/transactions': typeof LayoutFinanceTransactionsRoute
-  '/_layout/gmail/transactions': typeof LayoutGmailTransactionsRoute
-  '/_layout/gmail/': typeof LayoutGmailIndexRoute
+  '/_layout/email/': typeof LayoutEmailIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -223,22 +204,20 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
-    | '/email-dashboard'
-    | '/email-transactions'
-    | '/email-transactions-dashboard'
+    | '/email'
     | '/finance'
-    | '/gmail'
     | '/items'
     | '/settings'
     | '/todos'
     | '/'
+    | '/email/dashboard'
+    | '/email/transactions'
     | '/finance/accounts'
     | '/finance/allocation-rules'
     | '/finance/categories'
     | '/finance/incomes'
     | '/finance/transactions'
-    | '/gmail/transactions'
-    | '/gmail/'
+    | '/email/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -246,21 +225,19 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
-    | '/email-dashboard'
-    | '/email-transactions'
-    | '/email-transactions-dashboard'
     | '/finance'
     | '/items'
     | '/settings'
     | '/todos'
     | '/'
+    | '/email/dashboard'
+    | '/email/transactions'
     | '/finance/accounts'
     | '/finance/allocation-rules'
     | '/finance/categories'
     | '/finance/incomes'
     | '/finance/transactions'
-    | '/gmail/transactions'
-    | '/gmail'
+    | '/email'
   id:
     | '__root__'
     | '/_layout'
@@ -269,22 +246,20 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_layout/admin'
-    | '/_layout/email-dashboard'
-    | '/_layout/email-transactions'
-    | '/_layout/email-transactions-dashboard'
+    | '/_layout/email'
     | '/_layout/finance'
-    | '/_layout/gmail'
     | '/_layout/items'
     | '/_layout/settings'
     | '/_layout/todos'
     | '/_layout/'
+    | '/_layout/email/dashboard'
+    | '/_layout/email/transactions'
     | '/_layout/finance/accounts'
     | '/_layout/finance/allocation-rules'
     | '/_layout/finance/categories'
     | '/_layout/finance/incomes'
     | '/_layout/finance/transactions'
-    | '/_layout/gmail/transactions'
-    | '/_layout/gmail/'
+    | '/_layout/email/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -360,13 +335,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutItemsRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/gmail': {
-      id: '/_layout/gmail'
-      path: '/gmail'
-      fullPath: '/gmail'
-      preLoaderRoute: typeof LayoutGmailRouteImport
-      parentRoute: typeof LayoutRoute
-    }
     '/_layout/finance': {
       id: '/_layout/finance'
       path: '/finance'
@@ -374,25 +342,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutFinanceRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/email-transactions-dashboard': {
-      id: '/_layout/email-transactions-dashboard'
-      path: '/email-transactions-dashboard'
-      fullPath: '/email-transactions-dashboard'
-      preLoaderRoute: typeof LayoutEmailTransactionsDashboardRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/email-transactions': {
-      id: '/_layout/email-transactions'
-      path: '/email-transactions'
-      fullPath: '/email-transactions'
-      preLoaderRoute: typeof LayoutEmailTransactionsRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/email-dashboard': {
-      id: '/_layout/email-dashboard'
-      path: '/email-dashboard'
-      fullPath: '/email-dashboard'
-      preLoaderRoute: typeof LayoutEmailDashboardRouteImport
+    '/_layout/email': {
+      id: '/_layout/email'
+      path: '/email'
+      fullPath: '/email'
+      preLoaderRoute: typeof LayoutEmailRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/admin': {
@@ -402,19 +356,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/gmail/': {
-      id: '/_layout/gmail/'
+    '/_layout/email/': {
+      id: '/_layout/email/'
       path: '/'
-      fullPath: '/gmail/'
-      preLoaderRoute: typeof LayoutGmailIndexRouteImport
-      parentRoute: typeof LayoutGmailRoute
-    }
-    '/_layout/gmail/transactions': {
-      id: '/_layout/gmail/transactions'
-      path: '/transactions'
-      fullPath: '/gmail/transactions'
-      preLoaderRoute: typeof LayoutGmailTransactionsRouteImport
-      parentRoute: typeof LayoutGmailRoute
+      fullPath: '/email/'
+      preLoaderRoute: typeof LayoutEmailIndexRouteImport
+      parentRoute: typeof LayoutEmailRoute
     }
     '/_layout/finance/transactions': {
       id: '/_layout/finance/transactions'
@@ -451,8 +398,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutFinanceAccountsRouteImport
       parentRoute: typeof LayoutFinanceRoute
     }
+    '/_layout/email/transactions': {
+      id: '/_layout/email/transactions'
+      path: '/transactions'
+      fullPath: '/email/transactions'
+      preLoaderRoute: typeof LayoutEmailTransactionsRouteImport
+      parentRoute: typeof LayoutEmailRoute
+    }
+    '/_layout/email/dashboard': {
+      id: '/_layout/email/dashboard'
+      path: '/dashboard'
+      fullPath: '/email/dashboard'
+      preLoaderRoute: typeof LayoutEmailDashboardRouteImport
+      parentRoute: typeof LayoutEmailRoute
+    }
   }
 }
+
+interface LayoutEmailRouteChildren {
+  LayoutEmailDashboardRoute: typeof LayoutEmailDashboardRoute
+  LayoutEmailTransactionsRoute: typeof LayoutEmailTransactionsRoute
+  LayoutEmailIndexRoute: typeof LayoutEmailIndexRoute
+}
+
+const LayoutEmailRouteChildren: LayoutEmailRouteChildren = {
+  LayoutEmailDashboardRoute: LayoutEmailDashboardRoute,
+  LayoutEmailTransactionsRoute: LayoutEmailTransactionsRoute,
+  LayoutEmailIndexRoute: LayoutEmailIndexRoute,
+}
+
+const LayoutEmailRouteWithChildren = LayoutEmailRoute._addFileChildren(
+  LayoutEmailRouteChildren,
+)
 
 interface LayoutFinanceRouteChildren {
   LayoutFinanceAccountsRoute: typeof LayoutFinanceAccountsRoute
@@ -474,27 +451,10 @@ const LayoutFinanceRouteWithChildren = LayoutFinanceRoute._addFileChildren(
   LayoutFinanceRouteChildren,
 )
 
-interface LayoutGmailRouteChildren {
-  LayoutGmailTransactionsRoute: typeof LayoutGmailTransactionsRoute
-  LayoutGmailIndexRoute: typeof LayoutGmailIndexRoute
-}
-
-const LayoutGmailRouteChildren: LayoutGmailRouteChildren = {
-  LayoutGmailTransactionsRoute: LayoutGmailTransactionsRoute,
-  LayoutGmailIndexRoute: LayoutGmailIndexRoute,
-}
-
-const LayoutGmailRouteWithChildren = LayoutGmailRoute._addFileChildren(
-  LayoutGmailRouteChildren,
-)
-
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
-  LayoutEmailDashboardRoute: typeof LayoutEmailDashboardRoute
-  LayoutEmailTransactionsRoute: typeof LayoutEmailTransactionsRoute
-  LayoutEmailTransactionsDashboardRoute: typeof LayoutEmailTransactionsDashboardRoute
+  LayoutEmailRoute: typeof LayoutEmailRouteWithChildren
   LayoutFinanceRoute: typeof LayoutFinanceRouteWithChildren
-  LayoutGmailRoute: typeof LayoutGmailRouteWithChildren
   LayoutItemsRoute: typeof LayoutItemsRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutTodosRoute: typeof LayoutTodosRoute
@@ -503,11 +463,8 @@ interface LayoutRouteChildren {
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
-  LayoutEmailDashboardRoute: LayoutEmailDashboardRoute,
-  LayoutEmailTransactionsRoute: LayoutEmailTransactionsRoute,
-  LayoutEmailTransactionsDashboardRoute: LayoutEmailTransactionsDashboardRoute,
+  LayoutEmailRoute: LayoutEmailRouteWithChildren,
   LayoutFinanceRoute: LayoutFinanceRouteWithChildren,
-  LayoutGmailRoute: LayoutGmailRouteWithChildren,
   LayoutItemsRoute: LayoutItemsRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutTodosRoute: LayoutTodosRoute,

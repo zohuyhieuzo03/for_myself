@@ -18,9 +18,7 @@ import DeleteAllocationRule from "@/components/AllocationRules/DeleteAllocationR
 import EditAllocationRule from "@/components/AllocationRules/EditAllocationRule"
 import { MenuContent, MenuRoot, MenuTrigger } from "@/components/ui/menu"
 
-export const Route = createFileRoute(
-  "/_layout/finance/allocation-rules",
-)({
+export const Route = createFileRoute("/_layout/finance/allocation-rules")({
   component: AllocationRulesPage,
 })
 

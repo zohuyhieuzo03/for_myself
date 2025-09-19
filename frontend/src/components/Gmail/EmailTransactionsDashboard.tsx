@@ -7,7 +7,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
-import { useMemo, useState, useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
   Area,
   Bar,
@@ -109,7 +109,8 @@ function SavingsDebtChart({
                   </Box>
                 </HStack>
                 <Box fontSize="sm" fontWeight="bold" color="blue.600">
-                  {Number(d.value).toLocaleString()}{isRemitanoConnection ? " USDT" : "₫"}
+                  {Number(d.value).toLocaleString()}
+                  {isRemitanoConnection ? " USDT" : "₫"}
                 </Box>
               </HStack>
             ))
@@ -139,16 +140,23 @@ export default function EmailTransactionsDashboard() {
 
   // Set default connection when connections load
   useEffect(() => {
-    if (connections?.data && connections.data.length > 0 && !selectedConnectionId) {
+    if (
+      connections?.data &&
+      connections.data.length > 0 &&
+      !selectedConnectionId
+    ) {
       setSelectedConnectionId(connections.data[0].id)
     }
   }, [connections, selectedConnectionId])
 
   const connectionId = selectedConnectionId || connections?.data?.[0]?.id
-  
+
   // Get the selected connection to determine currency
-  const selectedConnection = connections?.data?.find(conn => conn.id === connectionId)
-  const isRemitanoConnection = selectedConnection?.gmail_email?.includes('remitano') || false
+  const selectedConnection = connections?.data?.find(
+    (conn) => conn.id === connectionId,
+  )
+  const isRemitanoConnection =
+    selectedConnection?.gmail_email?.includes("remitano") || false
 
   const { data: dashboard } = useQuery({
     queryKey: ["email-txn-dashboard", { connectionId, year, month }],
@@ -539,7 +547,9 @@ export default function EmailTransactionsDashboard() {
                     fontSize={10}
                     allowDecimals={false}
                     width={72}
-                    tickFormatter={(v: any) => `${Number(v).toLocaleString()}${isRemitanoConnection ? " USDT" : "₫"}`}
+                    tickFormatter={(v: any) =>
+                      `${Number(v).toLocaleString()}${isRemitanoConnection ? " USDT" : "₫"}`
+                    }
                   />
                   <Tooltip
                     formatter={(v: any) => [
@@ -617,7 +627,8 @@ export default function EmailTransactionsDashboard() {
                       }}
                     />
                     <Box fontSize="sm">
-                      {d.name}: {Number(d.value).toLocaleString()}{isRemitanoConnection ? " USDT" : "₫"}
+                      {d.name}: {Number(d.value).toLocaleString()}
+                      {isRemitanoConnection ? " USDT" : "₫"}
                     </Box>
                   </HStack>
                 ))
@@ -630,7 +641,10 @@ export default function EmailTransactionsDashboard() {
       {/* Savings & Debts Chart */}
       {savingsDebtData.length > 0 && (
         <Box mt={6}>
-          <SavingsDebtChart data={savingsDebtData} isRemitanoConnection={isRemitanoConnection} />
+          <SavingsDebtChart
+            data={savingsDebtData}
+            isRemitanoConnection={isRemitanoConnection}
+          />
         </Box>
       )}
     </Container>

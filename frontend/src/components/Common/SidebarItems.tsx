@@ -24,12 +24,12 @@ const items = [
   { icon: FiHome, title: "Dashboard", path: "/" },
   { icon: FiBriefcase, title: "Items", path: "/items" },
   { icon: FiCheckSquare, title: "Todos", path: "/todos" },
-  { icon: FiMail, title: "Gmail Integration", path: "/gmail" },
-  { icon: FiInbox, title: "Email Transactions", path: "/email-transactions" },
+  { icon: FiMail, title: "Gmail Integration", path: "/email" },
+  { icon: FiInbox, title: "Email Transactions", path: "/email/transactions" },
   {
     icon: FiBarChart,
     title: "Email Txn Dashboard",
-    path: "/email-transactions-dashboard",
+    path: "/email/dashboard",
   },
   { icon: FiSettings, title: "User Settings", path: "/settings" },
 ]

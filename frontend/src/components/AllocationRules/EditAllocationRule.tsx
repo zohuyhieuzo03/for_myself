@@ -35,9 +35,7 @@ interface EditAllocationRuleProps {
   allocationRule: AllocationRulePublic
 }
 
-const EditAllocationRule = ({
-  allocationRule,
-}: EditAllocationRuleProps) => {
+const EditAllocationRule = ({ allocationRule }: EditAllocationRuleProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()

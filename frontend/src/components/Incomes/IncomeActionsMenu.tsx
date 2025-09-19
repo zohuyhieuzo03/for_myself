@@ -9,9 +9,7 @@ interface IncomeActionsMenuProps {
   income: IncomePublic
 }
 
-export const IncomeActionsMenu = ({
-  income,
-}: IncomeActionsMenuProps) => {
+export const IncomeActionsMenu = ({ income }: IncomeActionsMenuProps) => {
   return (
     <MenuRoot>
       <MenuTrigger asChild>

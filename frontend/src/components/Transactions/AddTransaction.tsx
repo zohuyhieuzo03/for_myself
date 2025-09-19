@@ -31,10 +31,7 @@ interface AddTransactionProps {
   categories: Array<{ id: string; name: string }>
 }
 
-const AddTransaction = ({
-  accounts,
-  categories,
-}: AddTransactionProps) => {
+const AddTransaction = ({ accounts, categories }: AddTransactionProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -70,16 +67,16 @@ const AddTransaction = ({
       TransactionsService.createTransaction({ requestBody: data }),
     onSuccess: () => {
       showSuccessToast("Transaction created successfully.")
-    reset({
-      txn_date: getTodayDate(),
-      type: "out",
-      amount: 0,
-      currency: "VND",
-      merchant: "",
-      note: "",
-      account_id: "",
-      category_id: "",
-    })
+      reset({
+        txn_date: getTodayDate(),
+        type: "out",
+        amount: 0,
+        currency: "VND",
+        merchant: "",
+        note: "",
+        account_id: "",
+        category_id: "",
+      })
       setIsOpen(false)
     },
     onError: (err: ApiError) => {

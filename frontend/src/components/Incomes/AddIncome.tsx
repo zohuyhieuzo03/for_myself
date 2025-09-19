@@ -26,7 +26,7 @@ import {
 } from "../ui/dialog"
 import { Field } from "../ui/field"
 
-interface AddIncomeProps {}
+type AddIncomeProps = {}
 
 const AddIncome = ({}: AddIncomeProps) => {
   const [isOpen, setIsOpen] = useState(false)

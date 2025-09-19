@@ -10,8 +10,8 @@ import {
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import { useState, useMemo } from "react"
-import { FiTrendingUp, FiArrowUp, FiArrowDown } from "react-icons/fi"
+import { useMemo, useState } from "react"
+import { FiArrowDown, FiArrowUp, FiTrendingUp } from "react-icons/fi"
 
 import {
   AccountsService,
@@ -29,7 +29,7 @@ type SortDirection = "asc" | "desc" | null
 
 function TransactionsPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
-  
+
   const {
     data: transactions,
     isLoading,
@@ -58,13 +58,12 @@ function TransactionsPage() {
     return [...transactions.data].sort((a, b) => {
       const dateA = new Date(a.txn_date)
       const dateB = new Date(b.txn_date)
-      
+
       if (sortDirection === "asc") {
         return dateA.getTime() - dateB.getTime()
-      } else {
-        // Default to desc (newest first)
-        return dateB.getTime() - dateA.getTime()
       }
+      // Default to desc (newest first)
+      return dateB.getTime() - dateA.getTime()
     })
   }, [transactions?.data, sortDirection])
 
@@ -111,10 +110,7 @@ function TransactionsPage() {
       <VStack gap={6} align="stretch">
         <HStack justify="space-between" align="center">
           <Heading>Transactions</Heading>
-          <AddTransaction
-            accounts={accountsList}
-            categories={categoriesList}
-          />
+          <AddTransaction accounts={accountsList} categories={categoriesList} />
         </HStack>
 
         {sortedTransactions && sortedTransactions.length > 0 ? (

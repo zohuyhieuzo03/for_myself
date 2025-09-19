@@ -77,15 +77,13 @@ function IncomesPage() {
                     <Table.Cell>{income.source}</Table.Cell>
                     <Table.Cell>
                       <Text fontWeight="bold" color="green.600">
-                        {Number(income.amount ?? 0).toLocaleString("vi-VN")} {" "}
+                        {Number(income.amount ?? 0).toLocaleString("vi-VN")}{" "}
                         {income.currency}
                       </Text>
                     </Table.Cell>
                     <Table.Cell>{income.currency}</Table.Cell>
                     <Table.Cell>
-                      <IncomeActionsMenu
-                        income={income}
-                      />
+                      <IncomeActionsMenu income={income} />
                     </Table.Cell>
                   </Table.Row>
                 )

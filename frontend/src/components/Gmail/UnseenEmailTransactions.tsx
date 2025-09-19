@@ -128,7 +128,7 @@ export function UnseenEmailTransactions({
         GmailService.markEmailTransactionAsSeen({ transactionId: id }),
       )
       await Promise.all(promises)
-      
+
       return allUnseenTransactionIds.length
     },
     onSuccess: (count) => {
@@ -147,13 +147,17 @@ export function UnseenEmailTransactions({
 
   const handleViewAll = () => {
     navigate({
-      to: "/email-transactions",
+      to: "/email/transactions",
       search: { page: 1, unseenOnly: true },
     })
   }
 
   const handleMarkAllSeen = () => {
-    if (confirm("Mark ALL unseen emails as seen? This will mark all unseen emails across all your Gmail connections.")) {
+    if (
+      confirm(
+        "Mark ALL unseen emails as seen? This will mark all unseen emails across all your Gmail connections.",
+      )
+    ) {
       markAllSeenMutation.mutate()
     }
   }

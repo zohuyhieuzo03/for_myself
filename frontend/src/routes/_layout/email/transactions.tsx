@@ -11,7 +11,7 @@ const emailTransactionsSearchSchema = z.object({
   unseenOnly: z.boolean().optional(),
 })
 
-export const Route = createFileRoute("/_layout/email-transactions")({
+export const Route = createFileRoute("/_layout/email/transactions")({
   component: EmailTransactions,
   validateSearch: (search) => emailTransactionsSearchSchema.parse(search),
 })

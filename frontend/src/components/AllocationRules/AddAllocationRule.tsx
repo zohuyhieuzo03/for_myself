@@ -26,7 +26,7 @@ import {
 } from "../ui/dialog"
 import { Field } from "../ui/field"
 
-interface AddAllocationRuleProps {}
+type AddAllocationRuleProps = {}
 
 const AddAllocationRule = ({}: AddAllocationRuleProps) => {
   const [isOpen, setIsOpen] = useState(false)

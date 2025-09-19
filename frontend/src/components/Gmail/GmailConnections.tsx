@@ -9,8 +9,8 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
 import { Link as RouterLink } from "@tanstack/react-router"
+import { useEffect, useState } from "react"
 import { FiExternalLink, FiMail, FiRefreshCw, FiTrash2 } from "react-icons/fi"
 import type { GmailConnectionPublic } from "@/client"
 
@@ -186,7 +186,9 @@ export function GmailConnections() {
         <HStack>
           {connections && connections.data.length > 0 && (
             <Button asChild variant="outline">
-              <RouterLink to="/gmail/transactions">View Emails</RouterLink>
+              <RouterLink to="/email/transactions" search={{ page: 1 }}>
+                View Emails
+              </RouterLink>
             </Button>
           )}
           <Button
