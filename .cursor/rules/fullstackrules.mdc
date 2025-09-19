@@ -173,7 +173,8 @@ frontend/src/
 6. **Generate Client** → `source .venv/bin/activate && ./scripts/generate-client.sh`
 7. **Create Components** → `components/Entity/`
 8. **Add Routes** → `routes/_layout/`
-9. **Test Frontend** → `npm run lint && npx tsc --noEmit`
+9. **Generate Routes** → `cd frontend && npx @tanstack/router-cli generate`
+10. **Test Frontend** → `npm run lint && npx tsc --noEmit`
 
 ## 🔧 Code Quality Rules
 
