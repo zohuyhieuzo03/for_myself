@@ -34,19 +34,19 @@ const items = [
   { icon: FiSettings, title: "User Settings", path: "/settings" },
 ]
 
-const sprintFinanceItems = [
-  { icon: FiCreditCard, title: "Accounts", path: "/sprint-finance/accounts" },
-  { icon: FiTag, title: "Categories", path: "/sprint-finance/categories" },
-  { icon: FiArrowUpCircle, title: "Incomes", path: "/sprint-finance/incomes" },
+const financeItems = [
+  { icon: FiCreditCard, title: "Accounts", path: "/finance/accounts" },
+  { icon: FiTag, title: "Categories", path: "/finance/categories" },
+  { icon: FiArrowUpCircle, title: "Incomes", path: "/finance/incomes" },
   {
     icon: FiTrendingUp,
     title: "Transactions",
-    path: "/sprint-finance/transactions",
+    path: "/finance/transactions",
   },
   {
     icon: FiTarget,
     title: "Allocation Rules",
-    path: "/sprint-finance/allocation-rules",
+    path: "/finance/allocation-rules",
   },
 ]
 
@@ -86,7 +86,7 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
     </RouterLink>
   ))
 
-  const sprintFinanceListItems = sprintFinanceItems.map(
+  const financeListItems = financeItems.map(
     ({ icon, title, path }) => (
       <RouterLink key={title} to={path} onClick={onClose}>
         <Flex
@@ -112,7 +112,7 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
         Menu
       </Text>
       <Box>{listItems}</Box>
-      <Box>{sprintFinanceListItems}</Box>
+      <Box>{financeListItems}</Box>
     </>
   )
 }

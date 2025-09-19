@@ -33,12 +33,10 @@ import { Field } from "../ui/field"
 
 interface EditAllocationRuleProps {
   allocationRule: AllocationRulePublic
-  sprints: Array<{ id: string; start_date: string; end_date: string }>
 }
 
 const EditAllocationRule = ({
   allocationRule,
-  sprints,
 }: EditAllocationRuleProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -54,7 +52,6 @@ const EditAllocationRule = ({
     defaultValues: {
       grp: allocationRule.grp,
       percent: allocationRule.percent,
-      sprint_id: allocationRule.sprint_id,
     },
   })
 
@@ -78,12 +75,7 @@ const EditAllocationRule = ({
   })
 
   const onSubmit: SubmitHandler<AllocationRuleUpdate> = async (data) => {
-    // Convert empty string to null for optional fields
-    const processedData = {
-      ...data,
-      sprint_id: data.sprint_id === "" ? null : data.sprint_id,
-    }
-    mutation.mutate(processedData)
+    mutation.mutate(data)
   }
 
   return (
@@ -146,21 +138,6 @@ const EditAllocationRule = ({
                   type="number"
                   step="0.01"
                 />
-              </Field>
-
-              <Field
-                invalid={!!errors.sprint_id}
-                errorText={errors.sprint_id?.message}
-                label="Sprint"
-              >
-                <select {...register("sprint_id")}>
-                  <option value="">Select Sprint (Optional)</option>
-                  {sprints.map((sprint) => (
-                    <option key={sprint.id} value={sprint.id}>
-                      {sprint.start_date} - {sprint.end_date}
-                    </option>
-                  ))}
-                </select>
               </Field>
             </VStack>
           </DialogBody>

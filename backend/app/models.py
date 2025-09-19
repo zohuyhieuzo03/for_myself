@@ -50,7 +50,6 @@ class User(UserBase, table=True):
     hashed_password: str
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
     todos: list["Todo"] = Relationship(back_populates="owner", cascade_delete=True)
-    sprints: list["Sprint"] = Relationship(back_populates="user", cascade_delete=True)
     accounts: list["Account"] = Relationship(back_populates="user", cascade_delete=True)
     categories: list["Category"] = Relationship(
         back_populates="user", cascade_delete=True
@@ -198,53 +197,6 @@ class CategoryGroup(str, Enum):
     savings_debt = "savings_debt"
 
 
-# ========= SPRINT =========
-class SprintBase(SQLModel):
-    start_date: date
-    end_date: date
-    payday_anchor: date
-    is_closed: bool = False
-
-
-class SprintCreate(SprintBase):
-    pass
-
-
-class SprintUpdate(BaseModel):
-    start_date: date | None = None
-    end_date: date | None = None
-    payday_anchor: date | None = None
-    is_closed: bool | None = None
-
-
-class Sprint(SprintBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-    user: User | None = Relationship(back_populates="sprints")
-    incomes: list["Income"] = Relationship(back_populates="sprint", cascade_delete=True)
-    txns: list["Transaction"] = Relationship(
-        back_populates="sprint", cascade_delete=True
-    )
-    allocation_rules: list["AllocationRule"] = Relationship(
-        back_populates="sprint", cascade_delete=True
-    )
-
-
-class SprintPublic(SprintBase):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    created_at: datetime
-    updated_at: datetime
-
-
-class SprintsPublic(SQLModel):
-    data: list[SprintPublic]
-    count: int
-
-
 # ========= ACCOUNT =========
 class AccountBase(SQLModel):
     name: str = Field(max_length=255)
@@ -338,12 +290,7 @@ class IncomeBase(SQLModel):
 
 
 class IncomeCreate(IncomeBase):
-    sprint_id: uuid.UUID | None = None
-    
-    @field_validator('sprint_id', mode='before')
-    @classmethod
-    def validate_sprint_id(cls, v):
-        return convert_empty_string_to_none(v)
+    pass
 
 
 class IncomeUpdate(BaseModel):
@@ -351,29 +298,20 @@ class IncomeUpdate(BaseModel):
     source: str | None = Field(default=None, max_length=255)
     amount: float | None = None
     currency: str | None = Field(default=None, max_length=10)
-    sprint_id: uuid.UUID | None = None
-    
-    @field_validator('sprint_id', mode='before')
-    @classmethod
-    def validate_sprint_id(cls, v):
-        return convert_empty_string_to_none(v)
 
 
 class Income(IncomeBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
-    sprint_id: uuid.UUID | None = Field(foreign_key="sprint.id", nullable=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     user: User | None = Relationship(back_populates="incomes")
-    sprint: Sprint | None = Relationship(back_populates="incomes")
 
 
 class IncomePublic(IncomeBase):
     id: uuid.UUID
     user_id: uuid.UUID
-    sprint_id: uuid.UUID | None
     created_at: datetime
     updated_at: datetime
 
@@ -396,11 +334,10 @@ class TransactionBase(SQLModel):
 class TransactionCreate(TransactionBase):
     account_id: uuid.UUID
     category_id: uuid.UUID | None = None
-    sprint_id: uuid.UUID | None = None
     
-    @field_validator('category_id', 'sprint_id', mode='before')
+    @field_validator('category_id', mode='before')
     @classmethod
-    def validate_optional_ids(cls, v):
+    def validate_category_id(cls, v):
         return convert_empty_string_to_none(v)
 
 
@@ -413,25 +350,22 @@ class TransactionUpdate(BaseModel):
     note: str | None = Field(default=None, max_length=500)
     account_id: uuid.UUID | None = None
     category_id: uuid.UUID | None = None
-    sprint_id: uuid.UUID | None = None
     
-    @field_validator('category_id', 'sprint_id', mode='before')
+    @field_validator('category_id', mode='before')
     @classmethod
-    def validate_optional_ids(cls, v):
+    def validate_category_id(cls, v):
         return convert_empty_string_to_none(v)
 
 
 class Transaction(TransactionBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
-    sprint_id: uuid.UUID | None = Field(foreign_key="sprint.id")
     account_id: uuid.UUID = Field(foreign_key="account.id", nullable=False)
     category_id: uuid.UUID | None = Field(foreign_key="category.id")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     user: User | None = Relationship(back_populates="transactions")
-    sprint: Sprint | None = Relationship(back_populates="txns")
     account: Account | None = Relationship(back_populates="txns")
     category: Category | None = Relationship(back_populates="txns")
 
@@ -439,7 +373,6 @@ class Transaction(TransactionBase, table=True):
 class TransactionPublic(TransactionBase):
     id: uuid.UUID
     user_id: uuid.UUID
-    sprint_id: uuid.UUID | None
     account_id: uuid.UUID
     category_id: uuid.UUID | None
     created_at: datetime
@@ -458,40 +391,26 @@ class AllocationRuleBase(SQLModel):
 
 
 class AllocationRuleCreate(AllocationRuleBase):
-    sprint_id: uuid.UUID | None = None
-    
-    @field_validator('sprint_id', mode='before')
-    @classmethod
-    def validate_sprint_id(cls, v):
-        return convert_empty_string_to_none(v)
+    pass
 
 
 class AllocationRuleUpdate(BaseModel):
     grp: CategoryGroup | None = None
     percent: float | None = Field(default=None, gt=0, le=100)
-    sprint_id: uuid.UUID | None = None
-    
-    @field_validator('sprint_id', mode='before')
-    @classmethod
-    def validate_sprint_id(cls, v):
-        return convert_empty_string_to_none(v)
 
 
 class AllocationRule(AllocationRuleBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
-    sprint_id: uuid.UUID | None = Field(foreign_key="sprint.id", nullable=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     user: User | None = Relationship(back_populates="allocation_rules")
-    sprint: Sprint | None = Relationship(back_populates="allocation_rules")
 
 
 class AllocationRulePublic(AllocationRuleBase):
     id: uuid.UUID
     user_id: uuid.UUID
-    sprint_id: uuid.UUID | None
     created_at: datetime
     updated_at: datetime
 
@@ -530,16 +449,6 @@ class MonthlyFinancialSummary(SQLModel):
 class MonthlyFinancialReports(SQLModel):
     data: list[MonthlyFinancialReport]
     count: int
-
-
-# ========= SPRINT DETAIL =========
-class SprintDetailPublic(SprintPublic):
-    incomes: list[IncomePublic] = []
-    transactions: list[TransactionPublic] = []
-    allocation_rules: list[AllocationRulePublic] = []
-    accounts: list[AccountPublic] = []
-    categories: list[CategoryPublic] = []
-    financial_summary: dict = {}
 
 
 # ========= GMAIL INTEGRATION =========

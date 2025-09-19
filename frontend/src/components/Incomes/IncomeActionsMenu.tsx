@@ -7,12 +7,10 @@ import EditIncome from "./EditIncome"
 
 interface IncomeActionsMenuProps {
   income: IncomePublic
-  sprints: Array<{ id: string; start_date: string; end_date: string }>
 }
 
 export const IncomeActionsMenu = ({
   income,
-  sprints,
 }: IncomeActionsMenuProps) => {
   return (
     <MenuRoot>
@@ -22,7 +20,7 @@ export const IncomeActionsMenu = ({
         </IconButton>
       </MenuTrigger>
       <MenuContent>
-        <EditIncome income={income} sprints={sprints} />
+        <EditIncome income={income} />
         <DeleteIncome id={income.id} />
       </MenuContent>
     </MenuRoot>

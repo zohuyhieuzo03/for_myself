@@ -12,24 +12,22 @@ import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { BsThreeDotsVertical } from "react-icons/bs"
 import { FiTarget } from "react-icons/fi"
-import { AllocationRulesService, SprintsService } from "@/client"
+import { AllocationRulesService } from "@/client"
 import AddAllocationRule from "@/components/AllocationRules/AddAllocationRule"
 import DeleteAllocationRule from "@/components/AllocationRules/DeleteAllocationRule"
 import EditAllocationRule from "@/components/AllocationRules/EditAllocationRule"
 import { MenuContent, MenuRoot, MenuTrigger } from "@/components/ui/menu"
 
 export const Route = createFileRoute(
-  "/_layout/sprint-finance/allocation-rules",
+  "/_layout/finance/allocation-rules",
 )({
   component: AllocationRulesPage,
 })
 
 const AllocationRuleActionsMenu = ({
   allocationRule,
-  sprints,
 }: {
   allocationRule: any
-  sprints: Array<{ id: string; start_date: string; end_date: string }>
 }) => (
   <MenuRoot>
     <MenuTrigger asChild>
@@ -38,7 +36,7 @@ const AllocationRuleActionsMenu = ({
       </IconButton>
     </MenuTrigger>
     <MenuContent>
-      <EditAllocationRule allocationRule={allocationRule} sprints={sprints} />
+      <EditAllocationRule allocationRule={allocationRule} />
       <DeleteAllocationRule id={allocationRule.id} />
     </MenuContent>
   </MenuRoot>
@@ -52,11 +50,6 @@ function AllocationRulesPage() {
   } = useQuery({
     queryKey: ["allocation-rules"],
     queryFn: () => AllocationRulesService.readAllocationRules(),
-  })
-
-  const { data: sprints } = useQuery({
-    queryKey: ["sprints"],
-    queryFn: () => SprintsService.readSprints(),
   })
 
   if (isLoading) {
@@ -81,19 +74,12 @@ function AllocationRulesPage() {
     )
   }
 
-  const sprintsList =
-    sprints?.data?.map((sprint: any) => ({
-      id: sprint.id,
-      start_date: sprint.start_date,
-      end_date: sprint.end_date,
-    })) || []
-
   return (
     <Container maxW="full">
       <VStack gap={6} align="stretch">
         <HStack justify="space-between" align="center">
           <Heading>Allocation Rules</Heading>
-          <AddAllocationRule sprints={sprintsList} />
+          <AddAllocationRule />
         </HStack>
 
         {allocationRules?.data && allocationRules.data.length > 0 ? (
@@ -102,16 +88,11 @@ function AllocationRulesPage() {
               <Table.Row>
                 <Table.ColumnHeader>Group</Table.ColumnHeader>
                 <Table.ColumnHeader>Percentage</Table.ColumnHeader>
-                <Table.ColumnHeader>Sprint</Table.ColumnHeader>
                 <Table.ColumnHeader>Actions</Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
             <Table.Body>
               {allocationRules.data.map((rule: any) => {
-                const sprint = sprints?.data?.find(
-                  (s: any) => s.id === rule.sprint_id,
-                )
-
                 return (
                   <Table.Row key={rule.id}>
                     <Table.Cell>
@@ -132,15 +113,7 @@ function AllocationRulesPage() {
                       <Text fontWeight="bold">{rule.percent}%</Text>
                     </Table.Cell>
                     <Table.Cell>
-                      {sprint
-                        ? `${sprint.start_date} - ${sprint.end_date}`
-                        : "-"}
-                    </Table.Cell>
-                    <Table.Cell>
-                      <AllocationRuleActionsMenu
-                        allocationRule={rule}
-                        sprints={sprintsList}
-                      />
+                      <AllocationRuleActionsMenu allocationRule={rule} />
                     </Table.Cell>
                   </Table.Row>
                 )
@@ -154,7 +127,7 @@ function AllocationRulesPage() {
               No allocation rules found. Create your first allocation rule to
               set budget percentages.
             </Text>
-            <AddAllocationRule sprints={sprintsList} />
+            <AddAllocationRule />
           </VStack>
         )}
       </VStack>

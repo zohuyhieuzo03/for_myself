@@ -322,6 +322,70 @@ frontend/src/
 - Browser Network tab cho API calls
 - Console logging cho state changes
 
+## 🚨 Error Handling & Debugging Rules
+
+### ❌ KHÔNG BAO GIỜ Fix Chắp Vá:
+- **Không** thêm workaround hoặc band-aid solutions
+- **Không** thêm setTimeout, useRef phức tạp để "fix" symptoms
+- **Không** ignore lỗi hoặc suppress warnings
+
+### ✅ LUÔN Tìm Nguyên Nhân Gốc Rễ:
+1. **Phân tích kỹ lưỡng** error message và stack trace
+2. **Tìm hiểu** tại sao lỗi xảy ra, không chỉ làm sao để nó biến mất
+3. **Đọc documentation** của library/framework liên quan
+4. **Kiểm tra** các component tương tự trong codebase
+
+### 🔧 Debugging Process:
+```typescript
+// ❌ BAD: Fix chắp vá
+const [isOpen, setIsOpen] = useState(false)
+const resetRef = useRef<(() => void) | null>(null)
+resetRef.current = reset // Side effect trong render!
+
+useEffect(() => {
+  if (!isOpen) {
+    const timer = setTimeout(() => {
+      resetRef.current?.()
+    }, 150) // Magic number!
+    return () => clearTimeout(timer)
+  }
+}, [isOpen])
+
+// ✅ GOOD: Tìm nguyên nhân và fix đúng
+const mutation = useMutation({
+  onSuccess: () => {
+    showSuccessToast("Success!")
+    reset() // Reset trực tiếp trong callback
+    setIsOpen(false) // Đóng dialog
+  }
+})
+```
+
+### 🎯 Debugging Checklist:
+1. **Đọc error message** cẩn thận
+2. **Tìm hiểu** nguyên nhân gốc rễ
+3. **Kiểm tra** documentation và best practices
+4. **Áp dụng** giải pháp đơn giản nhất
+5. **Test** để đảm bảo fix hoạt động
+6. **Refactor** nếu cần thiết
+
+### 📋 Common Error Patterns:
+
+#### React Hooks Errors:
+- **"Rendered more hooks than during the previous render"**: 
+  - Nguyên nhân: Conditional hooks hoặc side effects trong render
+  - Fix: Đảm bảo hooks được gọi theo thứ tự nhất quán
+
+#### Form Validation Errors:
+- **Form không reset sau submit**:
+  - Nguyên nhân: Timing issues với dialog state
+  - Fix: Reset trong success callback, không dùng useEffect phức tạp
+
+#### API Integration Errors:
+- **CORS hoặc authentication issues**:
+  - Nguyên nhân: Configuration sai hoặc token expired
+  - Fix: Kiểm tra API configuration và token management
+
 ---
 
 **Lưu ý**: Luôn tuân theo pattern này để đảm bảo consistency và maintainability của codebase.

@@ -29,13 +29,11 @@ import { Field } from "../ui/field"
 interface AddTransactionProps {
   accounts: Array<{ id: string; name: string }>
   categories: Array<{ id: string; name: string }>
-  sprints: Array<{ id: string; start_date: string; end_date: string }>
 }
 
 const AddTransaction = ({
   accounts,
   categories,
-  sprints,
 }: AddTransactionProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -64,7 +62,6 @@ const AddTransaction = ({
       note: "",
       account_id: "",
       category_id: "",
-      sprint_id: null,
     },
   })
 
@@ -73,17 +70,16 @@ const AddTransaction = ({
       TransactionsService.createTransaction({ requestBody: data }),
     onSuccess: () => {
       showSuccessToast("Transaction created successfully.")
-      reset({
-        txn_date: getTodayDate(),
-        type: "out",
-        amount: 0,
-        currency: "VND",
-        merchant: "",
-        note: "",
-        account_id: "",
-        category_id: "",
-        sprint_id: null,
-      })
+    reset({
+      txn_date: getTodayDate(),
+      type: "out",
+      amount: 0,
+      currency: "VND",
+      merchant: "",
+      note: "",
+      account_id: "",
+      category_id: "",
+    })
       setIsOpen(false)
     },
     onError: (err: ApiError) => {
@@ -99,7 +95,6 @@ const AddTransaction = ({
     const processedData = {
       ...data,
       category_id: data.category_id === "" ? null : data.category_id,
-      sprint_id: data.sprint_id === "" ? null : data.sprint_id,
     }
     mutation.mutate(processedData)
   }
@@ -245,21 +240,6 @@ const AddTransaction = ({
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field
-                invalid={!!errors.sprint_id}
-                errorText={errors.sprint_id?.message}
-                label="Sprint"
-              >
-                <select {...register("sprint_id")}>
-                  <option value="">Select Sprint (Optional)</option>
-                  {sprints.map((sprint) => (
-                    <option key={sprint.id} value={sprint.id}>
-                      {sprint.start_date} - {sprint.end_date}
                     </option>
                   ))}
                 </select>

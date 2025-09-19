@@ -35,7 +35,6 @@ export type AccountUpdate = {
 export type AllocationRuleCreate = {
     grp: CategoryGroup;
     percent: number;
-    sprint_id?: (string | null);
 };
 
 export type AllocationRulePublic = {
@@ -43,7 +42,6 @@ export type AllocationRulePublic = {
     percent: number;
     id: string;
     user_id: string;
-    sprint_id: (string | null);
     created_at: string;
     updated_at: string;
 };
@@ -56,7 +54,6 @@ export type AllocationRulesPublic = {
 export type AllocationRuleUpdate = {
     grp?: (CategoryGroup | null);
     percent?: (number | null);
-    sprint_id?: (string | null);
 };
 
 export type Body_login_login_access_token = {
@@ -183,7 +180,6 @@ export type IncomeCreate = {
     source: string;
     amount: number;
     currency?: string;
-    sprint_id?: (string | null);
 };
 
 export type IncomePublic = {
@@ -193,7 +189,6 @@ export type IncomePublic = {
     currency?: string;
     id: string;
     user_id: string;
-    sprint_id: (string | null);
     created_at: string;
     updated_at: string;
 };
@@ -208,7 +203,6 @@ export type IncomeUpdate = {
     source?: (string | null);
     amount?: (number | null);
     currency?: (string | null);
-    sprint_id?: (string | null);
 };
 
 export type ItemCreate = {
@@ -282,55 +276,6 @@ export type PrivateUserCreate = {
     is_verified?: boolean;
 };
 
-export type SprintCreate = {
-    start_date: string;
-    end_date: string;
-    payday_anchor: string;
-    is_closed?: boolean;
-};
-
-export type SprintDetailPublic = {
-    start_date: string;
-    end_date: string;
-    payday_anchor: string;
-    is_closed?: boolean;
-    id: string;
-    user_id: string;
-    created_at: string;
-    updated_at: string;
-    incomes?: Array<IncomePublic>;
-    transactions?: Array<TransactionPublic>;
-    allocation_rules?: Array<AllocationRulePublic>;
-    accounts?: Array<AccountPublic>;
-    categories?: Array<CategoryPublic>;
-    financial_summary?: {
-        [key: string]: unknown;
-    };
-};
-
-export type SprintPublic = {
-    start_date: string;
-    end_date: string;
-    payday_anchor: string;
-    is_closed?: boolean;
-    id: string;
-    user_id: string;
-    created_at: string;
-    updated_at: string;
-};
-
-export type SprintsPublic = {
-    data: Array<SprintPublic>;
-    count: number;
-};
-
-export type SprintUpdate = {
-    start_date?: (string | null);
-    end_date?: (string | null);
-    payday_anchor?: (string | null);
-    is_closed?: (boolean | null);
-};
-
 export type TodoCreate = {
     title: string;
     description?: (string | null);
@@ -372,7 +317,6 @@ export type TransactionCreate = {
     note?: (string | null);
     account_id: string;
     category_id?: (string | null);
-    sprint_id?: (string | null);
 };
 
 export type TransactionPublic = {
@@ -384,7 +328,6 @@ export type TransactionPublic = {
     note?: (string | null);
     id: string;
     user_id: string;
-    sprint_id: (string | null);
     account_id: string;
     category_id: (string | null);
     created_at: string;
@@ -405,7 +348,6 @@ export type TransactionUpdate = {
     note?: (string | null);
     account_id?: (string | null);
     category_id?: (string | null);
-    sprint_id?: (string | null);
 };
 
 export type TxnType = 'in' | 'out';
@@ -858,44 +800,6 @@ export type PrivateCreateUserData = {
 };
 
 export type PrivateCreateUserResponse = (UserPublic);
-
-export type SprintsReadSprintsData = {
-    limit?: number;
-    skip?: number;
-};
-
-export type SprintsReadSprintsResponse = (SprintsPublic);
-
-export type SprintsCreateSprintData = {
-    requestBody: SprintCreate;
-};
-
-export type SprintsCreateSprintResponse = (SprintPublic);
-
-export type SprintsUpdateSprintData = {
-    requestBody: SprintUpdate;
-    sprintId: string;
-};
-
-export type SprintsUpdateSprintResponse = (SprintPublic);
-
-export type SprintsReadSprintData = {
-    sprintId: string;
-};
-
-export type SprintsReadSprintResponse = (SprintPublic);
-
-export type SprintsDeleteSprintData = {
-    sprintId: string;
-};
-
-export type SprintsDeleteSprintResponse = (Message);
-
-export type SprintsReadSprintDetailData = {
-    sprintId: string;
-};
-
-export type SprintsReadSprintDetailResponse = (SprintDetailPublic);
 
 export type TodosReadTodosData = {
     limit?: number;

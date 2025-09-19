@@ -13,14 +13,6 @@ from .todo import (
     get_todos,
     update_todo,
 )
-from .sprint import (
-    create_sprint,
-    delete_sprint,
-    get_sprint,
-    get_sprint_detail,
-    get_sprints,
-    update_sprint,
-)
 from .account import (
     create_account,
     delete_account,

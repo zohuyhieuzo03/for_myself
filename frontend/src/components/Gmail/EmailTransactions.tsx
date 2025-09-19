@@ -25,7 +25,7 @@ import {
   FiDollarSign,
   FiCheck,
 } from "react-icons/fi"
-import { AccountsService, CategoriesService, GmailService, IncomesService, SprintsService } from "@/client"
+import { AccountsService, CategoriesService, GmailService, IncomesService } from "@/client"
 import {
   DialogBody,
   DialogContent,
@@ -1337,7 +1337,6 @@ interface CreateIncomeModalProps {
     source: string
     amount: number
     currency: string
-    sprintId?: string | null
   }) => void
   isLoading: boolean
 }
@@ -1352,14 +1351,6 @@ function CreateIncomeModal({
   const [source, setSource] = useState<string>("")
   const [amount, setAmount] = useState<number>(0)
   const [currency, setCurrency] = useState<string>("USDT")
-  const [sprintId, setSprintId] = useState<string>("")
-
-  // Load sprints for selector
-  const { data: sprintsData } = useQuery({
-    queryKey: ["sprints"],
-    queryFn: async () => SprintsService.readSprints({ skip: 0, limit: 1000 }),
-    staleTime: 5 * 60 * 1000,
-  })
 
   useEffect(() => {
     if (emailTransaction) {
@@ -1380,7 +1371,6 @@ function CreateIncomeModal({
       source,
       amount,
       currency,
-      sprintId: sprintId || null,
     })
   }
 
@@ -1472,29 +1462,6 @@ function CreateIncomeModal({
                 <option value="USDT">USDT</option>
                 <option value="USD">USD</option>
                 <option value="VND">VND</option>
-              </select>
-            </Box>
-
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>
-                Sprint (Optional)
-              </Text>
-              <select
-                value={sprintId}
-                onChange={(e) => setSprintId(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "6px",
-                }}
-              >
-                <option value="">No sprint</option>
-                {sprintsData?.data?.map((sprint: any) => (
-                  <option key={sprint.id} value={sprint.id}>
-                    {sprint.start_date} - {sprint.end_date}
-                  </option>
-                ))}
               </select>
             </Box>
           </VStack>

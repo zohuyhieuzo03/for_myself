@@ -15,7 +15,7 @@ import { CategoriesService } from "@/client"
 import AddCategory from "@/components/Categories/AddCategory"
 import { CategoryActionsMenu } from "@/components/Categories/CategoryActionsMenu"
 
-export const Route = createFileRoute("/_layout/sprint-finance/categories")({
+export const Route = createFileRoute("/_layout/finance/categories")({
   component: CategoriesPage,
 })
 

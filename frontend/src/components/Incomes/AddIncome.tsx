@@ -26,11 +26,9 @@ import {
 } from "../ui/dialog"
 import { Field } from "../ui/field"
 
-interface AddIncomeProps {
-  sprints: Array<{ id: string; start_date: string; end_date: string }>
-}
+interface AddIncomeProps {}
 
-const AddIncome = ({ sprints }: AddIncomeProps) => {
+const AddIncome = ({}: AddIncomeProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -47,7 +45,6 @@ const AddIncome = ({ sprints }: AddIncomeProps) => {
       source: "",
       amount: 0,
       currency: "VND",
-      sprint_id: null,
     },
   })
 
@@ -68,12 +65,7 @@ const AddIncome = ({ sprints }: AddIncomeProps) => {
   })
 
   const onSubmit: SubmitHandler<IncomeCreate> = (data) => {
-    // Convert empty string to null for optional fields
-    const processedData = {
-      ...data,
-      sprint_id: data.sprint_id === "" ? null : data.sprint_id,
-    }
-    mutation.mutate(processedData)
+    mutation.mutate(data)
   }
 
   return (
@@ -160,21 +152,6 @@ const AddIncome = ({ sprints }: AddIncomeProps) => {
                   placeholder="VND"
                   type="text"
                 />
-              </Field>
-
-              <Field
-                invalid={!!errors.sprint_id}
-                errorText={errors.sprint_id?.message}
-                label="Sprint"
-              >
-                <select {...register("sprint_id")}>
-                  <option value="">Select Sprint (Optional)</option>
-                  {sprints.map((sprint) => (
-                    <option key={sprint.id} value={sprint.id}>
-                      {sprint.start_date} - {sprint.end_date}
-                    </option>
-                  ))}
-                </select>
               </Field>
             </VStack>
           </DialogBody>

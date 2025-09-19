@@ -15,7 +15,7 @@ import { AccountsService } from "@/client"
 import { AccountActionsMenu } from "@/components/Accounts/AccountActionsMenu"
 import AddAccount from "@/components/Accounts/AddAccount"
 
-export const Route = createFileRoute("/_layout/sprint-finance/accounts")({
+export const Route = createFileRoute("/_layout/finance/accounts")({
   component: AccountsPage,
 })
 

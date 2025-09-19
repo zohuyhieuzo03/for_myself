@@ -163,18 +163,6 @@ export const AllocationRuleCreateSchema = {
             maximum: 100,
             exclusiveMinimum: 0,
             title: 'Percent'
-        },
-        sprint_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Sprint Id'
         }
     },
     type: 'object',
@@ -203,18 +191,6 @@ export const AllocationRulePublicSchema = {
             format: 'uuid',
             title: 'User Id'
         },
-        sprint_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Sprint Id'
-        },
         created_at: {
             type: 'string',
             format: 'date-time',
@@ -227,7 +203,7 @@ export const AllocationRulePublicSchema = {
         }
     },
     type: 'object',
-    required: ['grp', 'percent', 'id', 'user_id', 'sprint_id', 'created_at', 'updated_at'],
+    required: ['grp', 'percent', 'id', 'user_id', 'created_at', 'updated_at'],
     title: 'AllocationRulePublic'
 } as const;
 
@@ -255,18 +231,6 @@ export const AllocationRuleUpdateSchema = {
                 }
             ],
             title: 'Percent'
-        },
-        sprint_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Sprint Id'
         }
     },
     type: 'object',
@@ -975,18 +939,6 @@ export const IncomeCreateSchema = {
             maxLength: 10,
             title: 'Currency',
             default: 'VND'
-        },
-        sprint_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Sprint Id'
         }
     },
     type: 'object',
@@ -1026,18 +978,6 @@ export const IncomePublicSchema = {
             format: 'uuid',
             title: 'User Id'
         },
-        sprint_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Sprint Id'
-        },
         created_at: {
             type: 'string',
             format: 'date-time',
@@ -1050,7 +990,7 @@ export const IncomePublicSchema = {
         }
     },
     type: 'object',
-    required: ['received_at', 'source', 'amount', 'id', 'user_id', 'sprint_id', 'created_at', 'updated_at'],
+    required: ['received_at', 'source', 'amount', 'id', 'user_id', 'created_at', 'updated_at'],
     title: 'IncomePublic'
 } as const;
 
@@ -1102,18 +1042,6 @@ export const IncomeUpdateSchema = {
                 }
             ],
             title: 'Currency'
-        },
-        sprint_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Sprint Id'
         }
     },
     type: 'object',
@@ -1436,249 +1364,6 @@ export const PrivateUserCreateSchema = {
     title: 'PrivateUserCreate'
 } as const;
 
-export const SprintCreateSchema = {
-    properties: {
-        start_date: {
-            type: 'string',
-            format: 'date',
-            title: 'Start Date'
-        },
-        end_date: {
-            type: 'string',
-            format: 'date',
-            title: 'End Date'
-        },
-        payday_anchor: {
-            type: 'string',
-            format: 'date',
-            title: 'Payday Anchor'
-        },
-        is_closed: {
-            type: 'boolean',
-            title: 'Is Closed',
-            default: false
-        }
-    },
-    type: 'object',
-    required: ['start_date', 'end_date', 'payday_anchor'],
-    title: 'SprintCreate'
-} as const;
-
-export const SprintDetailPublicSchema = {
-    properties: {
-        start_date: {
-            type: 'string',
-            format: 'date',
-            title: 'Start Date'
-        },
-        end_date: {
-            type: 'string',
-            format: 'date',
-            title: 'End Date'
-        },
-        payday_anchor: {
-            type: 'string',
-            format: 'date',
-            title: 'Payday Anchor'
-        },
-        is_closed: {
-            type: 'boolean',
-            title: 'Is Closed',
-            default: false
-        },
-        id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Id'
-        },
-        user_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'User Id'
-        },
-        created_at: {
-            type: 'string',
-            format: 'date-time',
-            title: 'Created At'
-        },
-        updated_at: {
-            type: 'string',
-            format: 'date-time',
-            title: 'Updated At'
-        },
-        incomes: {
-            items: {
-                '$ref': '#/components/schemas/IncomePublic'
-            },
-            type: 'array',
-            title: 'Incomes',
-            default: []
-        },
-        transactions: {
-            items: {
-                '$ref': '#/components/schemas/TransactionPublic'
-            },
-            type: 'array',
-            title: 'Transactions',
-            default: []
-        },
-        allocation_rules: {
-            items: {
-                '$ref': '#/components/schemas/AllocationRulePublic'
-            },
-            type: 'array',
-            title: 'Allocation Rules',
-            default: []
-        },
-        accounts: {
-            items: {
-                '$ref': '#/components/schemas/AccountPublic'
-            },
-            type: 'array',
-            title: 'Accounts',
-            default: []
-        },
-        categories: {
-            items: {
-                '$ref': '#/components/schemas/CategoryPublic'
-            },
-            type: 'array',
-            title: 'Categories',
-            default: []
-        },
-        financial_summary: {
-            additionalProperties: true,
-            type: 'object',
-            title: 'Financial Summary',
-            default: {}
-        }
-    },
-    type: 'object',
-    required: ['start_date', 'end_date', 'payday_anchor', 'id', 'user_id', 'created_at', 'updated_at'],
-    title: 'SprintDetailPublic'
-} as const;
-
-export const SprintPublicSchema = {
-    properties: {
-        start_date: {
-            type: 'string',
-            format: 'date',
-            title: 'Start Date'
-        },
-        end_date: {
-            type: 'string',
-            format: 'date',
-            title: 'End Date'
-        },
-        payday_anchor: {
-            type: 'string',
-            format: 'date',
-            title: 'Payday Anchor'
-        },
-        is_closed: {
-            type: 'boolean',
-            title: 'Is Closed',
-            default: false
-        },
-        id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Id'
-        },
-        user_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'User Id'
-        },
-        created_at: {
-            type: 'string',
-            format: 'date-time',
-            title: 'Created At'
-        },
-        updated_at: {
-            type: 'string',
-            format: 'date-time',
-            title: 'Updated At'
-        }
-    },
-    type: 'object',
-    required: ['start_date', 'end_date', 'payday_anchor', 'id', 'user_id', 'created_at', 'updated_at'],
-    title: 'SprintPublic'
-} as const;
-
-export const SprintUpdateSchema = {
-    properties: {
-        start_date: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'date'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Start Date'
-        },
-        end_date: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'date'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'End Date'
-        },
-        payday_anchor: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'date'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Payday Anchor'
-        },
-        is_closed: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Is Closed'
-        }
-    },
-    type: 'object',
-    title: 'SprintUpdate'
-} as const;
-
-export const SprintsPublicSchema = {
-    properties: {
-        data: {
-            items: {
-                '$ref': '#/components/schemas/SprintPublic'
-            },
-            type: 'array',
-            title: 'Data'
-        },
-        count: {
-            type: 'integer',
-            title: 'Count'
-        }
-    },
-    type: 'object',
-    required: ['data', 'count'],
-    title: 'SprintsPublic'
-} as const;
-
 export const TodoCreateSchema = {
     properties: {
         title: {
@@ -1901,18 +1586,6 @@ export const TransactionCreateSchema = {
                 }
             ],
             title: 'Category Id'
-        },
-        sprint_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Sprint Id'
         }
     },
     type: 'object',
@@ -1975,18 +1648,6 @@ export const TransactionPublicSchema = {
             format: 'uuid',
             title: 'User Id'
         },
-        sprint_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Sprint Id'
-        },
         account_id: {
             type: 'string',
             format: 'uuid',
@@ -2016,7 +1677,7 @@ export const TransactionPublicSchema = {
         }
     },
     type: 'object',
-    required: ['txn_date', 'type', 'amount', 'id', 'user_id', 'sprint_id', 'account_id', 'category_id', 'created_at', 'updated_at'],
+    required: ['txn_date', 'type', 'amount', 'id', 'user_id', 'account_id', 'category_id', 'created_at', 'updated_at'],
     title: 'TransactionPublic'
 } as const;
 
@@ -2115,18 +1776,6 @@ export const TransactionUpdateSchema = {
                 }
             ],
             title: 'Category Id'
-        },
-        sprint_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Sprint Id'
         }
     },
     type: 'object',

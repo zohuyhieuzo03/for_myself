@@ -16,23 +16,21 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutTodosRouteImport } from './routes/_layout/todos'
-import { Route as LayoutSprintFinanceRouteImport } from './routes/_layout/sprint-finance'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutGmailRouteImport } from './routes/_layout/gmail'
+import { Route as LayoutFinanceRouteImport } from './routes/_layout/finance'
 import { Route as LayoutEmailTransactionsDashboardRouteImport } from './routes/_layout/email-transactions-dashboard'
 import { Route as LayoutEmailTransactionsRouteImport } from './routes/_layout/email-transactions'
 import { Route as LayoutEmailDashboardRouteImport } from './routes/_layout/email-dashboard'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutGmailIndexRouteImport } from './routes/_layout/gmail/index'
-import { Route as LayoutSprintFinanceTransactionsRouteImport } from './routes/_layout/sprint-finance/transactions'
-import { Route as LayoutSprintFinanceSprintsRouteImport } from './routes/_layout/sprint-finance/sprints'
-import { Route as LayoutSprintFinanceSprintDetailRouteImport } from './routes/_layout/sprint-finance/sprint-detail'
-import { Route as LayoutSprintFinanceIncomesRouteImport } from './routes/_layout/sprint-finance/incomes'
-import { Route as LayoutSprintFinanceCategoriesRouteImport } from './routes/_layout/sprint-finance/categories'
-import { Route as LayoutSprintFinanceAllocationRulesRouteImport } from './routes/_layout/sprint-finance/allocation-rules'
-import { Route as LayoutSprintFinanceAccountsRouteImport } from './routes/_layout/sprint-finance/accounts'
 import { Route as LayoutGmailTransactionsRouteImport } from './routes/_layout/gmail/transactions'
+import { Route as LayoutFinanceTransactionsRouteImport } from './routes/_layout/finance/transactions'
+import { Route as LayoutFinanceIncomesRouteImport } from './routes/_layout/finance/incomes'
+import { Route as LayoutFinanceCategoriesRouteImport } from './routes/_layout/finance/categories'
+import { Route as LayoutFinanceAllocationRulesRouteImport } from './routes/_layout/finance/allocation-rules'
+import { Route as LayoutFinanceAccountsRouteImport } from './routes/_layout/finance/accounts'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -68,11 +66,6 @@ const LayoutTodosRoute = LayoutTodosRouteImport.update({
   path: '/todos',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutSprintFinanceRoute = LayoutSprintFinanceRouteImport.update({
-  id: '/sprint-finance',
-  path: '/sprint-finance',
-  getParentRoute: () => LayoutRoute,
-} as any)
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -86,6 +79,11 @@ const LayoutItemsRoute = LayoutItemsRouteImport.update({
 const LayoutGmailRoute = LayoutGmailRouteImport.update({
   id: '/gmail',
   path: '/gmail',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutFinanceRoute = LayoutFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutEmailTransactionsDashboardRoute =
@@ -114,52 +112,37 @@ const LayoutGmailIndexRoute = LayoutGmailIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LayoutGmailRoute,
 } as any)
-const LayoutSprintFinanceTransactionsRoute =
-  LayoutSprintFinanceTransactionsRouteImport.update({
-    id: '/transactions',
-    path: '/transactions',
-    getParentRoute: () => LayoutSprintFinanceRoute,
-  } as any)
-const LayoutSprintFinanceSprintsRoute =
-  LayoutSprintFinanceSprintsRouteImport.update({
-    id: '/sprints',
-    path: '/sprints',
-    getParentRoute: () => LayoutSprintFinanceRoute,
-  } as any)
-const LayoutSprintFinanceSprintDetailRoute =
-  LayoutSprintFinanceSprintDetailRouteImport.update({
-    id: '/sprint-detail',
-    path: '/sprint-detail',
-    getParentRoute: () => LayoutSprintFinanceRoute,
-  } as any)
-const LayoutSprintFinanceIncomesRoute =
-  LayoutSprintFinanceIncomesRouteImport.update({
-    id: '/incomes',
-    path: '/incomes',
-    getParentRoute: () => LayoutSprintFinanceRoute,
-  } as any)
-const LayoutSprintFinanceCategoriesRoute =
-  LayoutSprintFinanceCategoriesRouteImport.update({
-    id: '/categories',
-    path: '/categories',
-    getParentRoute: () => LayoutSprintFinanceRoute,
-  } as any)
-const LayoutSprintFinanceAllocationRulesRoute =
-  LayoutSprintFinanceAllocationRulesRouteImport.update({
-    id: '/allocation-rules',
-    path: '/allocation-rules',
-    getParentRoute: () => LayoutSprintFinanceRoute,
-  } as any)
-const LayoutSprintFinanceAccountsRoute =
-  LayoutSprintFinanceAccountsRouteImport.update({
-    id: '/accounts',
-    path: '/accounts',
-    getParentRoute: () => LayoutSprintFinanceRoute,
-  } as any)
 const LayoutGmailTransactionsRoute = LayoutGmailTransactionsRouteImport.update({
   id: '/transactions',
   path: '/transactions',
   getParentRoute: () => LayoutGmailRoute,
+} as any)
+const LayoutFinanceTransactionsRoute =
+  LayoutFinanceTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => LayoutFinanceRoute,
+  } as any)
+const LayoutFinanceIncomesRoute = LayoutFinanceIncomesRouteImport.update({
+  id: '/incomes',
+  path: '/incomes',
+  getParentRoute: () => LayoutFinanceRoute,
+} as any)
+const LayoutFinanceCategoriesRoute = LayoutFinanceCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => LayoutFinanceRoute,
+} as any)
+const LayoutFinanceAllocationRulesRoute =
+  LayoutFinanceAllocationRulesRouteImport.update({
+    id: '/allocation-rules',
+    path: '/allocation-rules',
+    getParentRoute: () => LayoutFinanceRoute,
+  } as any)
+const LayoutFinanceAccountsRoute = LayoutFinanceAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => LayoutFinanceRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -171,20 +154,18 @@ export interface FileRoutesByFullPath {
   '/email-dashboard': typeof LayoutEmailDashboardRoute
   '/email-transactions': typeof LayoutEmailTransactionsRoute
   '/email-transactions-dashboard': typeof LayoutEmailTransactionsDashboardRoute
+  '/finance': typeof LayoutFinanceRouteWithChildren
   '/gmail': typeof LayoutGmailRouteWithChildren
   '/items': typeof LayoutItemsRoute
   '/settings': typeof LayoutSettingsRoute
-  '/sprint-finance': typeof LayoutSprintFinanceRouteWithChildren
   '/todos': typeof LayoutTodosRoute
   '/': typeof LayoutIndexRoute
+  '/finance/accounts': typeof LayoutFinanceAccountsRoute
+  '/finance/allocation-rules': typeof LayoutFinanceAllocationRulesRoute
+  '/finance/categories': typeof LayoutFinanceCategoriesRoute
+  '/finance/incomes': typeof LayoutFinanceIncomesRoute
+  '/finance/transactions': typeof LayoutFinanceTransactionsRoute
   '/gmail/transactions': typeof LayoutGmailTransactionsRoute
-  '/sprint-finance/accounts': typeof LayoutSprintFinanceAccountsRoute
-  '/sprint-finance/allocation-rules': typeof LayoutSprintFinanceAllocationRulesRoute
-  '/sprint-finance/categories': typeof LayoutSprintFinanceCategoriesRoute
-  '/sprint-finance/incomes': typeof LayoutSprintFinanceIncomesRoute
-  '/sprint-finance/sprint-detail': typeof LayoutSprintFinanceSprintDetailRoute
-  '/sprint-finance/sprints': typeof LayoutSprintFinanceSprintsRoute
-  '/sprint-finance/transactions': typeof LayoutSprintFinanceTransactionsRoute
   '/gmail/': typeof LayoutGmailIndexRoute
 }
 export interface FileRoutesByTo {
@@ -196,19 +177,17 @@ export interface FileRoutesByTo {
   '/email-dashboard': typeof LayoutEmailDashboardRoute
   '/email-transactions': typeof LayoutEmailTransactionsRoute
   '/email-transactions-dashboard': typeof LayoutEmailTransactionsDashboardRoute
+  '/finance': typeof LayoutFinanceRouteWithChildren
   '/items': typeof LayoutItemsRoute
   '/settings': typeof LayoutSettingsRoute
-  '/sprint-finance': typeof LayoutSprintFinanceRouteWithChildren
   '/todos': typeof LayoutTodosRoute
   '/': typeof LayoutIndexRoute
+  '/finance/accounts': typeof LayoutFinanceAccountsRoute
+  '/finance/allocation-rules': typeof LayoutFinanceAllocationRulesRoute
+  '/finance/categories': typeof LayoutFinanceCategoriesRoute
+  '/finance/incomes': typeof LayoutFinanceIncomesRoute
+  '/finance/transactions': typeof LayoutFinanceTransactionsRoute
   '/gmail/transactions': typeof LayoutGmailTransactionsRoute
-  '/sprint-finance/accounts': typeof LayoutSprintFinanceAccountsRoute
-  '/sprint-finance/allocation-rules': typeof LayoutSprintFinanceAllocationRulesRoute
-  '/sprint-finance/categories': typeof LayoutSprintFinanceCategoriesRoute
-  '/sprint-finance/incomes': typeof LayoutSprintFinanceIncomesRoute
-  '/sprint-finance/sprint-detail': typeof LayoutSprintFinanceSprintDetailRoute
-  '/sprint-finance/sprints': typeof LayoutSprintFinanceSprintsRoute
-  '/sprint-finance/transactions': typeof LayoutSprintFinanceTransactionsRoute
   '/gmail': typeof LayoutGmailIndexRoute
 }
 export interface FileRoutesById {
@@ -222,20 +201,18 @@ export interface FileRoutesById {
   '/_layout/email-dashboard': typeof LayoutEmailDashboardRoute
   '/_layout/email-transactions': typeof LayoutEmailTransactionsRoute
   '/_layout/email-transactions-dashboard': typeof LayoutEmailTransactionsDashboardRoute
+  '/_layout/finance': typeof LayoutFinanceRouteWithChildren
   '/_layout/gmail': typeof LayoutGmailRouteWithChildren
   '/_layout/items': typeof LayoutItemsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
-  '/_layout/sprint-finance': typeof LayoutSprintFinanceRouteWithChildren
   '/_layout/todos': typeof LayoutTodosRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/finance/accounts': typeof LayoutFinanceAccountsRoute
+  '/_layout/finance/allocation-rules': typeof LayoutFinanceAllocationRulesRoute
+  '/_layout/finance/categories': typeof LayoutFinanceCategoriesRoute
+  '/_layout/finance/incomes': typeof LayoutFinanceIncomesRoute
+  '/_layout/finance/transactions': typeof LayoutFinanceTransactionsRoute
   '/_layout/gmail/transactions': typeof LayoutGmailTransactionsRoute
-  '/_layout/sprint-finance/accounts': typeof LayoutSprintFinanceAccountsRoute
-  '/_layout/sprint-finance/allocation-rules': typeof LayoutSprintFinanceAllocationRulesRoute
-  '/_layout/sprint-finance/categories': typeof LayoutSprintFinanceCategoriesRoute
-  '/_layout/sprint-finance/incomes': typeof LayoutSprintFinanceIncomesRoute
-  '/_layout/sprint-finance/sprint-detail': typeof LayoutSprintFinanceSprintDetailRoute
-  '/_layout/sprint-finance/sprints': typeof LayoutSprintFinanceSprintsRoute
-  '/_layout/sprint-finance/transactions': typeof LayoutSprintFinanceTransactionsRoute
   '/_layout/gmail/': typeof LayoutGmailIndexRoute
 }
 export interface FileRouteTypes {
@@ -249,20 +226,18 @@ export interface FileRouteTypes {
     | '/email-dashboard'
     | '/email-transactions'
     | '/email-transactions-dashboard'
+    | '/finance'
     | '/gmail'
     | '/items'
     | '/settings'
-    | '/sprint-finance'
     | '/todos'
     | '/'
+    | '/finance/accounts'
+    | '/finance/allocation-rules'
+    | '/finance/categories'
+    | '/finance/incomes'
+    | '/finance/transactions'
     | '/gmail/transactions'
-    | '/sprint-finance/accounts'
-    | '/sprint-finance/allocation-rules'
-    | '/sprint-finance/categories'
-    | '/sprint-finance/incomes'
-    | '/sprint-finance/sprint-detail'
-    | '/sprint-finance/sprints'
-    | '/sprint-finance/transactions'
     | '/gmail/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -274,19 +249,17 @@ export interface FileRouteTypes {
     | '/email-dashboard'
     | '/email-transactions'
     | '/email-transactions-dashboard'
+    | '/finance'
     | '/items'
     | '/settings'
-    | '/sprint-finance'
     | '/todos'
     | '/'
+    | '/finance/accounts'
+    | '/finance/allocation-rules'
+    | '/finance/categories'
+    | '/finance/incomes'
+    | '/finance/transactions'
     | '/gmail/transactions'
-    | '/sprint-finance/accounts'
-    | '/sprint-finance/allocation-rules'
-    | '/sprint-finance/categories'
-    | '/sprint-finance/incomes'
-    | '/sprint-finance/sprint-detail'
-    | '/sprint-finance/sprints'
-    | '/sprint-finance/transactions'
     | '/gmail'
   id:
     | '__root__'
@@ -299,20 +272,18 @@ export interface FileRouteTypes {
     | '/_layout/email-dashboard'
     | '/_layout/email-transactions'
     | '/_layout/email-transactions-dashboard'
+    | '/_layout/finance'
     | '/_layout/gmail'
     | '/_layout/items'
     | '/_layout/settings'
-    | '/_layout/sprint-finance'
     | '/_layout/todos'
     | '/_layout/'
+    | '/_layout/finance/accounts'
+    | '/_layout/finance/allocation-rules'
+    | '/_layout/finance/categories'
+    | '/_layout/finance/incomes'
+    | '/_layout/finance/transactions'
     | '/_layout/gmail/transactions'
-    | '/_layout/sprint-finance/accounts'
-    | '/_layout/sprint-finance/allocation-rules'
-    | '/_layout/sprint-finance/categories'
-    | '/_layout/sprint-finance/incomes'
-    | '/_layout/sprint-finance/sprint-detail'
-    | '/_layout/sprint-finance/sprints'
-    | '/_layout/sprint-finance/transactions'
     | '/_layout/gmail/'
   fileRoutesById: FileRoutesById
 }
@@ -375,13 +346,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutTodosRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/sprint-finance': {
-      id: '/_layout/sprint-finance'
-      path: '/sprint-finance'
-      fullPath: '/sprint-finance'
-      preLoaderRoute: typeof LayoutSprintFinanceRouteImport
-      parentRoute: typeof LayoutRoute
-    }
     '/_layout/settings': {
       id: '/_layout/settings'
       path: '/settings'
@@ -401,6 +365,13 @@ declare module '@tanstack/react-router' {
       path: '/gmail'
       fullPath: '/gmail'
       preLoaderRoute: typeof LayoutGmailRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/finance': {
+      id: '/_layout/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof LayoutFinanceRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/email-transactions-dashboard': {
@@ -438,55 +409,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutGmailIndexRouteImport
       parentRoute: typeof LayoutGmailRoute
     }
-    '/_layout/sprint-finance/transactions': {
-      id: '/_layout/sprint-finance/transactions'
-      path: '/transactions'
-      fullPath: '/sprint-finance/transactions'
-      preLoaderRoute: typeof LayoutSprintFinanceTransactionsRouteImport
-      parentRoute: typeof LayoutSprintFinanceRoute
-    }
-    '/_layout/sprint-finance/sprints': {
-      id: '/_layout/sprint-finance/sprints'
-      path: '/sprints'
-      fullPath: '/sprint-finance/sprints'
-      preLoaderRoute: typeof LayoutSprintFinanceSprintsRouteImport
-      parentRoute: typeof LayoutSprintFinanceRoute
-    }
-    '/_layout/sprint-finance/sprint-detail': {
-      id: '/_layout/sprint-finance/sprint-detail'
-      path: '/sprint-detail'
-      fullPath: '/sprint-finance/sprint-detail'
-      preLoaderRoute: typeof LayoutSprintFinanceSprintDetailRouteImport
-      parentRoute: typeof LayoutSprintFinanceRoute
-    }
-    '/_layout/sprint-finance/incomes': {
-      id: '/_layout/sprint-finance/incomes'
-      path: '/incomes'
-      fullPath: '/sprint-finance/incomes'
-      preLoaderRoute: typeof LayoutSprintFinanceIncomesRouteImport
-      parentRoute: typeof LayoutSprintFinanceRoute
-    }
-    '/_layout/sprint-finance/categories': {
-      id: '/_layout/sprint-finance/categories'
-      path: '/categories'
-      fullPath: '/sprint-finance/categories'
-      preLoaderRoute: typeof LayoutSprintFinanceCategoriesRouteImport
-      parentRoute: typeof LayoutSprintFinanceRoute
-    }
-    '/_layout/sprint-finance/allocation-rules': {
-      id: '/_layout/sprint-finance/allocation-rules'
-      path: '/allocation-rules'
-      fullPath: '/sprint-finance/allocation-rules'
-      preLoaderRoute: typeof LayoutSprintFinanceAllocationRulesRouteImport
-      parentRoute: typeof LayoutSprintFinanceRoute
-    }
-    '/_layout/sprint-finance/accounts': {
-      id: '/_layout/sprint-finance/accounts'
-      path: '/accounts'
-      fullPath: '/sprint-finance/accounts'
-      preLoaderRoute: typeof LayoutSprintFinanceAccountsRouteImport
-      parentRoute: typeof LayoutSprintFinanceRoute
-    }
     '/_layout/gmail/transactions': {
       id: '/_layout/gmail/transactions'
       path: '/transactions'
@@ -494,8 +416,63 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutGmailTransactionsRouteImport
       parentRoute: typeof LayoutGmailRoute
     }
+    '/_layout/finance/transactions': {
+      id: '/_layout/finance/transactions'
+      path: '/transactions'
+      fullPath: '/finance/transactions'
+      preLoaderRoute: typeof LayoutFinanceTransactionsRouteImport
+      parentRoute: typeof LayoutFinanceRoute
+    }
+    '/_layout/finance/incomes': {
+      id: '/_layout/finance/incomes'
+      path: '/incomes'
+      fullPath: '/finance/incomes'
+      preLoaderRoute: typeof LayoutFinanceIncomesRouteImport
+      parentRoute: typeof LayoutFinanceRoute
+    }
+    '/_layout/finance/categories': {
+      id: '/_layout/finance/categories'
+      path: '/categories'
+      fullPath: '/finance/categories'
+      preLoaderRoute: typeof LayoutFinanceCategoriesRouteImport
+      parentRoute: typeof LayoutFinanceRoute
+    }
+    '/_layout/finance/allocation-rules': {
+      id: '/_layout/finance/allocation-rules'
+      path: '/allocation-rules'
+      fullPath: '/finance/allocation-rules'
+      preLoaderRoute: typeof LayoutFinanceAllocationRulesRouteImport
+      parentRoute: typeof LayoutFinanceRoute
+    }
+    '/_layout/finance/accounts': {
+      id: '/_layout/finance/accounts'
+      path: '/accounts'
+      fullPath: '/finance/accounts'
+      preLoaderRoute: typeof LayoutFinanceAccountsRouteImport
+      parentRoute: typeof LayoutFinanceRoute
+    }
   }
 }
+
+interface LayoutFinanceRouteChildren {
+  LayoutFinanceAccountsRoute: typeof LayoutFinanceAccountsRoute
+  LayoutFinanceAllocationRulesRoute: typeof LayoutFinanceAllocationRulesRoute
+  LayoutFinanceCategoriesRoute: typeof LayoutFinanceCategoriesRoute
+  LayoutFinanceIncomesRoute: typeof LayoutFinanceIncomesRoute
+  LayoutFinanceTransactionsRoute: typeof LayoutFinanceTransactionsRoute
+}
+
+const LayoutFinanceRouteChildren: LayoutFinanceRouteChildren = {
+  LayoutFinanceAccountsRoute: LayoutFinanceAccountsRoute,
+  LayoutFinanceAllocationRulesRoute: LayoutFinanceAllocationRulesRoute,
+  LayoutFinanceCategoriesRoute: LayoutFinanceCategoriesRoute,
+  LayoutFinanceIncomesRoute: LayoutFinanceIncomesRoute,
+  LayoutFinanceTransactionsRoute: LayoutFinanceTransactionsRoute,
+}
+
+const LayoutFinanceRouteWithChildren = LayoutFinanceRoute._addFileChildren(
+  LayoutFinanceRouteChildren,
+)
 
 interface LayoutGmailRouteChildren {
   LayoutGmailTransactionsRoute: typeof LayoutGmailTransactionsRoute
@@ -511,39 +488,15 @@ const LayoutGmailRouteWithChildren = LayoutGmailRoute._addFileChildren(
   LayoutGmailRouteChildren,
 )
 
-interface LayoutSprintFinanceRouteChildren {
-  LayoutSprintFinanceAccountsRoute: typeof LayoutSprintFinanceAccountsRoute
-  LayoutSprintFinanceAllocationRulesRoute: typeof LayoutSprintFinanceAllocationRulesRoute
-  LayoutSprintFinanceCategoriesRoute: typeof LayoutSprintFinanceCategoriesRoute
-  LayoutSprintFinanceIncomesRoute: typeof LayoutSprintFinanceIncomesRoute
-  LayoutSprintFinanceSprintDetailRoute: typeof LayoutSprintFinanceSprintDetailRoute
-  LayoutSprintFinanceSprintsRoute: typeof LayoutSprintFinanceSprintsRoute
-  LayoutSprintFinanceTransactionsRoute: typeof LayoutSprintFinanceTransactionsRoute
-}
-
-const LayoutSprintFinanceRouteChildren: LayoutSprintFinanceRouteChildren = {
-  LayoutSprintFinanceAccountsRoute: LayoutSprintFinanceAccountsRoute,
-  LayoutSprintFinanceAllocationRulesRoute:
-    LayoutSprintFinanceAllocationRulesRoute,
-  LayoutSprintFinanceCategoriesRoute: LayoutSprintFinanceCategoriesRoute,
-  LayoutSprintFinanceIncomesRoute: LayoutSprintFinanceIncomesRoute,
-  LayoutSprintFinanceSprintDetailRoute: LayoutSprintFinanceSprintDetailRoute,
-  LayoutSprintFinanceSprintsRoute: LayoutSprintFinanceSprintsRoute,
-  LayoutSprintFinanceTransactionsRoute: LayoutSprintFinanceTransactionsRoute,
-}
-
-const LayoutSprintFinanceRouteWithChildren =
-  LayoutSprintFinanceRoute._addFileChildren(LayoutSprintFinanceRouteChildren)
-
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutEmailDashboardRoute: typeof LayoutEmailDashboardRoute
   LayoutEmailTransactionsRoute: typeof LayoutEmailTransactionsRoute
   LayoutEmailTransactionsDashboardRoute: typeof LayoutEmailTransactionsDashboardRoute
+  LayoutFinanceRoute: typeof LayoutFinanceRouteWithChildren
   LayoutGmailRoute: typeof LayoutGmailRouteWithChildren
   LayoutItemsRoute: typeof LayoutItemsRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
-  LayoutSprintFinanceRoute: typeof LayoutSprintFinanceRouteWithChildren
   LayoutTodosRoute: typeof LayoutTodosRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
@@ -553,10 +506,10 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutEmailDashboardRoute: LayoutEmailDashboardRoute,
   LayoutEmailTransactionsRoute: LayoutEmailTransactionsRoute,
   LayoutEmailTransactionsDashboardRoute: LayoutEmailTransactionsDashboardRoute,
+  LayoutFinanceRoute: LayoutFinanceRouteWithChildren,
   LayoutGmailRoute: LayoutGmailRouteWithChildren,
   LayoutItemsRoute: LayoutItemsRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
-  LayoutSprintFinanceRoute: LayoutSprintFinanceRouteWithChildren,
   LayoutTodosRoute: LayoutTodosRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }

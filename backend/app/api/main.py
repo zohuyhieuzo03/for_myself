@@ -10,7 +10,6 @@ from app.api.routes import (
     login,
     monthly_reports,
     private,
-    sprints,
     todos,
     transactions,
     users,
@@ -24,7 +23,6 @@ api_router.include_router(users.router)
 api_router.include_router(utils.router)
 api_router.include_router(items.router)
 api_router.include_router(todos.router)
-api_router.include_router(sprints.router)
 api_router.include_router(accounts.router)
 api_router.include_router(categories.router)
 api_router.include_router(incomes.router)

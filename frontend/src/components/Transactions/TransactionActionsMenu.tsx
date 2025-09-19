@@ -9,14 +9,12 @@ interface TransactionActionsMenuProps {
   transaction: TransactionPublic
   accounts: Array<{ id: string; name: string }>
   categories: Array<{ id: string; name: string }>
-  sprints: Array<{ id: string; start_date: string; end_date: string }>
 }
 
 export const TransactionActionsMenu = ({
   transaction,
   accounts,
   categories,
-  sprints,
 }: TransactionActionsMenuProps) => {
   return (
     <MenuRoot>
@@ -30,7 +28,6 @@ export const TransactionActionsMenu = ({
           transaction={transaction}
           accounts={accounts}
           categories={categories}
-          sprints={sprints}
         />
         <DeleteTransaction id={transaction.id} />
       </MenuContent>

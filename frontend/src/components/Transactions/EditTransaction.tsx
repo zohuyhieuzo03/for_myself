@@ -35,14 +35,12 @@ interface EditTransactionProps {
   transaction: TransactionPublic
   accounts: Array<{ id: string; name: string }>
   categories: Array<{ id: string; name: string }>
-  sprints: Array<{ id: string; start_date: string; end_date: string }>
 }
 
 const EditTransaction = ({
   transaction,
   accounts,
   categories,
-  sprints,
 }: EditTransactionProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -64,7 +62,6 @@ const EditTransaction = ({
       note: transaction.note || "",
       account_id: transaction.account_id,
       category_id: transaction.category_id || "",
-      sprint_id: transaction.sprint_id || null,
     },
   })
 
@@ -92,7 +89,6 @@ const EditTransaction = ({
     const processedData = {
       ...data,
       category_id: data.category_id === "" ? null : data.category_id,
-      sprint_id: data.sprint_id === "" ? null : data.sprint_id,
     }
     mutation.mutate(processedData)
   }
@@ -238,21 +234,6 @@ const EditTransaction = ({
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field
-                invalid={!!errors.sprint_id}
-                errorText={errors.sprint_id?.message}
-                label="Sprint"
-              >
-                <select {...register("sprint_id")}>
-                  <option value="">Select Sprint (Optional)</option>
-                  {sprints.map((sprint) => (
-                    <option key={sprint.id} value={sprint.id}>
-                      {sprint.start_date} - {sprint.end_date}
                     </option>
                   ))}
                 </select>

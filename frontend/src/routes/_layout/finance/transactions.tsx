@@ -1,5 +1,6 @@
 import {
   Badge,
+  Button,
   Container,
   Heading,
   HStack,
@@ -9,22 +10,26 @@ import {
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import { FiTrendingUp } from "react-icons/fi"
+import { useState, useMemo } from "react"
+import { FiTrendingUp, FiArrowUp, FiArrowDown } from "react-icons/fi"
 
 import {
   AccountsService,
   CategoriesService,
-  SprintsService,
   TransactionsService,
 } from "@/client"
 import AddTransaction from "@/components/Transactions/AddTransaction"
 import { TransactionActionsMenu } from "@/components/Transactions/TransactionActionsMenu"
 
-export const Route = createFileRoute("/_layout/sprint-finance/transactions")({
+export const Route = createFileRoute("/_layout/finance/transactions")({
   component: TransactionsPage,
 })
 
+type SortDirection = "asc" | "desc" | null
+
 function TransactionsPage() {
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+  
   const {
     data: transactions,
     isLoading,
@@ -44,11 +49,36 @@ function TransactionsPage() {
     queryFn: () => CategoriesService.readCategories(),
   })
 
-  const { data: sprints } = useQuery({
-    queryKey: ["sprints"],
-    queryFn: () => SprintsService.readSprints(),
-  })
+  // Sort transactions by date
+  const sortedTransactions = useMemo(() => {
+    if (!transactions?.data) {
+      return []
+    }
 
+    return [...transactions.data].sort((a, b) => {
+      const dateA = new Date(a.txn_date)
+      const dateB = new Date(b.txn_date)
+      
+      if (sortDirection === "asc") {
+        return dateA.getTime() - dateB.getTime()
+      } else {
+        // Default to desc (newest first)
+        return dateB.getTime() - dateA.getTime()
+      }
+    })
+  }, [transactions?.data, sortDirection])
+
+  const handleSort = () => {
+    if (sortDirection === "desc") {
+      setSortDirection("asc") // Switch to oldest first
+    } else if (sortDirection === "asc") {
+      setSortDirection(null) // No sorting
+    } else {
+      setSortDirection("desc") // Back to newest first
+    }
+  }
+
+  // Early returns AFTER all hooks
   if (isLoading) {
     return (
       <Container maxW="full">
@@ -75,12 +105,6 @@ function TransactionsPage() {
     accounts?.data?.map((acc: any) => ({ id: acc.id, name: acc.name })) || []
   const categoriesList =
     categories?.data?.map((cat: any) => ({ id: cat.id, name: cat.name })) || []
-  const sprintsList =
-    sprints?.data?.map((sprint: any) => ({
-      id: sprint.id,
-      start_date: sprint.start_date,
-      end_date: sprint.end_date,
-    })) || []
 
   return (
     <Container maxW="full">
@@ -90,15 +114,28 @@ function TransactionsPage() {
           <AddTransaction
             accounts={accountsList}
             categories={categoriesList}
-            sprints={sprintsList}
           />
         </HStack>
 
-        {transactions?.data && transactions.data.length > 0 ? (
+        {sortedTransactions && sortedTransactions.length > 0 ? (
           <Table.Root size={{ base: "sm", md: "md" }}>
             <Table.Header>
               <Table.Row>
-                <Table.ColumnHeader>Date</Table.ColumnHeader>
+                <Table.ColumnHeader>
+                  <HStack gap={2}>
+                    <Text>Date</Text>
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      onClick={handleSort}
+                      colorPalette="gray"
+                    >
+                      {sortDirection === null && <FiArrowUp />}
+                      {sortDirection === "asc" && <FiArrowUp />}
+                      {sortDirection === "desc" && <FiArrowDown />}
+                    </Button>
+                  </HStack>
+                </Table.ColumnHeader>
                 <Table.ColumnHeader>Type</Table.ColumnHeader>
                 <Table.ColumnHeader>Amount</Table.ColumnHeader>
                 <Table.ColumnHeader>Merchant</Table.ColumnHeader>
@@ -108,7 +145,7 @@ function TransactionsPage() {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {transactions.data.map((transaction: any) => {
+              {sortedTransactions.map((transaction: any) => {
                 const account = accounts?.data?.find(
                   (acc: any) => acc.id === transaction.account_id,
                 )
@@ -148,7 +185,6 @@ function TransactionsPage() {
                         transaction={transaction}
                         accounts={accountsList}
                         categories={categoriesList}
-                        sprints={sprintsList}
                       />
                     </Table.Cell>
                   </Table.Row>
@@ -166,7 +202,6 @@ function TransactionsPage() {
             <AddTransaction
               accounts={accountsList}
               categories={categoriesList}
-              sprints={sprintsList}
             />
           </VStack>
         )}
