@@ -1,4 +1,6 @@
 .env
+up .env.local
+.env.*.local
 .vscode
 node_modules/
 /test-results/

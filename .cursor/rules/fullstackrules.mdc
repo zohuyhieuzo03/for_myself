@@ -41,8 +41,8 @@ class EntitiesPublic(SQLModel):      # List response wrapper
 - Validate input với Pydantic models
 
 #### 1.4 Database Migration (`backend/app/alembic/versions/`)
-- Tạo migration script với Alembic: `source .venv/bin/activate && alembic revision --autogenerate`
-- Test migration trên development database: `source .venv/bin/activate && alembic upgrade head`
+- Tạo migration script với Alembic: `cd backend && source .venv/bin/activate && alembic revision --autogenerate`
+- Test migration trên development database: `cd backend && source .venv/bin/activate && alembic upgrade head`
 
 ### 2. API Client Generation
 Sau khi backend hoàn thành:
