@@ -1,4 +1,4 @@
-import { Box, SimpleGrid, Text, VStack, HStack, Badge, Button, ButtonGroup } from "@chakra-ui/react";
+import { Box, SimpleGrid, Text, VStack, HStack, Badge } from "@chakra-ui/react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, CartesianGrid, XAxis, YAxis, AreaChart, Area } from "recharts";
 import { formatCurrency } from "@/utils";
 import { useState } from "react";
@@ -174,34 +174,22 @@ export default function TransactionDashboard({
                   Monthly Totals
                 </Text>
                 <HStack gap={3}>
-                  <ButtonGroup size="sm" variant="outline">
-                    <Button
-                      colorPalette={pointType === 'months' ? 'blue' : 'gray'}
-                      onClick={() => setPointType('months')}
-                    >
-                      Months
-                    </Button>
-                    <Button
-                      colorPalette={pointType === 'days' ? 'blue' : 'gray'}
-                      onClick={() => setPointType('days')}
-                    >
-                      Days
-                    </Button>
-                  </ButtonGroup>
-                  <ButtonGroup size="sm" variant="outline">
-                    <Button
-                      colorPalette={chartType === 'bar' ? 'blue' : 'gray'}
-                      onClick={() => setChartType('bar')}
-                    >
-                      Column
-                    </Button>
-                    <Button
-                      colorPalette={chartType === 'line' ? 'blue' : 'gray'}
-                      onClick={() => setChartType('line')}
-                    >
-                      Line
-                    </Button>
-                  </ButtonGroup>
+                  <select
+                    value={pointType}
+                    onChange={(e) => setPointType(e.target.value as 'days' | 'months')}
+                    style={{ height: 32, paddingInline: 8, minWidth: 100 }}
+                  >
+                    <option value="days">Days</option>
+                    <option value="months">Months</option>
+                  </select>
+                  <select
+                    value={chartType}
+                    onChange={(e) => setChartType(e.target.value as 'bar' | 'line')}
+                    style={{ height: 32, paddingInline: 8, minWidth: 100 }}
+                  >
+                    <option value="bar">Column</option>
+                    <option value="line">Line</option>
+                  </select>
                 </HStack>
               </HStack>
               <Box height="300px">
