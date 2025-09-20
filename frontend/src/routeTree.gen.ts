@@ -22,6 +22,7 @@ import { Route as LayoutFinanceRouteImport } from './routes/_layout/finance'
 import { Route as LayoutEmailRouteImport } from './routes/_layout/email'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutEmailIndexRouteImport } from './routes/_layout/email/index'
+import { Route as LayoutFinanceTransactionsDashboardRouteImport } from './routes/_layout/finance/transactions-dashboard'
 import { Route as LayoutFinanceTransactionsRouteImport } from './routes/_layout/finance/transactions'
 import { Route as LayoutFinanceIncomesRouteImport } from './routes/_layout/finance/incomes'
 import { Route as LayoutFinanceCategoriesRouteImport } from './routes/_layout/finance/categories'
@@ -94,6 +95,12 @@ const LayoutEmailIndexRoute = LayoutEmailIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LayoutEmailRoute,
 } as any)
+const LayoutFinanceTransactionsDashboardRoute =
+  LayoutFinanceTransactionsDashboardRouteImport.update({
+    id: '/transactions-dashboard',
+    path: '/transactions-dashboard',
+    getParentRoute: () => LayoutFinanceRoute,
+  } as any)
 const LayoutFinanceTransactionsRoute =
   LayoutFinanceTransactionsRouteImport.update({
     id: '/transactions',
@@ -151,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/finance/categories': typeof LayoutFinanceCategoriesRoute
   '/finance/incomes': typeof LayoutFinanceIncomesRoute
   '/finance/transactions': typeof LayoutFinanceTransactionsRoute
+  '/finance/transactions-dashboard': typeof LayoutFinanceTransactionsDashboardRoute
   '/email/': typeof LayoutEmailIndexRoute
 }
 export interface FileRoutesByTo {
@@ -171,6 +179,7 @@ export interface FileRoutesByTo {
   '/finance/categories': typeof LayoutFinanceCategoriesRoute
   '/finance/incomes': typeof LayoutFinanceIncomesRoute
   '/finance/transactions': typeof LayoutFinanceTransactionsRoute
+  '/finance/transactions-dashboard': typeof LayoutFinanceTransactionsDashboardRoute
   '/email': typeof LayoutEmailIndexRoute
 }
 export interface FileRoutesById {
@@ -194,6 +203,7 @@ export interface FileRoutesById {
   '/_layout/finance/categories': typeof LayoutFinanceCategoriesRoute
   '/_layout/finance/incomes': typeof LayoutFinanceIncomesRoute
   '/_layout/finance/transactions': typeof LayoutFinanceTransactionsRoute
+  '/_layout/finance/transactions-dashboard': typeof LayoutFinanceTransactionsDashboardRoute
   '/_layout/email/': typeof LayoutEmailIndexRoute
 }
 export interface FileRouteTypes {
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/finance/categories'
     | '/finance/incomes'
     | '/finance/transactions'
+    | '/finance/transactions-dashboard'
     | '/email/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/finance/categories'
     | '/finance/incomes'
     | '/finance/transactions'
+    | '/finance/transactions-dashboard'
     | '/email'
   id:
     | '__root__'
@@ -259,6 +271,7 @@ export interface FileRouteTypes {
     | '/_layout/finance/categories'
     | '/_layout/finance/incomes'
     | '/_layout/finance/transactions'
+    | '/_layout/finance/transactions-dashboard'
     | '/_layout/email/'
   fileRoutesById: FileRoutesById
 }
@@ -363,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutEmailIndexRouteImport
       parentRoute: typeof LayoutEmailRoute
     }
+    '/_layout/finance/transactions-dashboard': {
+      id: '/_layout/finance/transactions-dashboard'
+      path: '/transactions-dashboard'
+      fullPath: '/finance/transactions-dashboard'
+      preLoaderRoute: typeof LayoutFinanceTransactionsDashboardRouteImport
+      parentRoute: typeof LayoutFinanceRoute
+    }
     '/_layout/finance/transactions': {
       id: '/_layout/finance/transactions'
       path: '/transactions'
@@ -437,6 +457,7 @@ interface LayoutFinanceRouteChildren {
   LayoutFinanceCategoriesRoute: typeof LayoutFinanceCategoriesRoute
   LayoutFinanceIncomesRoute: typeof LayoutFinanceIncomesRoute
   LayoutFinanceTransactionsRoute: typeof LayoutFinanceTransactionsRoute
+  LayoutFinanceTransactionsDashboardRoute: typeof LayoutFinanceTransactionsDashboardRoute
 }
 
 const LayoutFinanceRouteChildren: LayoutFinanceRouteChildren = {
@@ -445,6 +466,8 @@ const LayoutFinanceRouteChildren: LayoutFinanceRouteChildren = {
   LayoutFinanceCategoriesRoute: LayoutFinanceCategoriesRoute,
   LayoutFinanceIncomesRoute: LayoutFinanceIncomesRoute,
   LayoutFinanceTransactionsRoute: LayoutFinanceTransactionsRoute,
+  LayoutFinanceTransactionsDashboardRoute:
+    LayoutFinanceTransactionsDashboardRoute,
 }
 
 const LayoutFinanceRouteWithChildren = LayoutFinanceRoute._addFileChildren(

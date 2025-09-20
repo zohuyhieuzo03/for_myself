@@ -1,61 +1,53 @@
 import { Container, Heading, HStack, VStack } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
-import { GmailService } from "@/client";
+import { TransactionsService, AccountsService } from "@/client";
 import TransactionDashboard from "@/components/Common/TransactionDashboard";
 
-type FilterType = "all" | "month" | "last7" | "last30" | "custom";
+export const Route = createFileRoute("/_layout/finance/transactions-dashboard")({
+  component: TransactionsDashboardPage,
+});
 
-export default function EmailTransactionsDashboard() {
+type FilterType = "all" | "month" | "last7" | "last30" | "custom";
+type TransactionType = "all" | "expense" | "income";
+
+function TransactionsDashboardPage() {
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [year, setYear] = useState<number | "all">("all");
   const [month, setMonth] = useState<number | "all">("all");
-  const [selectedConnectionId, setSelectedConnectionId] = useState<string>("");
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+  const [transactionType, setTransactionType] = useState<TransactionType>("all");
 
-  const { data: connections } = useQuery({
-    queryKey: ["gmail-connections"],
-    queryFn: () => GmailService.getGmailConnections(),
-    staleTime: 5 * 60 * 1000,
+  const { data: transactions, isLoading, error } = useQuery({
+    queryKey: ["transactions"],
+    queryFn: () => TransactionsService.readTransactions(),
   });
 
-  // Set default connection when connections load
-  useEffect(() => {
-    if (
-      connections?.data &&
-      connections.data.length > 0 &&
-      !selectedConnectionId
-    ) {
-      setSelectedConnectionId(connections.data[0].id);
-    }
-  }, [connections, selectedConnectionId]);
-
-  const connectionId = selectedConnectionId || connections?.data?.[0]?.id;
-
-  // Get the selected connection to determine currency
-  const selectedConnection = connections?.data?.find(
-    (conn) => conn.id === connectionId,
-  );
-  const isRemitanoConnection =
-    selectedConnection?.gmail_email?.includes("remitano") || false;
-  const currency = isRemitanoConnection ? "USDT" : "₫";
-
-  // Get email transactions for the dashboard
-  const { data: emailTransactions } = useQuery({
-    queryKey: ["email-transactions", { connectionId }],
-    enabled: Boolean(connectionId),
-    queryFn: () =>
-      GmailService.getEmailTransactions({
-        connectionId: connectionId!,
-        skip: 0,
-        limit: 1000,
-      }),
-    staleTime: 5 * 60 * 1000,
+  const { data: accounts } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: () => AccountsService.readAccounts(),
   });
+
 
   // Filter transactions based on selected filters
-  const filteredTransactions = emailTransactions?.data?.filter((tx: any) => {
-    const txDate = new Date(tx.received_at);
+  const filteredTransactions = transactions?.data?.filter((tx: any) => {
+    if (selectedAccountId && tx.account_id !== selectedAccountId) {
+      return false;
+    }
+
+    // Filter by transaction type
+    if (transactionType !== "all") {
+      if (transactionType === "expense" && tx.type !== "out") {
+        return false;
+      }
+      if (transactionType === "income" && tx.type !== "in") {
+        return false;
+      }
+    }
+
+    const txDate = new Date(tx.txn_date);
     const now = new Date();
 
     switch (filterType) {
@@ -76,22 +68,43 @@ export default function EmailTransactionsDashboard() {
     }
   }) || [];
 
-  // Transform email transactions to match TransactionDashboard format
-  const transactions = filteredTransactions.map((tx: any) => ({
-    amount: tx.amount || 0,
+  // Transform transactions to match TransactionDashboard format
+  const dashboardTransactions = filteredTransactions.map((tx: any) => ({
+    amount: tx.amount, // Keep original amount, don't convert to negative
     category: tx.category_name || "Uncategorized",
     category_id: tx.category_id,
-    date: tx.received_at,
-    received_at: tx.received_at,
-    description: tx.description,
-    subject: tx.subject,
+    date: tx.txn_date,
+    description: tx.merchant || tx.description,
+    type: tx.type, // Add type information
   }));
 
+  if (isLoading) {
+    return (
+      <Container maxW="full">
+        <VStack gap={4}>
+          <Heading>Transaction Dashboard</Heading>
+          <div>Loading...</div>
+        </VStack>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxW="full">
+        <VStack gap={4}>
+          <Heading>Transaction Dashboard</Heading>
+          <div style={{ color: "red" }}>Error loading transactions</div>
+        </VStack>
+      </Container>
+    );
+  }
+
   // Prepare chart data for monthly totals
-  const chartData = transactions
+  const chartData = dashboardTransactions
     .filter((tx: any) => tx.amount && typeof tx.amount === "number")
     .reduce((acc: any, tx: any) => {
-      const date = new Date(tx.received_at);
+      const date = new Date(tx.date);
       const monthKey = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}`;
       
       if (!acc[monthKey]) {
@@ -123,20 +136,30 @@ export default function EmailTransactionsDashboard() {
     }
   };
 
-  function DateRangeControls() {
+  function FilterControls() {
     return (
       <HStack gap={3}>
         <select
-          value={selectedConnectionId}
-          onChange={(e) => setSelectedConnectionId(e.target.value)}
+          value={selectedAccountId}
+          onChange={(e) => setSelectedAccountId(e.target.value)}
           style={{ height: 32, paddingInline: 8, minWidth: 200 }}
         >
-          <option value="">Select Connection</option>
-          {connections?.data?.map((conn: any) => (
-            <option key={conn.id} value={conn.id}>
-              {conn.gmail_email}
+          <option value="">All Accounts</option>
+          {accounts?.data?.map((acc: any) => (
+            <option key={acc.id} value={acc.id}>
+              {acc.name}
             </option>
           ))}
+        </select>
+
+        <select
+          value={transactionType}
+          onChange={(e) => setTransactionType(e.target.value as TransactionType)}
+          style={{ height: 32, paddingInline: 8 }}
+        >
+          <option value="all">All Types</option>
+          <option value="income">Income</option>
+          <option value="expense">Expense</option>
         </select>
 
         <select
@@ -186,17 +209,16 @@ export default function EmailTransactionsDashboard() {
   }
 
   return (
-    <Container maxW="6xl" py={6}>
-      <HStack justify="space-between" mb={4}>
-        <Heading size="lg">Email Transactions Dashboard</Heading>
-        <DateRangeControls />
-      </HStack>
-
+    <Container maxW="full">
       <VStack gap={6} align="stretch">
-        {/* Transaction Dashboard */}
+        <HStack justify="space-between" align="center">
+          <Heading>Transaction Dashboard</Heading>
+          <FilterControls />
+        </HStack>
+        
         <TransactionDashboard
-          transactions={transactions}
-          currency={currency}
+          transactions={dashboardTransactions}
+          currency="₫"
           showStats={true}
           showPieChart={true}
           showRecentTransactions={true}

@@ -10,6 +10,7 @@ import {
   FiHome,
   FiInbox,
   FiMail,
+  FiPieChart,
   FiSettings,
   FiTag,
   FiTarget,
@@ -42,6 +43,11 @@ const financeItems = [
     icon: FiTrendingUp,
     title: "Transactions",
     path: "/finance/transactions",
+  },
+  {
+    icon: FiPieChart,
+    title: "Transaction Dashboard",
+    path: "/finance/transactions-dashboard",
   },
   {
     icon: FiTarget,
@@ -86,25 +92,23 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
     </RouterLink>
   ))
 
-  const financeListItems = financeItems.map(
-    ({ icon, title, path }) => (
-      <RouterLink key={title} to={path} onClick={onClose}>
-        <Flex
-          gap={4}
-          px={4}
-          py={2}
-          _hover={{
-            background: "gray.subtle",
-          }}
-          alignItems="center"
-          fontSize="sm"
-        >
-          <Icon as={icon} alignSelf="center" />
-          <Text ml={2}>{title}</Text>
-        </Flex>
-      </RouterLink>
-    ),
-  )
+  const financeListItems = financeItems.map(({ icon, title, path }) => (
+    <RouterLink key={title} to={path} onClick={onClose}>
+      <Flex
+        gap={4}
+        px={4}
+        py={2}
+        _hover={{
+          background: "gray.subtle",
+        }}
+        alignItems="center"
+        fontSize="sm"
+      >
+        <Icon as={icon} alignSelf="center" />
+        <Text ml={2}>{title}</Text>
+      </Flex>
+    </RouterLink>
+  ))
 
   return (
     <>

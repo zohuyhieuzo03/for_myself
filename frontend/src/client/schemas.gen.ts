@@ -573,6 +573,17 @@ export const EmailTransactionPublicSchema = {
             ],
             title: 'Category Id'
         },
+        category_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Category Name'
+        },
         created_at: {
             type: 'string',
             format: 'date-time',
@@ -1664,6 +1675,17 @@ export const TransactionPublicSchema = {
                 }
             ],
             title: 'Category Id'
+        },
+        category_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Category Name'
         },
         created_at: {
             type: 'string',

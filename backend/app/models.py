@@ -375,6 +375,7 @@ class TransactionPublic(TransactionBase):
     user_id: uuid.UUID
     account_id: uuid.UUID
     category_id: uuid.UUID | None
+    category_name: str | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -553,6 +554,7 @@ class EmailTransactionPublic(EmailTransactionBase):
     linked_transaction_id: uuid.UUID | None
     linked_income_id: uuid.UUID | None
     category_id: uuid.UUID | None
+    category_name: str | None = None
     created_at: datetime
     updated_at: datetime
 

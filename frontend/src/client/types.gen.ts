@@ -111,6 +111,7 @@ export type EmailTransactionPublic = {
     linked_transaction_id: (string | null);
     linked_income_id: (string | null);
     category_id: (string | null);
+    category_name?: (string | null);
     created_at: string;
     updated_at: string;
 };
@@ -330,6 +331,7 @@ export type TransactionPublic = {
     user_id: string;
     account_id: string;
     category_id: (string | null);
+    category_name?: (string | null);
     created_at: string;
     updated_at: string;
 };

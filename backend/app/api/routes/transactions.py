@@ -26,7 +26,16 @@ def read_transactions(
     transactions, count = crud.get_transactions(
         session=session, user_id=current_user.id, skip=skip, limit=limit
     )
-    return TransactionsPublic(data=transactions, count=count)
+    
+    # Create public transactions with category names
+    public_transactions = []
+    for t in transactions:
+        transaction_dict = t.model_dump()
+        if t.category:
+            transaction_dict['category_name'] = t.category.name
+        public_transactions.append(TransactionPublic.model_validate(transaction_dict))
+    
+    return TransactionsPublic(data=public_transactions, count=count)
 
 
 @router.post("/", response_model=TransactionPublic)

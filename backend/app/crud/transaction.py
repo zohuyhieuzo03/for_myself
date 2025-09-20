@@ -48,6 +48,12 @@ def get_transactions(
         .limit(limit)
     )
     transactions = list(session.exec(statement).all())
+    
+    # Eager load category for each transaction
+    for transaction in transactions:
+        if transaction.category_id:
+            session.refresh(transaction, ['category'])
+    
     count_statement = select(Transaction).where(Transaction.user_id == user_id)
     count = len(session.exec(count_statement).all())
     return transactions, count

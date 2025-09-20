@@ -56,3 +56,8 @@ export const handleError = (err: ApiError) => {
 
 // Re-export datetime utilities for convenience
 export { formatDateTime, formatDateTimeShort } from "./utils/dateTime"
+
+// Currency formatting utility
+export const formatCurrency = (amount: number): string => {
+  return `${amount.toLocaleString("vi-VN")} ₫`
+}

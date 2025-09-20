@@ -11,6 +11,7 @@ from app.models import (
     EmailTxnCategoryAmount,
     EmailTxnMonthlyAmount,
     EmailTxnDashboard,
+    Category,
 )
 
 
@@ -42,7 +43,12 @@ def get_email_transactions(
         .limit(limit)
         .order_by(EmailTransaction.received_at.desc())
     )
-    return session.exec(statement).all()
+    transactions = session.exec(statement).all()
+    # Eager load category for each transaction
+    for transaction in transactions:
+        if transaction.category_id:
+            session.refresh(transaction, ['category'])
+    return transactions
 
 
 def count_email_transactions(
@@ -86,7 +92,12 @@ def get_unseen_email_transactions(
         .limit(limit)
         .order_by(EmailTransaction.received_at.desc())
     )
-    return session.exec(statement).all()
+    transactions = session.exec(statement).all()
+    # Eager load category for each transaction
+    for transaction in transactions:
+        if transaction.category_id:
+            session.refresh(transaction, ['category'])
+    return transactions
 
 
 def count_unseen_email_transactions(

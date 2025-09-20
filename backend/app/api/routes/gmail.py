@@ -252,7 +252,13 @@ def get_email_transactions(
             session=session, gmail_connection_id=connection_id, status=status
         )
     
-    public_transactions = [EmailTransactionPublic.model_validate(t) for t in transactions]
+    # Create public transactions with category names
+    public_transactions = []
+    for t in transactions:
+        transaction_dict = t.model_dump()
+        if t.category:
+            transaction_dict['category_name'] = t.category.name
+        public_transactions.append(EmailTransactionPublic.model_validate(transaction_dict))
     
     return EmailTransactionsPublic(data=public_transactions, count=total_count)
 
@@ -509,7 +515,13 @@ def get_unseen_email_transactions(
         session=session, gmail_connection_id=connection_id
     )
     
-    public_transactions = [EmailTransactionPublic.model_validate(t) for t in transactions]
+    # Create public transactions with category names
+    public_transactions = []
+    for t in transactions:
+        transaction_dict = t.model_dump()
+        if t.category:
+            transaction_dict['category_name'] = t.category.name
+        public_transactions.append(EmailTransactionPublic.model_validate(transaction_dict))
     
     return EmailTransactionsPublic(data=public_transactions, count=total_count)
 

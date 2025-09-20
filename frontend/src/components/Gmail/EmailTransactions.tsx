@@ -62,6 +62,7 @@ interface EmailTransactionRowProps {
     seen: boolean
     raw_content: string | null
     category_id?: string | null
+    category_name?: string | null
   }
   onView: (transaction: any) => void
   onEdit: (transaction: any) => void
@@ -164,6 +165,11 @@ function EmailTransactionRow({
             </option>
           ))}
         </select>
+        {transaction.category_name && (
+          <Text fontSize="xs" color="gray.500" mt={1}>
+            Current: {transaction.category_name}
+          </Text>
+        )}
       </Table.Cell>
       <Table.Cell>
         <Text fontSize="sm" color={transaction.seen ? "gray.600" : "black"}>

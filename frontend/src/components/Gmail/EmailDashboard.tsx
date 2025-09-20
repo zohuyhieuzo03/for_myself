@@ -7,7 +7,7 @@ import TransactionDashboard from "@/components/Common/TransactionDashboard";
 
 type FilterType = "all" | "month" | "last7" | "last30" | "custom";
 
-export default function EmailTransactionsDashboard() {
+export default function EmailDashboard() {
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [year, setYear] = useState<number | "all">("all");
   const [month, setMonth] = useState<number | "all">("all");
@@ -53,31 +53,8 @@ export default function EmailTransactionsDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Filter transactions based on selected filters
-  const filteredTransactions = emailTransactions?.data?.filter((tx: any) => {
-    const txDate = new Date(tx.received_at);
-    const now = new Date();
-
-    switch (filterType) {
-      case "last7":
-        const last7Days = new Date();
-        last7Days.setDate(now.getDate() - 6);
-        return txDate >= last7Days;
-      case "last30":
-        const last30Days = new Date();
-        last30Days.setDate(now.getDate() - 29);
-        return txDate >= last30Days;
-      case "month":
-        if (year !== "all" && txDate.getFullYear() !== year) return false;
-        if (month !== "all" && txDate.getMonth() + 1 !== month) return false;
-        return true;
-      default:
-        return true;
-    }
-  }) || [];
-
   // Transform email transactions to match TransactionDashboard format
-  const transactions = filteredTransactions.map((tx: any) => ({
+  const transactions = emailTransactions?.data?.map((tx: any) => ({
     amount: tx.amount || 0,
     category: tx.category_name || "Uncategorized",
     category_id: tx.category_id,
@@ -85,7 +62,7 @@ export default function EmailTransactionsDashboard() {
     received_at: tx.received_at,
     description: tx.description,
     subject: tx.subject,
-  }));
+  })) || [];
 
   // Prepare chart data for monthly totals
   const chartData = transactions
