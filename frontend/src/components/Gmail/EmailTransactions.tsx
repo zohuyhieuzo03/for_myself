@@ -442,7 +442,7 @@ function getEmailTransactionsQueryOptions({
           status: statusFilter === "all" ? undefined : statusFilter,
           unseenOnly: unseenOnly,
           skip: 0,
-          limit: 1000,
+          limit: 50000, // Increased limit to get more emails
         })
         allTransactions.push(...response.data)
         totalCount += response.count
@@ -570,14 +570,14 @@ export function EmailTransactionsTable({
   const { data: categoriesData } = useQuery({
     queryKey: ["categories", { page: 1 }],
     queryFn: async () =>
-      CategoriesService.readCategories({ skip: 0, limit: 1000 }),
+      CategoriesService.readCategories({ skip: 0, limit: 50000 }),
     staleTime: 5 * 60 * 1000,
   })
 
   // Load accounts for transaction creation
   const { data: accountsData } = useQuery({
     queryKey: ["accounts", { page: 1 }],
-    queryFn: async () => AccountsService.readAccounts({ skip: 0, limit: 1000 }),
+    queryFn: async () => AccountsService.readAccounts({ skip: 0, limit: 50000 }),
     staleTime: 5 * 60 * 1000,
   })
 
@@ -672,7 +672,7 @@ export function EmailTransactionsTable({
         const response = await GmailService.getUnseenEmailTransactions({
           connectionId: connId,
           skip: 0,
-          limit: 10000,
+          limit: 50000,
         })
         return response.data.map((t: any) => t.id)
       }

@@ -197,6 +197,63 @@ class GmailService:
             print(f"An error occurred: {error}")
             return []
     
+    def list_all_emails_with_pagination(
+        self,
+        access_token: str,
+        query: str = None,
+        batch_size: int = 500,
+    ) -> List[Dict[str, Any]]:
+        """List ALL emails from Gmail using pagination to bypass limits."""
+        try:
+            service = self.get_gmail_service(access_token)
+            
+            # Build query
+            if not query:
+                query = "is:unread"  # Default to unread emails
+            
+            all_emails = []
+            page_token = None
+            
+            while True:
+                # Get list of messages with pagination
+                list_kwargs: Dict[str, Any] = {
+                    "userId": "me", 
+                    "q": query,
+                    "maxResults": batch_size
+                }
+                
+                if page_token:
+                    list_kwargs["pageToken"] = page_token
+
+                results = service.users().messages().list(**list_kwargs).execute()
+                
+                messages = results.get('messages', [])
+                if not messages:
+                    break
+                
+                # Get detailed information for each message in this batch
+                batch_emails = []
+                for message in messages:
+                    email_detail = self.get_email_detail(access_token, message['id'])
+                    if email_detail:
+                        batch_emails.append(email_detail)
+                
+                all_emails.extend(batch_emails)
+                
+                # Check if there are more pages
+                page_token = results.get('nextPageToken')
+                if not page_token:
+                    break
+                
+                print(f"Fetched {len(batch_emails)} emails in this batch. Total so far: {len(all_emails)}")
+            
+            print(f"Total emails fetched: {len(all_emails)}")
+            return all_emails
+            
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+            return []
+    
     def get_email_detail(self, access_token: str, message_id: str) -> Optional[Dict[str, Any]]:
         """Get detailed information about a specific email."""
         try:
@@ -284,20 +341,19 @@ class GmailService:
             print(f"An error occurred: {error}")
             return False
     
-    def search_transaction_emails(
+    def search_all_transaction_emails(
         self,
         access_token: str,
-        newer_than_days: int = 180,
-        max_results: int = 1000,
+        batch_size: int = 500,
     ) -> List[Dict[str, Any]]:
-        """Search transaction-related emails from supported senders (VCB, Remitano).
+        """Search ALL transaction-related emails from supported senders (VCB, Remitano) without time limits.
 
-        Filters by sender(s), looks in Inbox, recent window, and includes read emails.
+        This method uses pagination to fetch ALL emails, bypassing the 500 email limit.
         """
         sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER}"
-        query = f"({sender_filter}) label:inbox newer_than:{newer_than_days}d -in:chats"
+        query = f"({sender_filter}) label:inbox -in:chats"
 
-        return self.list_emails(access_token, query, max_results)
+        return self.list_all_emails_with_pagination(access_token, query, batch_size)
 
     def search_transaction_emails_by_month(
         self,

@@ -1,23 +1,23 @@
-import { Container, Heading, HStack, VStack } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { Container, Heading, HStack, VStack } from "@chakra-ui/react"
+import { useQuery } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
 
-import { GmailService } from "@/client";
-import TransactionDashboard from "@/components/Common/TransactionDashboard";
+import { GmailService } from "@/client"
+import TransactionDashboard from "@/components/Common/TransactionDashboard"
 
-type FilterType = "all" | "month" | "last7" | "last30" | "custom";
+type FilterType = "all" | "month" | "last7" | "last30" | "custom"
 
 export default function EmailDashboard() {
-  const [filterType, setFilterType] = useState<FilterType>("all");
-  const [year, setYear] = useState<number | "all">("all");
-  const [month, setMonth] = useState<number | "all">("all");
-  const [selectedConnectionId, setSelectedConnectionId] = useState<string>("");
+  const [filterType, setFilterType] = useState<FilterType>("all")
+  const [year, setYear] = useState<number | "all">("all")
+  const [month, setMonth] = useState<number | "all">("all")
+  const [selectedConnectionId, setSelectedConnectionId] = useState<string>("")
 
   const { data: connections } = useQuery({
     queryKey: ["gmail-connections"],
     queryFn: () => GmailService.getGmailConnections(),
     staleTime: 5 * 60 * 1000,
-  });
+  })
 
   // Set default connection when connections load
   useEffect(() => {
@@ -26,11 +26,11 @@ export default function EmailDashboard() {
       connections.data.length > 0 &&
       !selectedConnectionId
     ) {
-      setSelectedConnectionId(connections.data[0].id);
+      setSelectedConnectionId(connections.data[0].id)
     }
-  }, [connections, selectedConnectionId]);
+  }, [connections, selectedConnectionId])
 
-  const connectionId = selectedConnectionId || connections?.data?.[0]?.id;
+  const connectionId = selectedConnectionId || connections?.data?.[0]?.id
 
   // Get email transactions for the dashboard
   const { data: emailTransactions } = useQuery({
@@ -40,58 +40,62 @@ export default function EmailDashboard() {
       GmailService.getEmailTransactions({
         connectionId: connectionId!,
         skip: 0,
-        limit: 1000,
+        limit: 50000, // Increased limit to get more emails
       }),
     staleTime: 5 * 60 * 1000,
-  });
+  })
 
   // Transform email transactions to match TransactionDashboard format
-  const transactions = emailTransactions?.data?.map((tx: any) => ({
-    amount: tx.amount || 0,
-    category: tx.category_name || "Uncategorized",
-    category_id: tx.category_id,
-    date: tx.received_at,
-    received_at: tx.received_at,
-    description: tx.description,
-    subject: tx.subject,
-    // All currencies (VND, VNDR, VNF) are displayed as VND
-  })) || [];
+  const transactions =
+    emailTransactions?.data?.map((tx: any) => ({
+      amount: tx.amount || 0,
+      category: tx.category_name || "Uncategorized",
+      category_id: tx.category_id,
+      date: tx.received_at,
+      received_at: tx.received_at,
+      description: tx.description,
+      subject: tx.subject,
+      // All currencies (VND, VNDR, VNF) are displayed as VND
+    })) || []
 
   // Prepare chart data for monthly totals
   const chartData = transactions
     .filter((tx: any) => tx.amount && typeof tx.amount === "number")
     .reduce((acc: any, tx: any) => {
-      const date = new Date(tx.received_at);
-      const monthKey = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}`;
-      
+      const date = new Date(tx.received_at)
+      const monthKey = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}`
+
       if (!acc[monthKey]) {
-        acc[monthKey] = { label: monthKey, value: 0 };
+        acc[monthKey] = { label: monthKey, value: 0 }
       }
-      acc[monthKey].value += tx.amount;
-      return acc;
-    }, {});
+      acc[monthKey].value += tx.amount
+      return acc
+    }, {})
 
-  const monthlyData = Object.values(chartData).sort((a: any, b: any) => 
-    a.label.localeCompare(b.label)
-  ) as Array<{ label: string; value: number }>;
+  const monthlyData = Object.values(chartData).sort((a: any, b: any) =>
+    a.label.localeCompare(b.label),
+  ) as Array<{ label: string; value: number }>
 
-  const years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
+  const years = Array.from(
+    { length: 6 },
+    (_, i) => new Date().getFullYear() - i,
+  )
 
   // Determine days to show based on filter type
   const getDaysToShow = () => {
     switch (filterType) {
       case "last7":
-        return 7;
+        return 7
       case "last30":
-        return 30;
+        return 30
       case "month":
-        return 30; // Default to 30 days for month view
+        return 30 // Default to 30 days for month view
       case "all":
-        return 30; // Default to 30 days for all time
+        return 30 // Default to 30 days for all time
       default:
-        return 30;
+        return 30
     }
-  };
+  }
 
   function DateRangeControls() {
     return (
@@ -152,7 +156,7 @@ export default function EmailDashboard() {
           ))}
         </select>
       </HStack>
-    );
+    )
   }
 
   return (
@@ -176,5 +180,5 @@ export default function EmailDashboard() {
         />
       </VStack>
     </Container>
-  );
+  )
 }

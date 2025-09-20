@@ -557,16 +557,33 @@ export type GmailGetEmailTransactionsResponse = (EmailTransactionsPublic);
 
 export type GmailSyncEmailsData = {
     /**
+     * Batch size for pagination (100-1000)
+     */
+    batchSize?: number;
+    /**
+     * Gmail connection ID
+     */
+    connectionId: string;
+};
+
+export type GmailSyncEmailsResponse = (Message);
+
+export type GmailSyncEmailsBatchData = {
+    /**
+     * Batch size for pagination (100-1000)
+     */
+    batchSize?: number;
+    /**
      * Gmail connection ID
      */
     connectionId: string;
     /**
-     * Maximum number of emails to sync
+     * Page token for pagination (optional)
      */
-    maxResults?: number;
+    pageToken?: string;
 };
 
-export type GmailSyncEmailsResponse = (Message);
+export type GmailSyncEmailsBatchResponse = (Message);
 
 export type GmailSyncEmailsByMonthData = {
     /**

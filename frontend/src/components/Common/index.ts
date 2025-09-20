@@ -1,1 +1,1 @@
-export { default as TransactionDashboard } from "./TransactionDashboard";
+export { default as TransactionDashboard } from "./TransactionDashboard"

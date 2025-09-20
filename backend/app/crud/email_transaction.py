@@ -55,10 +55,12 @@ def count_email_transactions(
     *, session: Session, gmail_connection_id: uuid.UUID, status: str | None = None
 ) -> int:
     """Count email transactions for a Gmail connection."""
-    statement = select(EmailTransaction).where(EmailTransaction.gmail_connection_id == gmail_connection_id)
+    statement = select(func.count(EmailTransaction.id)).where(
+        EmailTransaction.gmail_connection_id == gmail_connection_id
+    )
     if status:
         statement = statement.where(EmailTransaction.status == status)
-    return len(session.exec(statement).all())
+    return session.exec(statement).first() or 0
 
 
 def get_pending_email_transactions(
@@ -104,11 +106,11 @@ def count_unseen_email_transactions(
     *, session: Session, gmail_connection_id: uuid.UUID
 ) -> int:
     """Count unseen email transactions for a Gmail connection."""
-    statement = select(EmailTransaction).where(
+    statement = select(func.count(EmailTransaction.id)).where(
         EmailTransaction.gmail_connection_id == gmail_connection_id,
         EmailTransaction.seen == False
     )
-    return len(session.exec(statement).all())
+    return session.exec(statement).first() or 0
 
 
 def mark_email_transaction_as_seen(

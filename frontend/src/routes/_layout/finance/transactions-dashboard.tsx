@@ -1,72 +1,80 @@
-import { Container, Heading, HStack, VStack } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { Container, Heading, HStack, VStack } from "@chakra-ui/react"
+import { useQuery } from "@tanstack/react-query"
+import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
 
-import { TransactionsService, AccountsService } from "@/client";
-import TransactionDashboard from "@/components/Common/TransactionDashboard";
+import { AccountsService, TransactionsService } from "@/client"
+import TransactionDashboard from "@/components/Common/TransactionDashboard"
 
-export const Route = createFileRoute("/_layout/finance/transactions-dashboard")({
-  component: TransactionsDashboardPage,
-});
+export const Route = createFileRoute("/_layout/finance/transactions-dashboard")(
+  {
+    component: TransactionsDashboardPage,
+  },
+)
 
-type FilterType = "all" | "month" | "last7" | "last30" | "custom";
-type TransactionType = "all" | "expense" | "income";
+type FilterType = "all" | "month" | "last7" | "last30" | "custom"
+type TransactionType = "all" | "expense" | "income"
 
 function TransactionsDashboardPage() {
-  const [filterType, setFilterType] = useState<FilterType>("all");
-  const [year, setYear] = useState<number | "all">("all");
-  const [month, setMonth] = useState<number | "all">("all");
-  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
-  const [transactionType, setTransactionType] = useState<TransactionType>("all");
+  const [filterType, setFilterType] = useState<FilterType>("all")
+  const [year, setYear] = useState<number | "all">("all")
+  const [month, setMonth] = useState<number | "all">("all")
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("")
+  const [transactionType, setTransactionType] = useState<TransactionType>("all")
 
-  const { data: transactions, isLoading, error } = useQuery({
+  const {
+    data: transactions,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["transactions"],
     queryFn: () => TransactionsService.readTransactions(),
-  });
+  })
 
   const { data: accounts } = useQuery({
     queryKey: ["accounts"],
     queryFn: () => AccountsService.readAccounts(),
-  });
-
+  })
 
   // Filter transactions based on selected filters
-  const filteredTransactions = transactions?.data?.filter((tx: any) => {
-    if (selectedAccountId && tx.account_id !== selectedAccountId) {
-      return false;
-    }
-
-    // Filter by transaction type
-    if (transactionType !== "all") {
-      if (transactionType === "expense" && tx.type !== "out") {
-        return false;
+  const filteredTransactions =
+    transactions?.data?.filter((tx: any) => {
+      if (selectedAccountId && tx.account_id !== selectedAccountId) {
+        return false
       }
-      if (transactionType === "income" && tx.type !== "in") {
-        return false;
+
+      // Filter by transaction type
+      if (transactionType !== "all") {
+        if (transactionType === "expense" && tx.type !== "out") {
+          return false
+        }
+        if (transactionType === "income" && tx.type !== "in") {
+          return false
+        }
       }
-    }
 
-    const txDate = new Date(tx.txn_date);
-    const now = new Date();
+      const txDate = new Date(tx.txn_date)
+      const now = new Date()
 
-    switch (filterType) {
-      case "last7":
-        const last7Days = new Date();
-        last7Days.setDate(now.getDate() - 6);
-        return txDate >= last7Days;
-      case "last30":
-        const last30Days = new Date();
-        last30Days.setDate(now.getDate() - 29);
-        return txDate >= last30Days;
-      case "month":
-        if (year !== "all" && txDate.getFullYear() !== year) return false;
-        if (month !== "all" && txDate.getMonth() + 1 !== month) return false;
-        return true;
-      default:
-        return true;
-    }
-  }) || [];
+      switch (filterType) {
+        case "last7": {
+          const last7Days = new Date()
+          last7Days.setDate(now.getDate() - 6)
+          return txDate >= last7Days
+        }
+        case "last30": {
+          const last30Days = new Date()
+          last30Days.setDate(now.getDate() - 29)
+          return txDate >= last30Days
+        }
+        case "month":
+          if (year !== "all" && txDate.getFullYear() !== year) return false
+          if (month !== "all" && txDate.getMonth() + 1 !== month) return false
+          return true
+        default:
+          return true
+      }
+    }) || []
 
   // Transform transactions to match TransactionDashboard format
   const dashboardTransactions = filteredTransactions.map((tx: any) => ({
@@ -76,7 +84,7 @@ function TransactionsDashboardPage() {
     date: tx.txn_date,
     description: tx.merchant || tx.description,
     type: tx.type, // Add type information
-  }));
+  }))
 
   if (isLoading) {
     return (
@@ -86,7 +94,7 @@ function TransactionsDashboardPage() {
           <div>Loading...</div>
         </VStack>
       </Container>
-    );
+    )
   }
 
   if (error) {
@@ -97,44 +105,47 @@ function TransactionsDashboardPage() {
           <div style={{ color: "red" }}>Error loading transactions</div>
         </VStack>
       </Container>
-    );
+    )
   }
 
   // Prepare chart data for monthly totals
   const chartData = dashboardTransactions
     .filter((tx: any) => tx.amount && typeof tx.amount === "number")
     .reduce((acc: any, tx: any) => {
-      const date = new Date(tx.date);
-      const monthKey = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}`;
-      
+      const date = new Date(tx.date)
+      const monthKey = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}`
+
       if (!acc[monthKey]) {
-        acc[monthKey] = { label: monthKey, value: 0 };
+        acc[monthKey] = { label: monthKey, value: 0 }
       }
-      acc[monthKey].value += tx.amount;
-      return acc;
-    }, {});
+      acc[monthKey].value += tx.amount
+      return acc
+    }, {})
 
-  const monthlyData = Object.values(chartData).sort((a: any, b: any) => 
-    a.label.localeCompare(b.label)
-  ) as Array<{ label: string; value: number }>;
+  const monthlyData = Object.values(chartData).sort((a: any, b: any) =>
+    a.label.localeCompare(b.label),
+  ) as Array<{ label: string; value: number }>
 
-  const years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
+  const years = Array.from(
+    { length: 6 },
+    (_, i) => new Date().getFullYear() - i,
+  )
 
   // Determine days to show based on filter type
   const getDaysToShow = () => {
     switch (filterType) {
       case "last7":
-        return 7;
+        return 7
       case "last30":
-        return 30;
+        return 30
       case "month":
-        return 30; // Default to 30 days for month view
+        return 30 // Default to 30 days for month view
       case "all":
-        return 30; // Default to 30 days for all time
+        return 30 // Default to 30 days for all time
       default:
-        return 30;
+        return 30
     }
-  };
+  }
 
   function FilterControls() {
     return (
@@ -154,7 +165,9 @@ function TransactionsDashboardPage() {
 
         <select
           value={transactionType}
-          onChange={(e) => setTransactionType(e.target.value as TransactionType)}
+          onChange={(e) =>
+            setTransactionType(e.target.value as TransactionType)
+          }
           style={{ height: 32, paddingInline: 8 }}
         >
           <option value="all">All Types</option>
@@ -205,7 +218,7 @@ function TransactionsDashboardPage() {
           ))}
         </select>
       </HStack>
-    );
+    )
   }
 
   return (
@@ -215,7 +228,7 @@ function TransactionsDashboardPage() {
           <Heading>Transaction Dashboard</Heading>
           <FilterControls />
         </HStack>
-        
+
         <TransactionDashboard
           transactions={dashboardTransactions}
           currency="₫"
@@ -228,5 +241,5 @@ function TransactionsDashboardPage() {
         />
       </VStack>
     </Container>
-  );
+  )
 }

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, Dict
 
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -24,7 +24,7 @@ from app.models import (
     TransactionCreate,
     TransactionPublic,
 )
-from app.services.gmail_service import EmailTransactionProcessor, GmailService
+from app.services.gmail_service import EmailTransactionProcessor, GmailService, EmailPatterns
 from app.utils import decrypt_token, encrypt_token, is_token_expired, normalize_to_utc
 from app.core import security
 from app.core.config import settings
@@ -212,7 +212,7 @@ def get_email_transactions(
     current_user: CurrentUser,
     connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
     skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=10000),
+    limit: int = Query(100, ge=1, le=50000),
     status: str = Query(None, description="Filter by status (pending, processed, ignored)"),
     unseen_only: bool = Query(False, description="Filter to show only unseen emails"),
 ) -> Any:
@@ -268,19 +268,24 @@ def sync_emails(
     session: SessionDep,
     current_user: CurrentUser,
     connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
-    max_results: int = Query(1000, ge=1, le=5000, description="Maximum number of emails to sync"),
+    batch_size: int = Query(500, ge=100, le=1000, description="Batch size for pagination (100-1000)"),
 ) -> Any:
-    """Sync emails from Gmail and extract transaction information."""
+    """Sync ALL emails from Gmail and extract transaction information.
+    
+    This endpoint syncs ALL transaction emails without time limits using pagination.
+    It will fetch emails in batches to bypass Gmail API limits.
+    """
     # Use middleware to get valid connection and token
     connection, access_token = get_valid_gmail_connection_with_token(session, current_user, connection_id)
     
     try:
-        # Sync emails
+        # Sync ALL emails using pagination
         gmail_service = GmailService()
-        emails = gmail_service.search_transaction_emails(access_token, max_results=max_results)
+        emails = gmail_service.search_all_transaction_emails(access_token, batch_size=batch_size)
         
         processor = EmailTransactionProcessor()
         synced_count = 0
+        skipped_count = 0
         
         for email in emails:
             # Check if email already exists
@@ -289,6 +294,7 @@ def sync_emails(
             )
             
             if existing_transaction:
+                skipped_count += 1
                 continue  # Skip already processed emails
             
             # Extract transaction information
@@ -318,10 +324,112 @@ def sync_emails(
         session.add(connection)
         session.commit()
         
-        return Message(message=f"Successfully synced {synced_count} emails")
+        return Message(message=f"Successfully synced {synced_count} new emails (skipped {skipped_count} existing emails)")
         
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to sync emails: {str(e)}")
+
+
+@router.post("/sync-emails-batch", response_model=Message)
+def sync_emails_batch(
+    session: SessionDep,
+    current_user: CurrentUser,
+    connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
+    batch_size: int = Query(500, ge=100, le=1000, description="Batch size for pagination (100-1000)"),
+    page_token: str = Query(None, description="Page token for pagination (optional)"),
+) -> Any:
+    """Sync emails from Gmail in batches to avoid timeout.
+    
+    This endpoint syncs emails in smaller batches and returns a page token
+    for the next batch if there are more emails to sync.
+    """
+    # Use middleware to get valid connection and token
+    connection, access_token = get_valid_gmail_connection_with_token(session, current_user, connection_id)
+    
+    try:
+        gmail_service = GmailService()
+        service = gmail_service.get_gmail_service(access_token)
+        
+        # Build query for transaction emails
+        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER}"
+        query = f"({sender_filter}) label:inbox -in:chats"
+        
+        # Get list of messages with pagination
+        list_kwargs: Dict[str, Any] = {
+            "userId": "me", 
+            "q": query,
+            "maxResults": batch_size
+        }
+        
+        if page_token:
+            list_kwargs["pageToken"] = page_token
+
+        results = service.users().messages().list(**list_kwargs).execute()
+        
+        messages = results.get('messages', [])
+        next_page_token = results.get('nextPageToken')
+        
+        if not messages:
+            return Message(message="No more emails to sync")
+        
+        # Get detailed information for each message in this batch
+        emails = []
+        for message in messages:
+            email_detail = gmail_service.get_email_detail(access_token, message['id'])
+            if email_detail:
+                emails.append(email_detail)
+        
+        processor = EmailTransactionProcessor()
+        synced_count = 0
+        skipped_count = 0
+        
+        for email in emails:
+            # Check if email already exists
+            existing_transaction = crud.get_email_transaction_by_email_id(
+                session=session, email_id=email['id'], gmail_connection_id=connection_id
+            )
+            
+            if existing_transaction:
+                skipped_count += 1
+                continue  # Skip already processed emails
+            
+            # Extract transaction information
+            transaction_info = processor.extract_transaction_info(email)
+            
+            # Create email transaction
+            email_transaction_data = EmailTransactionCreate(
+                gmail_connection_id=connection_id,
+                email_id=email['id'],
+                subject=email['subject'],
+                sender=email['sender'],
+                received_at=email['date'],
+                amount=transaction_info.get('amount'),
+                merchant=transaction_info.get('merchant'),
+                account_number=transaction_info.get('account_number'),
+                transaction_type=transaction_info.get('transaction_type'),
+                raw_content=email['body']
+            )
+            
+            crud.create_email_transaction(
+                session=session, email_transaction_in=email_transaction_data
+            )
+            synced_count += 1
+        
+        # Update last sync time
+        connection.last_sync_at = datetime.now(timezone.utc)
+        session.add(connection)
+        session.commit()
+        
+        message = f"Synced {synced_count} new emails (skipped {skipped_count} existing emails)"
+        if next_page_token:
+            message += f". Use page_token='{next_page_token}' for next batch."
+        else:
+            message += ". All emails synced!"
+        
+        return Message(message=message)
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to sync emails batch: {str(e)}")
 
 
 @router.post("/sync-emails-by-month", response_model=Message)
@@ -500,7 +608,7 @@ def get_unseen_email_transactions(
     current_user: CurrentUser,
     connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
     skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=10000),
+    limit: int = Query(100, ge=1, le=50000),
 ) -> Any:
     """Get unseen email transactions for a Gmail connection."""
     # Verify connection belongs to user

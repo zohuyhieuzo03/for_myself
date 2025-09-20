@@ -110,7 +110,7 @@ export function UnseenEmailTransactions({
           const response = await GmailService.getUnseenEmailTransactions({
             connectionId: connection.id,
             skip: 0,
-            limit: 10000, // Get all unseen emails
+            limit: 50000, // Get all unseen emails
           })
           allUnseenTransactionIds.push(...response.data.map((t: any) => t.id))
         } catch (error) {
