@@ -38,8 +38,7 @@ export default function TransactionDashboard({
   monthlyData = [],
   monthlyChartType = 'bar',
   dataPointType = 'months',
-  daysToShow = 30,
-  currency = "₫"
+  daysToShow = 30
 }: TransactionDashboardProps) {
   const [chartType, setChartType] = useState<'bar' | 'line'>(monthlyChartType);
   const [pointType, setPointType] = useState<'days' | 'months'>(dataPointType);
@@ -113,7 +112,7 @@ export default function TransactionDashboard({
           <Box p={4} borderWidth="1px" borderRadius="md" bg="white">
             <Text fontSize="sm" color="gray.600" mb={1}>Total Amount</Text>
             <Text fontSize="2xl" fontWeight="bold" color="green.500">
-              {currency === "USDT" ? `${totalAmount.toLocaleString()} USDT` : formatCurrency(totalAmount)}
+              {formatCurrency(totalAmount)}
             </Text>
             <Text fontSize="xs" color="gray.500">All transactions</Text>
           </Box>
@@ -121,7 +120,7 @@ export default function TransactionDashboard({
           <Box p={4} borderWidth="1px" borderRadius="md" bg="white">
             <Text fontSize="sm" color="gray.600" mb={1}>Average Transaction</Text>
             <Text fontSize="2xl" fontWeight="bold" color="blue.500">
-              {currency === "USDT" ? `${averageTransaction.toLocaleString()} USDT` : formatCurrency(averageTransaction)}
+              {formatCurrency(averageTransaction)}
             </Text>
             <Text fontSize="xs" color="gray.500">Per transaction</Text>
           </Box>
@@ -159,7 +158,7 @@ export default function TransactionDashboard({
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => currency === "USDT" ? `${Number(value).toLocaleString()} USDT` : formatCurrency(Number(value))} />
+                    <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -209,7 +208,7 @@ export default function TransactionDashboard({
                       />
                       <Tooltip
                         formatter={(v: any) => [
-                          `${Number(v).toLocaleString()}${currency}`,
+                          formatCurrency(Number(v)),
                           "Total",
                         ]}
                       />
@@ -243,7 +242,7 @@ export default function TransactionDashboard({
                       />
                       <Tooltip
                         formatter={(v: any) => [
-                          `${Number(v).toLocaleString()}${currency}`,
+                          formatCurrency(Number(v)),
                           "Total",
                         ]}
                       />
@@ -303,7 +302,7 @@ export default function TransactionDashboard({
                     fontWeight="semibold"
                     color={transaction.type === "in" ? "green.500" : "red.500"}
                   >
-                    {currency === "USDT" ? `${transaction.amount.toLocaleString()} USDT` : formatCurrency(transaction.amount)}
+                    {formatCurrency(transaction.amount)}
                   </Text>
                 </HStack>
                 {index < recentTransactions.length - 1 && (

@@ -91,13 +91,6 @@ function EmailTransactionRow({
 
   const formatAmount = (amount: number | null) => {
     if (!amount && amount !== 0) return "-"
-    // If Remitano, show crypto amount with decimals and USDT suffix
-    if ((transaction.merchant || "").toLowerCase() === "remitano") {
-      return `${Number(amount).toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })} USDT`
-    }
     // Default VND formatting
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -1363,13 +1356,13 @@ function CreateIncomeModal({
 }: CreateIncomeModalProps) {
   const [source, setSource] = useState<string>("")
   const [amount, setAmount] = useState<number>(0)
-  const [currency, setCurrency] = useState<string>("USDT")
+  const [currency, setCurrency] = useState<string>("VND")
 
   useEffect(() => {
     if (emailTransaction) {
       setSource(emailTransaction.merchant || "Remitano")
       setAmount(emailTransaction.amount || 0)
-      setCurrency("USDT")
+      setCurrency("VND")
     }
   }, [emailTransaction])
 
@@ -1389,10 +1382,12 @@ function CreateIncomeModal({
 
   const formatAmount = (amount: number | null) => {
     if (!amount && amount !== 0) return "-"
-    return `${Number(amount).toLocaleString("en-US", {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    })} USDT`
+    }).format(amount as number)
   }
 
   if (!emailTransaction) return null
@@ -1474,7 +1469,6 @@ function CreateIncomeModal({
                   borderRadius: "6px",
                 }}
               >
-                <option value="USDT">USDT</option>
                 <option value="USD">USD</option>
                 <option value="VND">VND</option>
               </select>

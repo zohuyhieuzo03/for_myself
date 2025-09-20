@@ -32,14 +32,6 @@ export default function EmailDashboard() {
 
   const connectionId = selectedConnectionId || connections?.data?.[0]?.id;
 
-  // Get the selected connection to determine currency
-  const selectedConnection = connections?.data?.find(
-    (conn) => conn.id === connectionId,
-  );
-  const isRemitanoConnection =
-    selectedConnection?.gmail_email?.includes("remitano") || false;
-  const currency = isRemitanoConnection ? "USDT" : "₫";
-
   // Get email transactions for the dashboard
   const { data: emailTransactions } = useQuery({
     queryKey: ["email-transactions", { connectionId }],
@@ -62,6 +54,7 @@ export default function EmailDashboard() {
     received_at: tx.received_at,
     description: tx.description,
     subject: tx.subject,
+    // All currencies (VND, VNDR, VNF) are displayed as VND
   })) || [];
 
   // Prepare chart data for monthly totals
@@ -173,7 +166,7 @@ export default function EmailDashboard() {
         {/* Transaction Dashboard */}
         <TransactionDashboard
           transactions={transactions}
-          currency={currency}
+          currency="₫"
           showStats={true}
           showPieChart={true}
           showRecentTransactions={true}
