@@ -1,6 +1,7 @@
 import base64
 import json
 import logging
+import re
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -17,6 +18,41 @@ from app.crud import gmail_connection as gmail_crud
 from app.models import GmailConnection
 
 logger = logging.getLogger(__name__)
+
+# Constants for email patterns and keywords
+class EmailPatterns:
+    """Constants for email parsing patterns."""
+    
+    # Remitano patterns - support VND, VNDR, and VNF
+    REMITANO_SWAP_EN = r"to\s+([\d,]+)\s*(VND|VNDR|VNF)"
+    REMITANO_SWAP_VI = r"sang\s+([\d,]+)\s*(VND|VNDR|VNF)"
+    REMITANO_FALLBACK = r"([\d,]+)\s*(VND|VNDR|VNF)"
+    
+    # Credit keywords
+    CREDIT_KEYWORDS = [
+        'deposit', 'credit', 'transfer in', 'refund', 'income', 
+        'you have swapped from', 'bạn đã hoán đổi từ'
+    ]
+    
+    # Debit keywords  
+    DEBIT_KEYWORDS = [
+        'withdrawal', 'withdraw', 'debit', 'purchase', 'payment', 'transfer out'
+    ]
+    
+    # Sender filters
+    VCB_SENDER = 'from:VCBDigibank@info.vietcombank.com.vn'
+    REMITANO_SWAP_FILTER = (
+        '(from:notifications@remitano.com '
+        '(subject:"You have swapped" OR subject:"Bạn đã hoán đổi"))'
+    )
+
+
+def parse_vnf_amount(amount_str: str) -> Optional[float]:
+    """Parse VNF/VND/VNDR amount string to float, removing commas."""
+    try:
+        return float(amount_str.replace(',', ''))
+    except ValueError:
+        return None
 
 
 class GmailService:
@@ -258,10 +294,7 @@ class GmailService:
 
         Filters by sender(s), looks in Inbox, recent window, and includes read emails.
         """
-        sender_filter = (
-            'from:VCBDigibank@info.vietcombank.com.vn OR '
-            '(from:notifications@remitano.com (subject:"You have received" OR subject:"Bạn đã nhận được"))'
-        )
+        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER}"
         query = f"({sender_filter}) label:inbox newer_than:{newer_than_days}d -in:chats"
 
         return self.list_emails(access_token, query, max_results)
@@ -284,10 +317,7 @@ class GmailService:
         Returns:
             List of email dictionaries
         """
-        sender_filter = (
-            'from:VCBDigibank@info.vietcombank.com.vn OR '
-            '(from:notifications@remitano.com (subject:"You have received" OR subject:"Bạn đã nhận được"))'
-        )
+        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER}"
         
         # Create date range for the month
         from datetime import datetime, timezone
@@ -324,10 +354,7 @@ class GmailService:
         Returns:
             List of email dictionaries
         """
-        sender_filter = (
-            'from:VCBDigibank@info.vietcombank.com.vn OR '
-            '(from:notifications@remitano.com (subject:"You have received" OR subject:"Bạn đã nhận được"))'
-        )
+        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER}"
         query = f"({sender_filter}) label:inbox newer_than:{days}d -in:chats"
         
         return self.list_emails(access_token, query, max_results)
@@ -481,15 +508,16 @@ class EmailTransactionProcessor:
         lower_subject = subject.lower()
         lower_sender = sender.lower()
         
-        # Special handling for Remitano emails: parse amount from subject and force credit
+        # Special handling for Remitano emails: parse VND/VNDR/VNF amount from subject and force credit
         if 'remitano.com' in lower_sender or 'remitano' in lower_subject:
-            remitano_amount = self._extract_remitano_amount_from_subject(subject)
+            remitano_result = self._extract_remitano_amount_from_subject(subject)
             return {
-                'amount': remitano_amount,
+                'amount': remitano_result.get('amount'),
+                'currency': 'VND',  # Always use VND for display consistency
                 'merchant': 'Remitano',
-                'transaction_type': 'credit' if remitano_amount is not None else None,
+                'transaction_type': 'credit' if remitano_result.get('amount') is not None else None,
                 'account_number': None,
-                'confidence': self._calculate_confidence(remitano_amount, 'Remitano', 'credit' if remitano_amount is not None else None)
+                'confidence': self._calculate_confidence(remitano_result.get('amount'), 'Remitano', 'credit' if remitano_result.get('amount') is not None else None)
             }
 
         # Extract amount
@@ -516,8 +544,8 @@ class EmailTransactionProcessor:
         """Extract amount from text."""
         import re
         
-        # Pattern for Vietnamese currency (VND)
-        vnd_pattern = r'(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:VND|đ)'
+        # Pattern for Vietnamese currency (VND, VNDR)
+        vnd_pattern = r'(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:VND|VNDR|đ)'
         vnd_match = re.search(vnd_pattern, text, re.IGNORECASE)
         if vnd_match:
             amount_str = vnd_match.group(1).replace(',', '')
@@ -573,74 +601,42 @@ class EmailTransactionProcessor:
         
         return None
 
-    def _extract_remitano_amount_from_subject(self, subject: str) -> Optional[float]:
-        """Extract numeric amount from Remitano subject like:
-        'You have received 499.67 USDT from ...' or Vietnamese 'Bạn đã nhận được 499.67 USDT từ ...'
+    def _extract_remitano_amount_from_subject(self, subject: str) -> Dict[str, Any]:
+        """Extract VND/VNDR/VNF amount and currency from Remitano subject.
+        
+        Supports formats:
+        - English: 'You have swapped from 200.00 USDT to 5,226,659 VND'
+        - Vietnamese: 'Bạn đã hoán đổi từ 851.65 USDT sang 22,178,072 VNDR'
+        - Vietnamese: 'Bạn đã hoán đổi từ 447.62 USDT sang 11,492,946 VNDR'
         """
-        import re
-        text = subject
-        # Look for English 'You have received <num> USDT'
-        pattern_en = r"you have received\s+([\d,]+(?:\.\d+)?)\s*USDT"
-        m = re.search(pattern_en, text, re.IGNORECASE)
-        if m:
-            amt = m.group(1)
-            # Handle US format: 1,499.98 -> 1499.98
-            if ',' in amt and '.' in amt:
-                # US format: comma as thousands separator, dot as decimal
-                amt = amt.replace(',', '')
-            else:
-                # Other formats: remove commas
-                amt = amt.replace(',', '')
-            try:
-                return float(amt)
-            except ValueError:
-                return None
-        # Look for Vietnamese 'Bạn đã nhận được <num> USDT'
-        # Case-insensitive match for Vietnamese text
-        pattern_vi = r"bạn\s+đã\s+nhận\s+được\s+([\d,.]+)\s*USDT"
-        m2 = re.search(pattern_vi, text, re.IGNORECASE)
-        if m2:
-            amt = m2.group(1)
-            # Handle US format: 1,499.98 -> 1499.98
-            if ',' in amt and '.' in amt:
-                # US format: comma as thousands separator, dot as decimal
-                amt = amt.replace(',', '')
-            else:
-                # Other formats: remove commas
-                amt = amt.replace(',', '')
-            try:
-                return float(amt)
-            except ValueError:
-                return None
-        # Fallback: any '<num> USDT' in subject
-        fallback = re.search(r"([\d,]+(?:\.\d+)?)\s*USDT", text, re.IGNORECASE)
-        if fallback:
-            amt = fallback.group(1)
-            # Handle US format: 1,499.98 -> 1499.98
-            if ',' in amt and '.' in amt:
-                # US format: comma as thousands separator, dot as decimal
-                amt = amt.replace(',', '')
-            else:
-                # Other formats: remove commas
-                amt = amt.replace(',', '')
-            try:
-                return float(amt)
-            except ValueError:
-                return None
-        return None
+        patterns = [
+            EmailPatterns.REMITANO_SWAP_EN,
+            EmailPatterns.REMITANO_SWAP_VI,
+            EmailPatterns.REMITANO_FALLBACK
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, subject, re.IGNORECASE)
+            if match:
+                amount = parse_vnf_amount(match.group(1))
+                currency = match.group(2) if len(match.groups()) > 1 else 'VND'
+                if amount is not None:
+                    return {
+                        'amount': amount,
+                        'currency': currency
+                    }
+        
+        return {'amount': None, 'currency': 'VND'}
     
     def _determine_transaction_type(self, subject: str, body: str) -> Optional[str]:
         """Determine transaction type (debit/credit)."""
         text = f"{subject} {body}".lower()
         
-        debit_keywords = ['withdrawal', 'withdraw', 'debit', 'purchase', 'payment', 'transfer out']
-        credit_keywords = ['deposit', 'credit', 'transfer in', 'refund', 'income', 'you have received', 'bạn đã nhận được']
-        
-        for keyword in debit_keywords:
+        for keyword in EmailPatterns.DEBIT_KEYWORDS:
             if keyword in text:
                 return 'debit'
         
-        for keyword in credit_keywords:
+        for keyword in EmailPatterns.CREDIT_KEYWORDS:
             if keyword in text:
                 return 'credit'
         
@@ -670,3 +666,17 @@ class EmailTransactionProcessor:
             confidence += 0.3
         
         return confidence
+    
+    def _determine_transaction_type(self, subject: str, body: str) -> Optional[str]:
+        """Determine transaction type (debit/credit)."""
+        text = f"{subject} {body}".lower()
+        
+        for keyword in EmailPatterns.DEBIT_KEYWORDS:
+            if keyword in text:
+                return 'debit'
+        
+        for keyword in EmailPatterns.CREDIT_KEYWORDS:
+            if keyword in text:
+                return 'credit'
+        
+        return None
