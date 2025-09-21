@@ -6,9 +6,11 @@ import { EmailTransactionsTable } from "@/components/Gmail/EmailTransactions"
 
 const emailTransactionsSearchSchema = z.object({
   page: z.number().catch(1),
-  statusFilter: z.string().optional(),
-  sortBy: z.string().optional(),
-  connectionId: z.string().optional(),
+  statusFilter: z.string().catch("all"),
+  sortBy: z
+    .enum(["date_desc", "date_asc", "amount_desc", "amount_asc"])
+    .catch("date_desc"),
+  connectionId: z.string().catch("all"),
 })
 
 export const Route = createFileRoute("/_layout/email/transactions")({
@@ -24,9 +26,7 @@ function EmailTransactions() {
       <EmailTransactionsTable
         page={page}
         statusFilter={statusFilter}
-        sortBy={
-          sortBy as "date_desc" | "amount_desc" | "amount_asc" | undefined
-        }
+        sortBy={sortBy}
         connectionId={connectionId}
       />
     </Container>

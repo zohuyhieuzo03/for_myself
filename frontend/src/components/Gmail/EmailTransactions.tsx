@@ -17,11 +17,21 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import React, { useState } from "react"
-import { FiEdit, FiEye, FiTrash2, FiCheck } from "react-icons/fi"
-import { GmailService, CategoriesService, TransactionsService, AccountsService } from "@/client"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import { FiCheck, FiEdit, FiEye, FiTrash2 } from "react-icons/fi"
+import {
+  AccountsService,
+  CategoriesService,
+  GmailService,
+  type TransactionCreate,
+} from "@/client"
+import {
+  PaginationItems,
+  PaginationNextTrigger,
+  PaginationPrevTrigger,
+  PaginationRoot,
+} from "@/components/ui/pagination.tsx"
 import useCustomToast from "@/hooks/useCustomToast"
-import { type TransactionCreate } from "@/client"
-import { useForm, type SubmitHandler } from "react-hook-form"
 
 // Edit Email Transaction Modal Component
 interface EditEmailTransactionModalProps {
@@ -99,7 +109,7 @@ function EditEmailTransactionModal({
       status: data.status,
       category_id: data.category_id === "" ? null : data.category_id,
     }
-    
+
     updateEmailTransactionMutation.mutate(processedData)
   }
 
@@ -113,21 +123,34 @@ function EditEmailTransactionModal({
               <Dialog.Title>Edit Email Transaction</Dialog.Title>
               <Dialog.CloseTrigger />
             </Dialog.Header>
-            
+
             <Dialog.Body>
               <VStack gap={4} align="stretch">
                 {/* Email Info */}
                 <Box p={3} bg="gray.50" borderRadius="md">
-                  <Text fontSize="sm" fontWeight="bold" mb={2}>Email Details:</Text>
-                  <Text fontSize="sm" color="gray.600">Subject: {emailTransaction?.subject}</Text>
-                  <Text fontSize="sm" color="gray.600">Sender: {emailTransaction?.sender}</Text>
-                  <Text fontSize="sm" color="gray.600">Date: {emailTransaction?.received_at ? new Date(emailTransaction.received_at).toLocaleString() : "N/A"}</Text>
+                  <Text fontSize="sm" fontWeight="bold" mb={2}>
+                    Email Details:
+                  </Text>
+                  <Text fontSize="sm" color="gray.600">
+                    Subject: {emailTransaction?.subject}
+                  </Text>
+                  <Text fontSize="sm" color="gray.600">
+                    Sender: {emailTransaction?.sender}
+                  </Text>
+                  <Text fontSize="sm" color="gray.600">
+                    Date:{" "}
+                    {emailTransaction?.received_at
+                      ? new Date(emailTransaction.received_at).toLocaleString()
+                      : "N/A"}
+                  </Text>
                 </Box>
 
                 {/* Edit Form */}
                 <VStack gap={3} align="stretch">
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Amount</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Amount
+                    </Text>
                     <Input
                       type="number"
                       step="0.01"
@@ -137,7 +160,9 @@ function EditEmailTransactionModal({
                   </Box>
 
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Merchant</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Merchant
+                    </Text>
                     <Input
                       {...register("merchant")}
                       placeholder="Enter merchant name"
@@ -145,9 +170,13 @@ function EditEmailTransactionModal({
                   </Box>
 
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Status</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Status
+                    </Text>
                     <select
-                      {...register("status", { required: "Status is required" })}
+                      {...register("status", {
+                        required: "Status is required",
+                      })}
                       style={{
                         width: "100%",
                         padding: "8px",
@@ -163,7 +192,9 @@ function EditEmailTransactionModal({
                   </Box>
 
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Category</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Category
+                    </Text>
                     <select
                       {...register("category_id")}
                       style={{
@@ -187,7 +218,11 @@ function EditEmailTransactionModal({
             </Dialog.Body>
 
             <Dialog.Footer>
-              <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button
@@ -269,7 +304,10 @@ function CreateTransactionFromEmailModal({
   // Set initial values when emailTransaction changes
   React.useEffect(() => {
     if (emailTransaction) {
-      setValue("type", emailTransaction.transaction_type === "credit" ? "in" : "out")
+      setValue(
+        "type",
+        emailTransaction.transaction_type === "credit" ? "in" : "out",
+      )
       setValue("amount", emailTransaction.amount || 0)
       setValue("merchant", emailTransaction.merchant || "")
       setValue("note", emailTransaction.subject || "")
@@ -277,47 +315,33 @@ function CreateTransactionFromEmailModal({
     }
   }, [emailTransaction, setValue])
 
-  const createTransactionMutation = useMutation({
-    mutationFn: (data: TransactionCreate) =>
-      TransactionsService.createTransaction({ requestBody: data }),
+  const createTransactionFromEmailMutation = useMutation({
+    mutationFn: (data: TransactionCreate) => {
+      const transactionType = data.type === "in" ? "income" : "expense"
+      return GmailService.createTransactionFromEmail({
+        emailTransactionId: emailTransaction.id,
+        accountId: data.account_id,
+        categoryId: data.category_id === "" ? null : data.category_id,
+        note: data.note,
+        transactionType,
+      })
+    },
     onSuccess: () => {
       showSuccessToast("Transaction created successfully")
       reset()
       onSuccess()
       onClose()
+      // Invalidate both email transactions and regular transactions queries
+      queryClient.invalidateQueries({ queryKey: ["email-transactions"] })
+      queryClient.invalidateQueries({ queryKey: ["transactions"] })
     },
     onError: (error: any) => {
       showErrorToast(`Failed to create transaction: ${error.message}`)
     },
   })
 
-  // Update email transaction mutation
-  const updateEmailTransactionMutation = useMutation({
-    mutationFn: ({ transactionId, linkedTransactionId }: { transactionId: string; linkedTransactionId: string }) =>
-      GmailService.updateEmailTransaction({
-        transactionId,
-        requestBody: { linked_transaction_id: linkedTransactionId, status: "processed" },
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["email-transactions"] })
-    },
-  })
-
   const onSubmit: SubmitHandler<TransactionCreate> = (data) => {
-    const processedData = {
-      ...data,
-      category_id: data.category_id === "" ? null : data.category_id,
-    }
-    
-    createTransactionMutation.mutate(processedData, {
-      onSuccess: (newTransaction) => {
-        // Link the email transaction to the new transaction
-        updateEmailTransactionMutation.mutate({
-          transactionId: emailTransaction.id,
-          linkedTransactionId: newTransaction.id,
-        })
-      },
-    })
+    createTransactionFromEmailMutation.mutate(data)
   }
 
   return (
@@ -330,28 +354,43 @@ function CreateTransactionFromEmailModal({
               <Dialog.Title>Create Transaction from Email</Dialog.Title>
               <Dialog.CloseTrigger />
             </Dialog.Header>
-            
+
             <Dialog.Body>
               <VStack gap={4} align="stretch">
                 {/* Email Info */}
                 <Box p={3} bg="gray.50" borderRadius="md">
-                  <Text fontSize="sm" fontWeight="bold" mb={2}>From Email:</Text>
-                  <Text fontSize="sm" color="gray.600">Subject: {emailTransaction?.subject}</Text>
-                  <Text fontSize="sm" color="gray.600">Sender: {emailTransaction?.sender}</Text>
-                  <Text fontSize="sm" color="gray.600">Amount: {emailTransaction?.amount ? new Intl.NumberFormat("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                    maximumFractionDigits: 0,
-                  }).format(emailTransaction.amount) : "N/A"}</Text>
+                  <Text fontSize="sm" fontWeight="bold" mb={2}>
+                    From Email:
+                  </Text>
+                  <Text fontSize="sm" color="gray.600">
+                    Subject: {emailTransaction?.subject}
+                  </Text>
+                  <Text fontSize="sm" color="gray.600">
+                    Sender: {emailTransaction?.sender}
+                  </Text>
+                  <Text fontSize="sm" color="gray.600">
+                    Amount:{" "}
+                    {emailTransaction?.amount
+                      ? new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                          maximumFractionDigits: 0,
+                        }).format(emailTransaction.amount)
+                      : "N/A"}
+                  </Text>
                 </Box>
 
                 {/* Transaction Form */}
                 <VStack gap={3} align="stretch">
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Date</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Date
+                    </Text>
                     <Input
                       type="date"
-                      {...register("txn_date", { required: "Date is required" })}
+                      {...register("txn_date", {
+                        required: "Date is required",
+                      })}
                     />
                     {errors.txn_date && (
                       <Text fontSize="xs" color="red.500" mt={1}>
@@ -361,7 +400,9 @@ function CreateTransactionFromEmailModal({
                   </Box>
 
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Type</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Type
+                    </Text>
                     <select
                       {...register("type", { required: "Type is required" })}
                       style={{
@@ -378,11 +419,16 @@ function CreateTransactionFromEmailModal({
                   </Box>
 
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Amount</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Amount
+                    </Text>
                     <Input
                       type="number"
                       step="0.01"
-                      {...register("amount", { required: "Amount is required", min: 0 })}
+                      {...register("amount", {
+                        required: "Amount is required",
+                        min: 0,
+                      })}
                     />
                     {errors.amount && (
                       <Text fontSize="xs" color="red.500" mt={1}>
@@ -392,7 +438,9 @@ function CreateTransactionFromEmailModal({
                   </Box>
 
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Merchant</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Merchant
+                    </Text>
                     <Input
                       {...register("merchant")}
                       placeholder="Enter merchant name"
@@ -400,9 +448,13 @@ function CreateTransactionFromEmailModal({
                   </Box>
 
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Account</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Account
+                    </Text>
                     <select
-                      {...register("account_id", { required: "Account is required" })}
+                      {...register("account_id", {
+                        required: "Account is required",
+                      })}
                       style={{
                         width: "100%",
                         padding: "8px",
@@ -426,7 +478,9 @@ function CreateTransactionFromEmailModal({
                   </Box>
 
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Category</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Category
+                    </Text>
                     <select
                       {...register("category_id")}
                       style={{
@@ -447,7 +501,9 @@ function CreateTransactionFromEmailModal({
                   </Box>
 
                   <Box>
-                    <Text fontSize="sm" fontWeight="medium" mb={1}>Note</Text>
+                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                      Note
+                    </Text>
                     <Input
                       {...register("note")}
                       placeholder="Enter transaction note"
@@ -458,14 +514,18 @@ function CreateTransactionFromEmailModal({
             </Dialog.Body>
 
             <Dialog.Footer>
-              <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 colorScheme="blue"
-                disabled={!isValid || isSubmitting}
-                loading={isSubmitting}
+                disabled={!isValid || createTransactionFromEmailMutation.isPending}
+                loading={createTransactionFromEmailMutation.isPending}
               >
                 Create Transaction
               </Button>
@@ -546,17 +606,17 @@ function EmailTransactionRow({
         <VStack align="start" gap={1}>
           <HStack gap={2} align="start">
             {transaction.status === "processed" && (
-              <FiCheck 
-                style={{ 
-                  color: "#16a34a", 
+              <FiCheck
+                style={{
+                  color: "#16a34a",
                   marginTop: "2px",
-                  fontSize: "14px"
-                }} 
+                  fontSize: "14px",
+                }}
               />
             )}
-            <Text 
-              fontSize="sm" 
-              fontWeight="medium" 
+            <Text
+              fontSize="sm"
+              fontWeight="medium"
               color={transaction.status === "processed" ? "green.700" : "black"}
               title={transaction.subject}
               style={{
@@ -566,20 +626,22 @@ function EmailTransactionRow({
                 overflow: "hidden",
                 lineHeight: "1.2",
                 maxHeight: "2.4em",
-                flex: 1
+                flex: 1,
               }}
             >
               {transaction.subject}
             </Text>
           </HStack>
-          <Text 
-            fontSize="xs" 
-            color={transaction.status === "processed" ? "green.600" : "gray.500"}
+          <Text
+            fontSize="xs"
+            color={
+              transaction.status === "processed" ? "green.600" : "gray.500"
+            }
             title={transaction.sender}
             style={{
               overflow: "hidden",
               textOverflow: "ellipsis",
-              whiteSpace: "nowrap"
+              whiteSpace: "nowrap",
             }}
           >
             {transaction.sender}
@@ -587,19 +649,22 @@ function EmailTransactionRow({
         </VStack>
       </Table.Cell>
       <Table.Cell w="120px">
-        <Text fontSize="sm" color={transaction.status === "processed" ? "green.700" : "black"}>
+        <Text
+          fontSize="sm"
+          color={transaction.status === "processed" ? "green.700" : "black"}
+        >
           {formatAmount(transaction.amount)}
         </Text>
       </Table.Cell>
       <Table.Cell maxW="150px">
-        <Text 
-          fontSize="sm" 
+        <Text
+          fontSize="sm"
           color={transaction.status === "processed" ? "green.700" : "black"}
           title={transaction.merchant || "-"}
           style={{
             overflow: "hidden",
             textOverflow: "ellipsis",
-            whiteSpace: "nowrap"
+            whiteSpace: "nowrap",
           }}
         >
           {transaction.merchant || "-"}
@@ -622,15 +687,17 @@ function EmailTransactionRow({
       <Table.Cell w="140px">
         <select
           value={transaction.category_id || ""}
-          onChange={(e) => onAssignCategory(transaction.id, e.target.value || null)}
-          style={{ 
-            height: 28, 
-            paddingInline: 4, 
+          onChange={(e) =>
+            onAssignCategory(transaction.id, e.target.value || null)
+          }
+          style={{
+            height: 28,
+            paddingInline: 4,
             width: "100%",
             fontSize: "12px",
             border: "1px solid #e2e8f0",
             borderRadius: 4,
-            backgroundColor: "white"
+            backgroundColor: "white",
           }}
         >
           <option value="">No Category</option>
@@ -642,7 +709,10 @@ function EmailTransactionRow({
         </select>
       </Table.Cell>
       <Table.Cell w="140px">
-        <Text fontSize="sm" color={transaction.status === "processed" ? "green.600" : "gray.500"}>
+        <Text
+          fontSize="sm"
+          color={transaction.status === "processed" ? "green.600" : "gray.500"}
+        >
           {formatDate(transaction.received_at)}
         </Text>
       </Table.Cell>
@@ -698,44 +768,15 @@ function getEmailTransactionsQueryOptions({
     ],
     queryFn: async () => {
       if (connectionId === "all") {
-        // Get all user's connections and fetch transactions
-        const connectionsResponse = await GmailService.getGmailConnections()
-        if (!connectionsResponse.data.length) {
-          return { data: [], count: 0 }
-        }
-
-        const allTransactions = []
-        let totalCount = 0
-
-        for (const connection of connectionsResponse.data) {
-          const response = await GmailService.getEmailTransactions({
-            connectionId: connection.id,
-            skip: 0,
-            limit: 10000, // Get all transactions from this connection
-            status: statusFilter === "all" ? undefined : statusFilter,
-            sortBy,
-          })
-          allTransactions.push(...response.data)
-          totalCount += response.count
-        }
-
-        // Sort all transactions
-        if (sortBy === "amount_desc") {
-          allTransactions.sort((a, b) => (b.amount || 0) - (a.amount || 0))
-        } else if (sortBy === "amount_asc") {
-          allTransactions.sort((a, b) => (a.amount || 0) - (b.amount || 0))
-        } else {
-          allTransactions.sort(
-            (a, b) =>
-              new Date(b.received_at).getTime() -
-              new Date(a.received_at).getTime(),
-          )
-        }
-
-        // Apply pagination
-        const paginatedTransactions = allTransactions.slice(skip, skip + limit)
-
-        return { data: paginatedTransactions, count: totalCount }
+        // Use backend pagination for all connections
+        const response = await GmailService.getEmailTransactions({
+          // connectionId: undefined - Backend will handle all connections when not provided
+          skip,
+          limit,
+          status: statusFilter === "all" ? undefined : statusFilter,
+          sortBy,
+        })
+        return response
       }
       // Single connection
       const response = await GmailService.getEmailTransactions({
@@ -754,29 +795,30 @@ function getEmailTransactionsQueryOptions({
 
 // Main component that uses URL search params (similar to admin page)
 export function EmailTransactionsTable({
-  page = 1,
-  statusFilter = "all",
-  sortBy = "date_desc",
-  connectionId = "all",
+  page,
+  statusFilter,
+  sortBy,
+  connectionId,
 }: {
-  page?: number
-  statusFilter?: string
-  sortBy?: "date_desc" | "amount_desc" | "amount_asc"
-  connectionId?: string | "all"
+  page: number
+  statusFilter: string
+  sortBy: "date_desc" | "date_asc" | "amount_desc" | "amount_asc"
+  connectionId: string | "all"
 }) {
   const { showSuccessToast, showErrorToast } = useCustomToast()
   const queryClient = useQueryClient()
   const { open, onOpen, onClose } = useDisclosure()
-  const navigate = useNavigate()
+  const navigate = useNavigate({ from: "/email/transactions" })
 
-  const [currentStatusFilter, setCurrentStatusFilter] =
-    useState<string>(statusFilter)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
-  const [createTransactionModalOpen, setCreateTransactionModalOpen] = useState(false)
-  const [selectedEmailTransaction, setSelectedEmailTransaction] = useState<any>(null)
-  const [editTransactionModalOpen, setEditTransactionModalOpen] = useState(false)
-  const [selectedEditTransaction, setSelectedEditTransaction] = useState<any>(null)
-  const currentPage = page
+  const [createTransactionModalOpen, setCreateTransactionModalOpen] =
+    useState(false)
+  const [selectedEmailTransaction, setSelectedEmailTransaction] =
+    useState<any>(null)
+  const [editTransactionModalOpen, setEditTransactionModalOpen] =
+    useState(false)
+  const [selectedEditTransaction, setSelectedEditTransaction] =
+    useState<any>(null)
 
   // Load connections for filter dropdown
   const { data: connectionsData } = useQuery({
@@ -785,23 +827,18 @@ export function EmailTransactionsTable({
     staleTime: 5 * 60 * 1000,
   })
 
-  const [currentConnectionId, setCurrentConnectionId] = useState<
-    string | "all"
-  >(connectionId)
-
   // Get email transactions using the new query options function (like admin)
   const { data, isLoading, isPlaceholderData } = useQuery({
     ...getEmailTransactionsQueryOptions({
-      page: currentPage,
-      statusFilter: currentStatusFilter,
+      page,
+      statusFilter,
       sortBy,
-      connectionId: currentConnectionId,
+      connectionId,
     }),
   })
 
   const transactions = data?.data || []
   const totalCount = data?.count || 0
-  const totalPages = Math.ceil(totalCount / 20)
 
   // Load categories for assignment
   const { data: categoriesData } = useQuery({
@@ -868,65 +905,40 @@ export function EmailTransactionsTable({
     setCreateTransactionModalOpen(true)
   }
 
-  const handleAssignCategory = (transactionId: string, categoryId: string | null) => {
+  const handleAssignCategory = (
+    transactionId: string,
+    categoryId: string | null,
+  ) => {
     assignCategoryMutation.mutate({ transactionId, categoryId })
   }
 
-  const handleStatusFilterChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
+  const setPage = (newPage: number) => {
+    navigate({
+      to: "/email/transactions",
+      search: (prev) => ({ ...prev, page: newPage }),
+    })
+  }
+
+  const setStatusFilter = (newStatusFilter: string) => {
+    navigate({
+      to: "/email/transactions",
+      search: (prev) => ({ ...prev, statusFilter: newStatusFilter, page: 1 }),
+    })
+  }
+
+  const setSortBy = (
+    newSortBy: "date_desc" | "date_asc" | "amount_desc" | "amount_asc",
   ) => {
-    const newStatusFilter = e.target.value
-    setCurrentStatusFilter(newStatusFilter)
     navigate({
       to: "/email/transactions",
-      search: {
-        page: 1,
-        statusFilter: newStatusFilter,
-        sortBy,
-        connectionId: currentConnectionId,
-      },
+      search: (prev) => ({ ...prev, sortBy: newSortBy, page: 1 }),
     })
   }
 
-  const handleSortByChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSortBy = e.target.value as
-      | "date_desc"
-      | "amount_desc"
-      | "amount_asc"
+  const setConnectionId = (newConnectionId: string | "all") => {
     navigate({
       to: "/email/transactions",
-      search: {
-        page: 1,
-        statusFilter: currentStatusFilter,
-        sortBy: newSortBy,
-        connectionId: currentConnectionId,
-      },
-    })
-  }
-
-  const handleConnectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newConnectionId = e.target.value
-    setCurrentConnectionId(newConnectionId as string | "all")
-    navigate({
-      to: "/email/transactions",
-      search: {
-        page: 1,
-        statusFilter: currentStatusFilter,
-        sortBy,
-        connectionId: newConnectionId,
-      },
-    })
-  }
-
-  const handlePageChange = (newPage: number) => {
-    navigate({
-      to: "/email/transactions",
-      search: {
-        page: newPage,
-        statusFilter: currentStatusFilter,
-        sortBy,
-        connectionId: currentConnectionId,
-      },
+      search: (prev) => ({ ...prev, connectionId: newConnectionId, page: 1 }),
     })
   }
 
@@ -953,8 +965,10 @@ export function EmailTransactionsTable({
             <Heading size="md">Email Transactions</Heading>
             <HStack gap={2}>
               <select
-                value={currentConnectionId}
-                onChange={handleConnectionChange}
+                value={connectionId}
+                onChange={(e) =>
+                  setConnectionId(e.target.value as string | "all")
+                }
                 style={{ height: 32, paddingInline: 8, minWidth: 200 }}
               >
                 <option value="all">All Connections</option>
@@ -965,8 +979,8 @@ export function EmailTransactionsTable({
                 ))}
               </select>
               <select
-                value={currentStatusFilter}
-                onChange={handleStatusFilterChange}
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
                 style={{ height: 32, paddingInline: 8, minWidth: 150 }}
               >
                 <option value="all">All Status</option>
@@ -976,7 +990,15 @@ export function EmailTransactionsTable({
               </select>
               <select
                 value={sortBy}
-                onChange={handleSortByChange}
+                onChange={(e) =>
+                  setSortBy(
+                    e.target.value as
+                      | "date_desc"
+                      | "date_asc"
+                      | "amount_desc"
+                      | "amount_asc",
+                  )
+                }
                 style={{ height: 32, paddingInline: 8, minWidth: 150 }}
               >
                 <option value="date_desc">Date (Newest)</option>
@@ -1024,53 +1046,26 @@ export function EmailTransactionsTable({
               </Table.Root>
 
               {/* Pagination */}
-              {totalPages > 1 && (
-                <Flex justify="center" mt={4} gap={2}>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handlePageChange(1)}
-                    disabled={currentPage === 1}
-                  >
-                    First
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </Button>
-                  <Text mx={4} alignSelf="center">
-                    Page {currentPage} of {totalPages}
-                  </Text>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handlePageChange(totalPages)}
-                    disabled={currentPage === totalPages}
-                  >
-                    Last
-                  </Button>
-                </Flex>
-              )}
+              <Flex justifyContent="flex-end" mt={4}>
+                <PaginationRoot
+                  count={totalCount}
+                  pageSize={20}
+                  onPageChange={({ page }) => setPage(page)}
+                >
+                  <Flex>
+                    <PaginationPrevTrigger />
+                    <PaginationItems />
+                    <PaginationNextTrigger />
+                  </Flex>
+                </PaginationRoot>
+              </Flex>
 
               {/* Summary */}
               <Box mt={4} p={3} bg="gray.50" borderRadius="md">
                 <Text fontSize="sm" color="gray.600">
                   Showing {transactions.length} of {totalCount} transactions
-                  {currentStatusFilter !== "all" &&
-                    ` (filtered by ${currentStatusFilter})`}
-                  {currentConnectionId !== "all" && " (single connection)"}
+                  {statusFilter !== "all" && ` (filtered by ${statusFilter})`}
+                  {connectionId !== "all" && " (single connection)"}
                 </Text>
                 {allEmailsProcessed && (
                   <Text fontSize="sm" color="green.600" mt={1}>
@@ -1151,7 +1146,9 @@ export function EmailTransactionsTable({
                         borderRadius="md"
                         maxH="400px"
                         overflowY="auto"
-                        dangerouslySetInnerHTML={{ __html: selectedTransaction.raw_content }}
+                        dangerouslySetInnerHTML={{
+                          __html: selectedTransaction.raw_content,
+                        }}
                       />
                     </Box>
                   )}

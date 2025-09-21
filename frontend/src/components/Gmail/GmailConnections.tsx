@@ -356,7 +356,15 @@ export function GmailConnections() {
         <HStack>
           {connections && connections.data.length > 0 && (
             <Button asChild variant="outline">
-              <RouterLink to="/email/transactions" search={{ page: 1 }}>
+              <RouterLink
+                to="/email/transactions"
+                search={{
+                  page: 1,
+                  statusFilter: "all",
+                  sortBy: "date_desc",
+                  connectionId: "all",
+                }}
+              >
                 View Emails
               </RouterLink>
             </Button>
