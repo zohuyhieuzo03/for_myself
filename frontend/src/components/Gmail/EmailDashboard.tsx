@@ -3,15 +3,17 @@ import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 
 import { GmailService } from "@/client"
+import DateRangePicker from "@/components/Common/DateRangePicker"
 import TransactionDashboard from "@/components/Common/TransactionDashboard"
 
 type FilterType = "all" | "month" | "last7" | "last30" | "custom"
 
 export default function EmailDashboard() {
   const [filterType, setFilterType] = useState<FilterType>("all")
-  const [year, setYear] = useState<number | "all">("all")
-  const [month, setMonth] = useState<number | "all">("all")
+  const [selectedMonth, setSelectedMonth] = useState<string>("")
   const [selectedConnectionId, setSelectedConnectionId] = useState<string>("")
+  const [startDate, setStartDate] = useState<string>("")
+  const [endDate, setEndDate] = useState<string>("")
 
   const { data: connections } = useQuery({
     queryKey: ["gmail-connections"],
@@ -46,7 +48,7 @@ export default function EmailDashboard() {
   })
 
   // Transform email transactions to match TransactionDashboard format
-  const transactions =
+  const allTransactions =
     emailTransactions?.data?.map((tx: any) => ({
       amount: tx.amount || 0,
       category: tx.category_name || "Uncategorized",
@@ -57,6 +59,37 @@ export default function EmailDashboard() {
       subject: tx.subject,
       // All currencies (VND, VNDR, VNF) are displayed as VND
     })) || []
+
+  // Filter transactions based on selected filters
+  const transactions = allTransactions.filter((tx: any) => {
+    const txDate = new Date(tx.received_at)
+    const now = new Date()
+
+    switch (filterType) {
+      case "last7": {
+        const last7Days = new Date()
+        last7Days.setDate(now.getDate() - 6)
+        return txDate >= last7Days
+      }
+      case "last30": {
+        const last30Days = new Date()
+        last30Days.setDate(now.getDate() - 29)
+        return txDate >= last30Days
+      }
+      case "month":
+        if (!selectedMonth) return true
+        const selectedDate = new Date(selectedMonth)
+        return (
+          txDate.getFullYear() === selectedDate.getFullYear() &&
+          txDate.getMonth() === selectedDate.getMonth()
+        )
+      case "custom":
+        if (!startDate || !endDate) return true
+        return txDate >= new Date(startDate) && txDate <= new Date(endDate)
+      default:
+        return true
+    }
+  })
 
   // Prepare chart data for monthly totals
   const chartData = transactions
@@ -76,79 +109,69 @@ export default function EmailDashboard() {
     a.label.localeCompare(b.label),
   ) as Array<{ label: string; value: number }>
 
-  const years = Array.from(
-    { length: 6 },
-    (_, i) => new Date().getFullYear() - i,
+
+  const DateRangeControls = (
+    <HStack gap={3}>
+      <select
+        value={selectedConnectionId}
+        onChange={(e) => setSelectedConnectionId(e.target.value)}
+        style={{ height: 32, paddingInline: 8, minWidth: 200 }}
+      >
+        <option value="">Select Connection</option>
+        {connections?.data?.map((conn: any) => (
+          <option key={conn.id} value={conn.id}>
+            {conn.gmail_email}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={filterType}
+        onChange={(e) => setFilterType(e.target.value as FilterType)}
+        style={{ height: 32, paddingInline: 8 }}
+      >
+        <option value="all">All time</option>
+        <option value="month">By month</option>
+        <option value="last7">Last 7 days</option>
+        <option value="last30">Last 30 days</option>
+        <option value="custom">Custom range</option>
+      </select>
+
+      {filterType === "month" && (
+        <input
+          type="month"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          style={{
+            height: 32,
+            paddingInline: 8,
+            border: "1px solid #e2e8f0",
+            borderRadius: 6,
+            fontSize: 14,
+            minWidth: 140,
+            backgroundColor: "white",
+            color: "inherit",
+          }}
+        />
+      )}
+
+      {filterType === "custom" && (
+        <DateRangePicker
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          disabled={false}
+        />
+      )}
+    </HStack>
   )
-
-
-  function DateRangeControls() {
-    return (
-      <HStack gap={3}>
-        <select
-          value={selectedConnectionId}
-          onChange={(e) => setSelectedConnectionId(e.target.value)}
-          style={{ height: 32, paddingInline: 8, minWidth: 200 }}
-        >
-          <option value="">Select Connection</option>
-          {connections?.data?.map((conn: any) => (
-            <option key={conn.id} value={conn.id}>
-              {conn.gmail_email}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value as FilterType)}
-          style={{ height: 32, paddingInline: 8 }}
-        >
-          <option value="all">All time</option>
-          <option value="month">By month</option>
-          <option value="last7">Last 7 days</option>
-          <option value="last30">Last 30 days</option>
-        </select>
-
-        <select
-          value={year}
-          onChange={(e) =>
-            setYear(e.target.value === "all" ? "all" : Number(e.target.value))
-          }
-          style={{ width: 120, height: 32, paddingInline: 8 }}
-          disabled={filterType !== "month" && filterType !== "all"}
-        >
-          <option value="all">All years</option>
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={month}
-          onChange={(e) =>
-            setMonth(e.target.value === "all" ? "all" : Number(e.target.value))
-          }
-          style={{ width: 140, height: 32, paddingInline: 8 }}
-          disabled={filterType !== "month"}
-        >
-          <option value="all">All months</option>
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-            <option key={m} value={m}>
-              {m.toString().padStart(2, "0")}
-            </option>
-          ))}
-        </select>
-      </HStack>
-    )
-  }
 
   return (
     <Container maxW="6xl" py={6}>
       <HStack justify="space-between" mb={4}>
         <Heading size="lg">Email Transactions Dashboard</Heading>
-        <DateRangeControls />
+        {DateRangeControls}
       </HStack>
 
       <VStack gap={6} align="stretch">
@@ -161,6 +184,8 @@ export default function EmailDashboard() {
           showRecentTransactions={true}
           showMonthlyChart={true}
           monthlyData={monthlyData}
+          showAveragePerDay={filterType !== "all"}
+          filterType={filterType}
         />
       </VStack>
     </Container>

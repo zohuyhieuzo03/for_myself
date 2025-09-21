@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
 
 import { AccountsService, TransactionsService } from "@/client"
+import DateRangePicker from "@/components/Common/DateRangePicker"
 import TransactionDashboard from "@/components/Common/TransactionDashboard"
 
 export const Route = createFileRoute("/_layout/finance/transactions-dashboard")(
@@ -17,10 +18,11 @@ type TransactionType = "all" | "expense" | "income"
 
 function TransactionsDashboardPage() {
   const [filterType, setFilterType] = useState<FilterType>("all")
-  const [year, setYear] = useState<number | "all">("all")
-  const [month, setMonth] = useState<number | "all">("all")
+  const [selectedMonth, setSelectedMonth] = useState<string>("")
   const [selectedAccountId, setSelectedAccountId] = useState<string>("")
   const [transactionType, setTransactionType] = useState<TransactionType>("all")
+  const [startDate, setStartDate] = useState<string>("")
+  const [endDate, setEndDate] = useState<string>("")
 
   const {
     data: transactions,
@@ -68,9 +70,15 @@ function TransactionsDashboardPage() {
           return txDate >= last30Days
         }
         case "month":
-          if (year !== "all" && txDate.getFullYear() !== year) return false
-          if (month !== "all" && txDate.getMonth() + 1 !== month) return false
-          return true
+          if (!selectedMonth) return true
+          const selectedDate = new Date(selectedMonth)
+          return (
+            txDate.getFullYear() === selectedDate.getFullYear() &&
+            txDate.getMonth() === selectedDate.getMonth()
+          )
+        case "custom":
+          if (!startDate || !endDate) return true
+          return txDate >= new Date(startDate) && txDate <= new Date(endDate)
         default:
           return true
       }
@@ -126,30 +134,9 @@ function TransactionsDashboardPage() {
     a.label.localeCompare(b.label),
   ) as Array<{ label: string; value: number }>
 
-  const years = Array.from(
-    { length: 6 },
-    (_, i) => new Date().getFullYear() - i,
-  )
 
-  // Determine days to show based on filter type
-  const getDaysToShow = () => {
-    switch (filterType) {
-      case "last7":
-        return 7
-      case "last30":
-        return 30
-      case "month":
-        return 30 // Default to 30 days for month view
-      case "all":
-        return 30 // Default to 30 days for all time
-      default:
-        return 30
-    }
-  }
-
-  function FilterControls() {
-    return (
-      <HStack gap={3}>
+  const FilterControls = (
+    <HStack gap={3}>
         <select
           value={selectedAccountId}
           onChange={(e) => setSelectedAccountId(e.target.value)}
@@ -184,49 +171,45 @@ function TransactionsDashboardPage() {
           <option value="month">By month</option>
           <option value="last7">Last 7 days</option>
           <option value="last30">Last 30 days</option>
+          <option value="custom">Custom range</option>
         </select>
 
-        <select
-          value={year}
-          onChange={(e) =>
-            setYear(e.target.value === "all" ? "all" : Number(e.target.value))
-          }
-          style={{ width: 120, height: 32, paddingInline: 8 }}
-          disabled={filterType !== "month" && filterType !== "all"}
-        >
-          <option value="all">All years</option>
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
+        {filterType === "month" && (
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            style={{
+              height: 32,
+              paddingInline: 8,
+              border: "1px solid #e2e8f0",
+              borderRadius: 6,
+              fontSize: 14,
+              minWidth: 140,
+              backgroundColor: "white",
+              color: "inherit",
+            }}
+          />
+        )}
 
-        <select
-          value={month}
-          onChange={(e) =>
-            setMonth(e.target.value === "all" ? "all" : Number(e.target.value))
-          }
-          style={{ width: 140, height: 32, paddingInline: 8 }}
-          disabled={filterType !== "month"}
-        >
-          <option value="all">All months</option>
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-            <option key={m} value={m}>
-              {m.toString().padStart(2, "0")}
-            </option>
-          ))}
-        </select>
-      </HStack>
-    )
-  }
+        {filterType === "custom" && (
+          <DateRangePicker
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={setStartDate}
+            onEndDateChange={setEndDate}
+            disabled={false}
+          />
+        )}
+    </HStack>
+  )
 
   return (
     <Container maxW="full">
       <VStack gap={6} align="stretch">
         <HStack justify="space-between" align="center">
           <Heading>Transaction Dashboard</Heading>
-          <FilterControls />
+          {FilterControls}
         </HStack>
 
         <TransactionDashboard
@@ -237,7 +220,8 @@ function TransactionsDashboardPage() {
           showRecentTransactions={true}
           showMonthlyChart={true}
           monthlyData={monthlyData}
-          daysToShow={getDaysToShow()}
+          showAveragePerDay={filterType !== "all"}
+          filterType={filterType}
         />
       </VStack>
     </Container>
