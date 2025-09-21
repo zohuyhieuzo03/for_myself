@@ -241,13 +241,13 @@ export type PrivateUserCreate = {
 export type TodoCreate = {
     title: string;
     description?: (string | null);
-    is_completed?: boolean;
+    status?: TodoStatus;
 };
 
 export type TodoPublic = {
     title: string;
     description?: (string | null);
-    is_completed?: boolean;
+    status?: TodoStatus;
     id: string;
     owner_id: string;
     created_at: string;
@@ -259,10 +259,12 @@ export type TodosPublic = {
     count: number;
 };
 
+export type TodoStatus = 'backlog' | 'todo' | 'planning' | 'done' | 'archived';
+
 export type TodoUpdate = {
     title?: (string | null);
     description?: (string | null);
-    is_completed?: (boolean | null);
+    status?: (TodoStatus | null);
 };
 
 export type Token = {

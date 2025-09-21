@@ -1178,10 +1178,9 @@ export const TodoCreateSchema = {
             ],
             title: 'Description'
         },
-        is_completed: {
-            type: 'boolean',
-            title: 'Is Completed',
-            default: false
+        status: {
+            '$ref': '#/components/schemas/TodoStatus',
+            default: 'todo'
         }
     },
     type: 'object',
@@ -1209,10 +1208,9 @@ export const TodoPublicSchema = {
             ],
             title: 'Description'
         },
-        is_completed: {
-            type: 'boolean',
-            title: 'Is Completed',
-            default: false
+        status: {
+            '$ref': '#/components/schemas/TodoStatus',
+            default: 'todo'
         },
         id: {
             type: 'string',
@@ -1238,6 +1236,12 @@ export const TodoPublicSchema = {
     type: 'object',
     required: ['title', 'id', 'owner_id', 'created_at', 'updated_at'],
     title: 'TodoPublic'
+} as const;
+
+export const TodoStatusSchema = {
+    type: 'string',
+    enum: ['backlog', 'todo', 'planning', 'done', 'archived'],
+    title: 'TodoStatus'
 } as const;
 
 export const TodoUpdateSchema = {
@@ -1267,16 +1271,15 @@ export const TodoUpdateSchema = {
             ],
             title: 'Description'
         },
-        is_completed: {
+        status: {
             anyOf: [
                 {
-                    type: 'boolean'
+                    '$ref': '#/components/schemas/TodoStatus'
                 },
                 {
                     type: 'null'
                 }
-            ],
-            title: 'Is Completed'
+            ]
         }
     },
     type: 'object',

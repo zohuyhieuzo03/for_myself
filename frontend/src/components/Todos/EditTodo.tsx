@@ -46,7 +46,7 @@ const EditTodo = ({ todo }: EditTodoProps) => {
     defaultValues: {
       title: todo.title,
       description: todo.description || "",
-      is_completed: todo.is_completed || false,
+      status: todo.status || "todo",
     },
   })
 
@@ -119,11 +119,26 @@ const EditTodo = ({ todo }: EditTodoProps) => {
               </Field>
 
               <Field
-                invalid={!!errors.is_completed}
-                errorText={errors.is_completed?.message}
-                label="Completed"
+                invalid={!!errors.status}
+                errorText={errors.status?.message}
+                label="Status"
               >
-                <input type="checkbox" {...register("is_completed")} />
+                <select
+                  {...register("status")}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                  }}
+                >
+                  <option value="backlog">Backlog</option>
+                  <option value="todo">Todo</option>
+                  <option value="planning">Planning</option>
+                  <option value="done">Done</option>
+                  <option value="archived">Archived</option>
+                </select>
               </Field>
             </VStack>
           </DialogBody>

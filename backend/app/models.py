@@ -132,11 +132,41 @@ class NewPassword(SQLModel):
     new_password: str = Field(min_length=8, max_length=40)
 
 
+# ========= ENUMS =========
+class AccountType(str, Enum):
+    cash = "cash"
+    bank = "bank"
+    ewallet = "ewallet"
+    investment = "investment"
+    credit_card = "credit_card"
+    other = "other"
+
+
+class TxnType(str, Enum):
+    expense = "out"
+    income = "in"
+
+
+class CategoryGroup(str, Enum):
+    needs = "needs"
+    wants = "wants"
+    savings_debt = "savings_debt"
+    income = "income"
+
+
+class TodoStatus(str, Enum):
+    backlog = "backlog"
+    todo = "todo"
+    planning = "planning"
+    done = "done"
+    archived = "archived"
+
+
 # Shared properties for Todo
 class TodoBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=500)
-    is_completed: bool = Field(default=False)
+    status: TodoStatus = Field(default=TodoStatus.todo)
 
 
 # Properties to receive on todo creation
@@ -148,7 +178,7 @@ class TodoCreate(TodoBase):
 class TodoUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=500)
-    is_completed: bool | None = Field(default=None)
+    status: TodoStatus | None = None
 
 
 # Database model, database table inferred from class name
@@ -173,28 +203,6 @@ class TodoPublic(TodoBase):
 class TodosPublic(SQLModel):
     data: list[TodoPublic]
     count: int
-
-
-# ========= ENUMS =========
-class AccountType(str, Enum):
-    cash = "cash"
-    bank = "bank"
-    ewallet = "ewallet"
-    investment = "investment"
-    credit_card = "credit_card"
-    other = "other"
-
-
-class TxnType(str, Enum):
-    expense = "out"
-    income = "in"
-
-
-class CategoryGroup(str, Enum):
-    needs = "needs"
-    wants = "wants"
-    savings_debt = "savings_debt"
-    income = "income"
 
 
 # ========= ACCOUNT =========

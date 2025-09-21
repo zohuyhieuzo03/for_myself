@@ -12,7 +12,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { FiCheckSquare } from "react-icons/fi"
 import { z } from "zod"
 
-import { TodosService, type TodoUpdate } from "@/client"
+import { TodosService, type TodoUpdate, type TodoStatus } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import PendingTodos from "@/components/Pending/PendingTodos"
 import AddTodo from "@/components/Todos/AddTodo"
@@ -57,11 +57,11 @@ function TodosTable() {
     placeholderData: (prevData) => prevData,
   })
 
-  const toggleTodoMutation = useMutation({
-    mutationFn: ({ id, is_completed }: { id: string; is_completed: boolean }) =>
+  const updateTodoStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: TodoStatus }) =>
       TodosService.updateTodoEndpoint({
         id,
-        requestBody: { is_completed } as TodoUpdate,
+        requestBody: { status } as TodoUpdate,
       }),
     onSuccess: () => {
       showSuccessToast("Todo status updated successfully.")
@@ -74,8 +74,9 @@ function TodosTable() {
     },
   })
 
-  const handleToggleTodo = (id: string, currentStatus: boolean) => {
-    toggleTodoMutation.mutate({ id, is_completed: !currentStatus })
+  const handleToggleTodo = (id: string, currentStatus: TodoStatus) => {
+    const newStatus = currentStatus === "done" ? "todo" : "done"
+    updateTodoStatusMutation.mutate({ id, status: newStatus })
   }
 
   const setPage = (page: number) => {
@@ -130,11 +131,11 @@ function TodosTable() {
             <Table.Row key={todo.id} opacity={isPlaceholderData ? 0.5 : 1}>
               <Table.Cell>
                 <Checkbox
-                  checked={todo.is_completed}
+                  checked={todo.status === "done"}
                   onCheckedChange={() =>
-                    handleToggleTodo(todo.id, todo.is_completed || false)
+                    handleToggleTodo(todo.id, todo.status || "todo")
                   }
-                  disabled={toggleTodoMutation.isPending}
+                  disabled={updateTodoStatusMutation.isPending}
                   colorScheme="green"
                   size="md"
                 />
@@ -154,11 +155,39 @@ function TodosTable() {
               </Table.Cell>
               <Table.Cell>
                 <Badge
-                  colorScheme={todo.is_completed ? "green" : "orange"}
-                  bg={todo.is_completed ? "green.500" : "orange.500"}
+                  colorScheme={
+                    todo.status === "done" 
+                      ? "green" 
+                      : todo.status === "archived" 
+                      ? "gray" 
+                      : todo.status === "planning"
+                      ? "blue"
+                      : todo.status === "backlog"
+                      ? "purple"
+                      : "orange"
+                  }
+                  bg={
+                    todo.status === "done" 
+                      ? "green.500" 
+                      : todo.status === "archived" 
+                      ? "gray.500" 
+                      : todo.status === "planning"
+                      ? "blue.500"
+                      : todo.status === "backlog"
+                      ? "purple.500"
+                      : "orange.500"
+                  }
                   color="white"
                 >
-                  {todo.is_completed ? "Completed" : "Pending"}
+                  {todo.status === "done" 
+                    ? "Done" 
+                    : todo.status === "archived" 
+                    ? "Archived" 
+                    : todo.status === "planning"
+                    ? "Planning"
+                    : todo.status === "backlog"
+                    ? "Backlog"
+                    : "Todo"}
                 </Badge>
               </Table.Cell>
               <Table.Cell truncate maxW="sm">

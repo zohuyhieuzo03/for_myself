@@ -11,7 +11,7 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaPlus } from "react-icons/fa"
 
-import { type TodoCreate, TodosService } from "@/client"
+import { type TodoCreate, TodosService, type TodoStatus } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -41,7 +41,7 @@ const AddTodo = () => {
     defaultValues: {
       title: "",
       description: "",
-      is_completed: false,
+      status: "todo" as TodoStatus,
     },
   })
 
@@ -114,11 +114,26 @@ const AddTodo = () => {
               </Field>
 
               <Field
-                invalid={!!errors.is_completed}
-                errorText={errors.is_completed?.message}
-                label="Completed"
+                invalid={!!errors.status}
+                errorText={errors.status?.message}
+                label="Status"
               >
-                <input type="checkbox" {...register("is_completed")} />
+                <select
+                  {...register("status")}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                  }}
+                >
+                  <option value="backlog">Backlog</option>
+                  <option value="todo">Todo</option>
+                  <option value="planning">Planning</option>
+                  <option value="done">Done</option>
+                  <option value="archived">Archived</option>
+                </select>
               </Field>
             </VStack>
           </DialogBody>
