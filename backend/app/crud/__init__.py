@@ -27,13 +27,6 @@ from .category import (
     get_categories,
     update_category,
 )
-from .income import (
-    create_income,
-    delete_income,
-    get_income,
-    get_incomes,
-    update_income,
-)
 from .transaction import (
     create_transaction,
     delete_transaction,
@@ -106,12 +99,6 @@ __all__ = [
     "get_category",
     "get_categories",
     "update_category",
-    # Income functions
-    "create_income",
-    "delete_income",
-    "get_income",
-    "get_incomes",
-    "update_income",
     # Transaction functions
     "create_transaction",
     "delete_transaction",

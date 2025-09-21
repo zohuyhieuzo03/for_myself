@@ -11,10 +11,8 @@ from app.models import (
     MonthlyFinancialReport, 
     MonthlyFinancialSummary, 
     MonthlyFinancialReports,
-    Income, 
     Transaction, 
     AllocationRule,
-    IncomePublic,
     TransactionPublic,
     AllocationRulePublic,
     User,
@@ -46,15 +44,6 @@ def get_monthly_financial_summary(
     else:
         end_date = date(year, month + 1, 1)
     
-    # Get incomes for the month
-    income_statement = (
-        select(Income)
-        .where(Income.user_id == current_user.id)
-        .where(Income.received_at >= start_date)
-        .where(Income.received_at < end_date)
-    )
-    incomes = db.exec(income_statement).all()
-    
     # Get transactions for the month
     transaction_statement = (
         select(Transaction)
@@ -64,8 +53,11 @@ def get_monthly_financial_summary(
     )
     transactions = db.exec(transaction_statement).all()
     
+    # Get income transactions for the month
+    income_transactions = [txn for txn in transactions if txn.type == TxnType.income]
+    
     # Calculate totals
-    total_income = sum(income.amount for income in incomes)
+    total_income = sum(txn.amount for txn in transactions if txn.type == TxnType.income)
     total_expenses = sum(txn.amount for txn in transactions if txn.type == TxnType.expense)
     net_amount = total_income - total_expenses
     
@@ -98,7 +90,7 @@ def get_monthly_financial_summary(
         total_income=total_income,
         total_expenses=total_expenses,
         net_amount=net_amount,
-        income_count=len(incomes),
+        income_count=len(income_transactions),
         expense_count=len([t for t in transactions if t.type == TxnType.expense]),
         category_breakdown=category_breakdown,
         account_breakdown=account_breakdown
@@ -127,15 +119,6 @@ def get_monthly_financial_report(
     else:
         end_date = date(year, month + 1, 1)
     
-    # Get incomes for the month
-    income_statement = (
-        select(Income)
-        .where(Income.user_id == current_user.id)
-        .where(Income.received_at >= start_date)
-        .where(Income.received_at < end_date)
-    )
-    incomes = db.exec(income_statement).all()
-    
     # Get transactions for the month
     transaction_statement = (
         select(Transaction)
@@ -144,6 +127,9 @@ def get_monthly_financial_report(
         .where(Transaction.txn_date < end_date)
     )
     transactions = db.exec(transaction_statement).all()
+    
+    # Get income transactions for the month
+    income_transactions = [txn for txn in transactions if txn.type == TxnType.income]
     
     # Get allocation rules (global ones, not sprint-specific)
     allocation_statement = (
@@ -154,7 +140,7 @@ def get_monthly_financial_report(
     allocation_rules = db.exec(allocation_statement).all()
     
     # Calculate totals
-    total_income = sum(income.amount for income in incomes)
+    total_income = sum(txn.amount for txn in transactions if txn.type == TxnType.income)
     total_expenses = sum(txn.amount for txn in transactions if txn.type == TxnType.expense)
     net_amount = total_income - total_expenses
     
@@ -164,9 +150,8 @@ def get_monthly_financial_report(
         total_income=total_income,
         total_expenses=total_expenses,
         net_amount=net_amount,
-        income_count=len(incomes),
+        income_count=len(income_transactions),
         expense_count=len([t for t in transactions if t.type == TxnType.expense]),
-        incomes=[IncomePublic.model_validate(income) for income in incomes],
         transactions=[TransactionPublic.model_validate(txn) for txn in transactions],
         allocation_rules=[AllocationRulePublic.model_validate(rule) for rule in allocation_rules]
     )
@@ -204,15 +189,6 @@ def get_monthly_financial_reports_range(
         else:
             end_date = date(current_year, current_month + 1, 1)
         
-        # Get incomes for the month
-        income_statement = (
-            select(Income)
-            .where(Income.user_id == current_user.id)
-            .where(Income.received_at >= start_date)
-            .where(Income.received_at < end_date)
-        )
-        incomes = db.exec(income_statement).all()
-        
         # Get transactions for the month
         transaction_statement = (
             select(Transaction)
@@ -222,8 +198,11 @@ def get_monthly_financial_reports_range(
         )
         transactions = db.exec(transaction_statement).all()
         
+        # Get income transactions for the month
+        income_transactions = [txn for txn in transactions if txn.type == TxnType.income]
+        
         # Calculate totals
-        total_income = sum(income.amount for income in incomes)
+        total_income = sum(txn.amount for txn in transactions if txn.type == TxnType.income)
         total_expenses = sum(txn.amount for txn in transactions if txn.type == TxnType.expense)
         net_amount = total_income - total_expenses
         
@@ -233,9 +212,8 @@ def get_monthly_financial_reports_range(
             total_income=total_income,
             total_expenses=total_expenses,
             net_amount=net_amount,
-            income_count=len(incomes),
+            income_count=len(income_transactions),
             expense_count=len([t for t in transactions if t.type == TxnType.expense]),
-            incomes=[IncomePublic.model_validate(income) for income in incomes],
             transactions=[TransactionPublic.model_validate(txn) for txn in transactions],
             allocation_rules=[]
         ))

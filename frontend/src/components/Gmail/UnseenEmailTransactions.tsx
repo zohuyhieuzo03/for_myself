@@ -299,13 +299,6 @@ export function UnseenEmailTransactions({
                           </Badge>
                         )
                       }
-                      if (transaction.linked_income_id) {
-                        return (
-                          <Badge colorScheme="blue" size="sm">
-                            Linked to Income
-                          </Badge>
-                        )
-                      }
                       return (
                         <Badge colorScheme="gray" size="sm">
                           Not Linked

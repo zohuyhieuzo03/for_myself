@@ -54,7 +54,6 @@ class User(UserBase, table=True):
     categories: list["Category"] = Relationship(
         back_populates="user", cascade_delete=True
     )
-    incomes: list["Income"] = Relationship(back_populates="user", cascade_delete=True)
     transactions: list["Transaction"] = Relationship(
         back_populates="user", cascade_delete=True
     )
@@ -187,8 +186,8 @@ class AccountType(str, Enum):
 
 
 class TxnType(str, Enum):
-    income = "in"
     expense = "out"
+    income = "in"
 
 
 class CategoryGroup(str, Enum):
@@ -278,46 +277,6 @@ class CategoryPublic(CategoryBase):
 
 class CategoriesPublic(SQLModel):
     data: list[CategoryPublic]
-    count: int
-
-
-# ========= INCOME =========
-class IncomeBase(SQLModel):
-    received_at: date
-    source: str = Field(max_length=255)
-    amount: float
-    currency: str = Field(default="VND", max_length=10)
-
-
-class IncomeCreate(IncomeBase):
-    pass
-
-
-class IncomeUpdate(BaseModel):
-    received_at: date | None = None
-    source: str | None = Field(default=None, max_length=255)
-    amount: float | None = None
-    currency: str | None = Field(default=None, max_length=10)
-
-
-class Income(IncomeBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-    user: User | None = Relationship(back_populates="incomes")
-
-
-class IncomePublic(IncomeBase):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    created_at: datetime
-    updated_at: datetime
-
-
-class IncomesPublic(SQLModel):
-    data: list[IncomePublic]
     count: int
 
 
@@ -425,12 +384,9 @@ class AllocationRulesPublic(SQLModel):
 class MonthlyFinancialReport(SQLModel):
     year: int
     month: int
-    total_income: float = 0.0
     total_expenses: float = 0.0
     net_amount: float = 0.0
-    income_count: int = 0
     expense_count: int = 0
-    incomes: list[IncomePublic] = []
     transactions: list[TransactionPublic] = []
     allocation_rules: list[AllocationRulePublic] = []
 
@@ -438,10 +394,8 @@ class MonthlyFinancialReport(SQLModel):
 class MonthlyFinancialSummary(SQLModel):
     year: int
     month: int
-    total_income: float = 0.0
     total_expenses: float = 0.0
     net_amount: float = 0.0
-    income_count: int = 0
     expense_count: int = 0
     category_breakdown: dict[str, float] = {}
     account_breakdown: dict[str, float] = {}
@@ -529,7 +483,6 @@ class EmailTransactionUpdate(BaseModel):
     status: EmailTransactionStatus | None = None
     seen: bool | None = None
     linked_transaction_id: uuid.UUID | None = None
-    linked_income_id: uuid.UUID | None = None
     category_id: uuid.UUID | None = None
 
 
@@ -537,14 +490,12 @@ class EmailTransaction(EmailTransactionBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     gmail_connection_id: uuid.UUID = Field(foreign_key="gmailconnection.id", nullable=False)
     linked_transaction_id: uuid.UUID | None = Field(default=None, foreign_key="transaction.id", ondelete="SET NULL")
-    linked_income_id: uuid.UUID | None = Field(default=None, foreign_key="income.id", ondelete="SET NULL")
     category_id: uuid.UUID | None = Field(default=None, foreign_key="category.id")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     gmail_connection: GmailConnection | None = Relationship(back_populates="email_transactions")
     linked_transaction: Transaction | None = Relationship()
-    linked_income: Income | None = Relationship()
     category: Category | None = Relationship()
 
 
@@ -552,7 +503,6 @@ class EmailTransactionPublic(EmailTransactionBase):
     id: uuid.UUID
     gmail_connection_id: uuid.UUID
     linked_transaction_id: uuid.UUID | None
-    linked_income_id: uuid.UUID | None
     category_id: uuid.UUID | None
     category_name: str | None = None
     created_at: datetime

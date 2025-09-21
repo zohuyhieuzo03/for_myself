@@ -12,9 +12,7 @@ from app.models import (
     Account,
     AllocationRule,
     Category,
-    Income,
     Item,
-    Sprint,
     Transaction,
     User,
 )
@@ -33,9 +31,9 @@ def db() -> Generator[Session, None, None]:
         session.execute(statement)
         statement = delete(AllocationRule)
         session.execute(statement)
-        statement = delete(Income)
-        session.execute(statement)
-        statement = delete(Sprint)
+        # Delete EmailTransaction first to avoid foreign key constraint
+        from app.models import EmailTransaction
+        statement = delete(EmailTransaction)
         session.execute(statement)
         statement = delete(Category)
         session.execute(statement)

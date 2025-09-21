@@ -549,18 +549,6 @@ export const EmailTransactionPublicSchema = {
             ],
             title: 'Linked Transaction Id'
         },
-        linked_income_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Linked Income Id'
-        },
         category_id: {
             anyOf: [
                 {
@@ -596,7 +584,7 @@ export const EmailTransactionPublicSchema = {
         }
     },
     type: 'object',
-    required: ['email_id', 'subject', 'sender', 'received_at', 'id', 'gmail_connection_id', 'linked_transaction_id', 'linked_income_id', 'category_id', 'created_at', 'updated_at'],
+    required: ['email_id', 'subject', 'sender', 'received_at', 'id', 'gmail_connection_id', 'linked_transaction_id', 'category_id', 'created_at', 'updated_at'],
     title: 'EmailTransactionPublic'
 } as const;
 
@@ -687,18 +675,6 @@ export const EmailTransactionUpdateSchema = {
                 }
             ],
             title: 'Linked Transaction Id'
-        },
-        linked_income_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Linked Income Id'
         },
         category_id: {
             anyOf: [
@@ -929,155 +905,6 @@ export const HTTPValidationErrorSchema = {
     title: 'HTTPValidationError'
 } as const;
 
-export const IncomeCreateSchema = {
-    properties: {
-        received_at: {
-            type: 'string',
-            format: 'date',
-            title: 'Received At'
-        },
-        source: {
-            type: 'string',
-            maxLength: 255,
-            title: 'Source'
-        },
-        amount: {
-            type: 'number',
-            title: 'Amount'
-        },
-        currency: {
-            type: 'string',
-            maxLength: 10,
-            title: 'Currency',
-            default: 'VND'
-        }
-    },
-    type: 'object',
-    required: ['received_at', 'source', 'amount'],
-    title: 'IncomeCreate'
-} as const;
-
-export const IncomePublicSchema = {
-    properties: {
-        received_at: {
-            type: 'string',
-            format: 'date',
-            title: 'Received At'
-        },
-        source: {
-            type: 'string',
-            maxLength: 255,
-            title: 'Source'
-        },
-        amount: {
-            type: 'number',
-            title: 'Amount'
-        },
-        currency: {
-            type: 'string',
-            maxLength: 10,
-            title: 'Currency',
-            default: 'VND'
-        },
-        id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Id'
-        },
-        user_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'User Id'
-        },
-        created_at: {
-            type: 'string',
-            format: 'date-time',
-            title: 'Created At'
-        },
-        updated_at: {
-            type: 'string',
-            format: 'date-time',
-            title: 'Updated At'
-        }
-    },
-    type: 'object',
-    required: ['received_at', 'source', 'amount', 'id', 'user_id', 'created_at', 'updated_at'],
-    title: 'IncomePublic'
-} as const;
-
-export const IncomeUpdateSchema = {
-    properties: {
-        received_at: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'date'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Received At'
-        },
-        source: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Source'
-        },
-        amount: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Amount'
-        },
-        currency: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 10
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Currency'
-        }
-    },
-    type: 'object',
-    title: 'IncomeUpdate'
-} as const;
-
-export const IncomesPublicSchema = {
-    properties: {
-        data: {
-            items: {
-                '$ref': '#/components/schemas/IncomePublic'
-            },
-            type: 'array',
-            title: 'Data'
-        },
-        count: {
-            type: 'integer',
-            title: 'Count'
-        }
-    },
-    type: 'object',
-    required: ['data', 'count'],
-    title: 'IncomesPublic'
-} as const;
-
 export const ItemCreateSchema = {
     properties: {
         title: {
@@ -1201,11 +1028,6 @@ export const MonthlyFinancialReportSchema = {
             type: 'integer',
             title: 'Month'
         },
-        total_income: {
-            type: 'number',
-            title: 'Total Income',
-            default: 0
-        },
         total_expenses: {
             type: 'number',
             title: 'Total Expenses',
@@ -1216,23 +1038,10 @@ export const MonthlyFinancialReportSchema = {
             title: 'Net Amount',
             default: 0
         },
-        income_count: {
-            type: 'integer',
-            title: 'Income Count',
-            default: 0
-        },
         expense_count: {
             type: 'integer',
             title: 'Expense Count',
             default: 0
-        },
-        incomes: {
-            items: {
-                '$ref': '#/components/schemas/IncomePublic'
-            },
-            type: 'array',
-            title: 'Incomes',
-            default: []
         },
         transactions: {
             items: {
@@ -1285,11 +1094,6 @@ export const MonthlyFinancialSummarySchema = {
             type: 'integer',
             title: 'Month'
         },
-        total_income: {
-            type: 'number',
-            title: 'Total Income',
-            default: 0
-        },
         total_expenses: {
             type: 'number',
             title: 'Total Expenses',
@@ -1298,11 +1102,6 @@ export const MonthlyFinancialSummarySchema = {
         net_amount: {
             type: 'number',
             title: 'Net Amount',
-            default: 0
-        },
-        income_count: {
-            type: 'integer',
-            title: 'Income Count',
             default: 0
         },
         expense_count: {
@@ -1825,7 +1624,7 @@ export const TransactionsPublicSchema = {
 
 export const TxnTypeSchema = {
     type: 'string',
-    enum: ['in', 'out'],
+    enum: ['out', 'in'],
     title: 'TxnType'
 } as const;
 

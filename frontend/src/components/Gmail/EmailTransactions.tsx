@@ -14,10 +14,9 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import {
   FiCheck,
-  FiDollarSign,
   FiEdit,
   FiEye,
   FiMail,
@@ -29,7 +28,6 @@ import {
   AccountsService,
   CategoriesService,
   GmailService,
-  IncomesService,
 } from "@/client"
 import {
   DialogBody,
@@ -64,14 +62,12 @@ interface EmailTransactionRowProps {
     category_id?: string | null
     category_name?: string | null
     linked_transaction_id?: string | null
-    linked_income_id?: string | null
   }
   onView: (transaction: any) => void
   onEdit: (transaction: any) => void
   onDelete: (id: string) => void
   onMarkSeen: (id: string) => void
   onCreateTransaction: (transaction: any) => void
-  onCreateIncome: (transaction: any) => void
   categories: { id: string; name: string }[]
   onAssignCategory: (transactionId: string, categoryId: string | null) => void
   isPlaceholderData?: boolean
@@ -84,7 +80,6 @@ function EmailTransactionRow({
   onDelete,
   onMarkSeen,
   onCreateTransaction,
-  onCreateIncome,
   categories,
   onAssignCategory,
   isPlaceholderData = false,
@@ -180,13 +175,6 @@ function EmailTransactionRow({
               </Badge>
             )
           }
-          if (transaction.linked_income_id) {
-            return (
-              <Badge colorScheme="blue" size="sm">
-                Linked to Income
-              </Badge>
-            )
-          }
           return (
             <Badge colorScheme="gray" size="sm">
               Not Linked
@@ -228,18 +216,6 @@ function EmailTransactionRow({
               <FiPlus />
             </Button>
           )}
-          {/* Add Income button for Remitano transactions */}
-          {(transaction.merchant || "").toLowerCase() === "remitano" &&
-            transaction.amount && (
-              <Button
-                size="sm"
-                variant="outline"
-                colorPalette="green"
-                onClick={() => onCreateIncome(transaction)}
-              >
-                <FiDollarSign />
-              </Button>
-            )}
           <Button
             size="sm"
             variant="outline"
@@ -513,9 +489,6 @@ export function EmailTransactionsTable({
     useState(false)
   const [selectedEmailTransaction, setSelectedEmailTransaction] =
     useState<any>(null)
-  const [createIncomeModalOpen, setCreateIncomeModalOpen] = useState(false)
-  const [selectedIncomeTransaction, setSelectedIncomeTransaction] =
-    useState<any>(null)
   const currentPage = page
 
   // Load connections for filter dropdown
@@ -696,55 +669,6 @@ export function EmailTransactionsTable({
     },
   })
 
-  const createIncomeFromEmailMutation = useMutation({
-    mutationFn: async ({
-      emailTransactionId,
-      source,
-      amount,
-      currency,
-      sprintId,
-    }: {
-      emailTransactionId: string
-      source: string
-      amount: number
-      currency: string
-      sprintId?: string | null
-    }) => {
-      // Create income record using the IncomeService
-      const incomeData = {
-        received_at: new Date().toISOString().split("T")[0],
-        source,
-        amount,
-        currency,
-        sprint_id: sprintId,
-      }
-
-      const income = await IncomesService.createIncome({
-        requestBody: incomeData,
-      })
-
-      // Update email transaction to link with income
-      await GmailService.updateEmailTransaction({
-        transactionId: emailTransactionId,
-        requestBody: {
-          status: "processed",
-          linked_income_id: income.id,
-        },
-      })
-
-      return income
-    },
-    onSuccess: () => {
-      showSuccessToast("Income created successfully from email")
-      setCreateIncomeModalOpen(false)
-      setSelectedIncomeTransaction(null)
-      queryClient.invalidateQueries({ queryKey: ["email-transactions"] })
-      queryClient.invalidateQueries({ queryKey: ["incomes"] })
-    },
-    onError: (error) => {
-      showErrorToast(`Failed to create income: ${error.message}`)
-    },
-  })
 
   const createTransactionFromEmailMutation = useMutation({
     mutationFn: async ({
@@ -753,12 +677,14 @@ export function EmailTransactionsTable({
       categoryId,
       sprintId,
       note,
+      transactionType,
     }: {
       emailTransactionId: string
       accountId: string
       categoryId?: string | null
       sprintId?: string | null
       note?: string
+      transactionType: string
     }) => {
       return await GmailService.createTransactionFromEmail({
         emailTransactionId,
@@ -766,6 +692,7 @@ export function EmailTransactionsTable({
         categoryId,
         sprintId,
         note,
+        transactionType,
       })
     },
     onSuccess: () => {
@@ -812,10 +739,6 @@ export function EmailTransactionsTable({
     markSeenMutation.mutate(transactionId)
   }
 
-  const handleCreateIncome = (transaction: any) => {
-    setSelectedIncomeTransaction(transaction)
-    setCreateIncomeModalOpen(true)
-  }
 
   const handleCreateTransaction = (transaction: any) => {
     setSelectedEmailTransaction(transaction)
@@ -1067,7 +990,6 @@ export function EmailTransactionsTable({
                       onDelete={handleDeleteTransaction}
                       onMarkSeen={handleMarkSeen}
                       onCreateTransaction={handleCreateTransaction}
-                      onCreateIncome={handleCreateIncome}
                       categories={categoriesData?.data || []}
                       onAssignCategory={handleAssignCategory}
                       isPlaceholderData={isPlaceholderData}
@@ -1117,17 +1039,6 @@ export function EmailTransactionsTable({
         categories={categoriesData?.data || []}
         isLoading={createTransactionFromEmailMutation.isPending}
       />
-      {/* Create Income Modal */}
-      <CreateIncomeModal
-        emailTransaction={selectedIncomeTransaction}
-        isOpen={createIncomeModalOpen}
-        onClose={() => {
-          setCreateIncomeModalOpen(false)
-          setSelectedIncomeTransaction(null)
-        }}
-        onCreateIncome={createIncomeFromEmailMutation.mutate}
-        isLoading={createIncomeFromEmailMutation.isPending}
-      />
     </VStack>
   )
 }
@@ -1143,6 +1054,7 @@ interface CreateTransactionModalProps {
     categoryId?: string | null
     sprintId?: string | null
     note?: string
+    transactionType: string
   }) => void
   accounts: { id: string; name: string }[]
   categories: { id: string; name: string }[]
@@ -1161,10 +1073,16 @@ function CreateTransactionModal({
   const [selectedAccountId, setSelectedAccountId] = useState<string>("")
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("")
   const [note, setNote] = useState<string>("")
+  const [transactionType, setTransactionType] = useState<string>("expense")
 
   const handleSubmit = () => {
     if (!selectedAccountId) {
       alert("Please select an account")
+      return
+    }
+
+    if (!transactionType) {
+      alert("Please select transaction type")
       return
     }
 
@@ -1173,6 +1091,7 @@ function CreateTransactionModal({
       accountId: selectedAccountId,
       categoryId: selectedCategoryId || null,
       note: note || `Created from email: ${emailTransaction.subject}`,
+      transactionType: transactionType,
     })
   }
 
@@ -1215,6 +1134,25 @@ function CreateTransactionModal({
                   {emailTransaction.transaction_type || "N/A"}
                 </Text>
               </Box>
+            </Box>
+
+            <Box>
+              <Text fontSize="sm" fontWeight="medium" mb={2}>
+                Transaction Type *
+              </Text>
+              <select
+                value={transactionType}
+                onChange={(e) => setTransactionType(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "6px",
+                }}
+              >
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
             </Box>
 
             <Box>
@@ -1302,166 +1240,6 @@ function CreateTransactionModal({
   )
 }
 
-// Create Income Modal Component
-interface CreateIncomeModalProps {
-  emailTransaction: any
-  isOpen: boolean
-  onClose: () => void
-  onCreateIncome: (data: {
-    emailTransactionId: string
-    source: string
-    amount: number
-    currency: string
-  }) => void
-  isLoading: boolean
-}
-
-function CreateIncomeModal({
-  emailTransaction,
-  isOpen,
-  onClose,
-  onCreateIncome,
-  isLoading,
-}: CreateIncomeModalProps) {
-  const [source, setSource] = useState<string>("")
-  const [amount, setAmount] = useState<number>(0)
-  const [currency, setCurrency] = useState<string>("VND")
-
-  useEffect(() => {
-    if (emailTransaction) {
-      setSource(emailTransaction.merchant || "Remitano")
-      setAmount(emailTransaction.amount || 0)
-      setCurrency("VND")
-    }
-  }, [emailTransaction])
-
-  const handleSubmit = () => {
-    if (!source || amount <= 0) {
-      alert("Please fill in source and amount")
-      return
-    }
-
-    onCreateIncome({
-      emailTransactionId: emailTransaction.id,
-      source,
-      amount,
-      currency,
-    })
-  }
-
-  const formatAmount = (amount: number | null) => {
-    if (!amount && amount !== 0) return "-"
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount as number)
-  }
-
-  if (!emailTransaction) return null
-
-  return (
-    <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
-      <DialogContent maxW="md">
-        <DialogHeader>
-          <DialogTitle>Create Income from Email</DialogTitle>
-        </DialogHeader>
-        <DialogBody>
-          <VStack gap={4} align="stretch">
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>
-                Email Details:
-              </Text>
-              <Box p={3} bg="gray.50" borderRadius="md">
-                <Text fontSize="sm">
-                  <strong>Subject:</strong> {emailTransaction.subject}
-                </Text>
-                <Text fontSize="sm">
-                  <strong>Amount:</strong>{" "}
-                  {formatAmount(emailTransaction.amount)}
-                </Text>
-                <Text fontSize="sm">
-                  <strong>Merchant:</strong>{" "}
-                  {emailTransaction.merchant || "N/A"}
-                </Text>
-              </Box>
-            </Box>
-
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>
-                Source *
-              </Text>
-              <input
-                type="text"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-                placeholder="e.g., Remitano, Salary, etc."
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "6px",
-                }}
-              />
-            </Box>
-
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>
-                Amount *
-              </Text>
-              <input
-                type="number"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "6px",
-                }}
-              />
-            </Box>
-
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>
-                Currency
-              </Text>
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "6px",
-                }}
-              >
-                <option value="USD">USD</option>
-                <option value="VND">VND</option>
-              </select>
-            </Box>
-          </VStack>
-        </DialogBody>
-        <DialogFooter>
-          <HStack gap={2}>
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              colorPalette="green"
-              onClick={handleSubmit}
-              loading={isLoading}
-            >
-              Create Income
-            </Button>
-          </HStack>
-        </DialogFooter>
-      </DialogContent>
-    </DialogRoot>
-  )
-}
 
 // Main export function (wrapper for backward compatibility)
 export function EmailTransactions() {

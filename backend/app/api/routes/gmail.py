@@ -792,6 +792,7 @@ def create_transaction_from_email(
     category_id: uuid.UUID | None = Query(None),
     sprint_id: uuid.UUID | None = Query(None),
     note: str | None = Query(None),
+    transaction_type: str = Query(..., description="Transaction type: 'income' or 'expense'"),
 ) -> Any:
     """
     Create a transaction from an email transaction.
@@ -811,17 +812,16 @@ def create_transaction_from_email(
     if not email_transaction.amount:
         raise HTTPException(status_code=400, detail="Email transaction has no amount")
     
-    if not email_transaction.transaction_type:
-        raise HTTPException(status_code=400, detail="Email transaction has no transaction type")
-    
-    # Determine transaction type
+    # Validate transaction type
     from app.models import TxnType
-    if email_transaction.transaction_type.lower() in ['debit', 'withdrawal', 'expense']:
-        txn_type = TxnType.expense
-    elif email_transaction.transaction_type.lower() in ['credit', 'deposit', 'income']:
+    if transaction_type.lower() not in ['income', 'expense']:
+        raise HTTPException(status_code=400, detail="Transaction type must be 'income' or 'expense'")
+    
+    # Map to TxnType enum
+    if transaction_type.lower() == 'income':
         txn_type = TxnType.income
     else:
-        raise HTTPException(status_code=400, detail="Invalid transaction type in email")
+        txn_type = TxnType.expense
     
     # Create transaction data
     transaction_data = TransactionCreate(
@@ -841,11 +841,12 @@ def create_transaction_from_email(
         session=session, transaction_in=transaction_data, user_id=current_user.id
     )
     
-    # Update email transaction to link with the created transaction
+    # Update email transaction to link with the created transaction and mark as seen
     email_transaction_update = EmailTransactionUpdate(
         linked_transaction_id=transaction.id,
         category_id=category_id,
-        status="processed"
+        status="processed",
+        seen=True  # Auto-mark as seen when creating transaction
     )
     crud.update_email_transaction(
         session=session, 

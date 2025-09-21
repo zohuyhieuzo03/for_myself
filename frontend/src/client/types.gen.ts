@@ -109,7 +109,6 @@ export type EmailTransactionPublic = {
     id: string;
     gmail_connection_id: string;
     linked_transaction_id: (string | null);
-    linked_income_id: (string | null);
     category_id: (string | null);
     category_name?: (string | null);
     created_at: string;
@@ -131,7 +130,6 @@ export type EmailTransactionUpdate = {
     status?: (EmailTransactionStatus | null);
     seen?: (boolean | null);
     linked_transaction_id?: (string | null);
-    linked_income_id?: (string | null);
     category_id?: (string | null);
 };
 
@@ -176,36 +174,6 @@ export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
 
-export type IncomeCreate = {
-    received_at: string;
-    source: string;
-    amount: number;
-    currency?: string;
-};
-
-export type IncomePublic = {
-    received_at: string;
-    source: string;
-    amount: number;
-    currency?: string;
-    id: string;
-    user_id: string;
-    created_at: string;
-    updated_at: string;
-};
-
-export type IncomesPublic = {
-    data: Array<IncomePublic>;
-    count: number;
-};
-
-export type IncomeUpdate = {
-    received_at?: (string | null);
-    source?: (string | null);
-    amount?: (number | null);
-    currency?: (string | null);
-};
-
 export type ItemCreate = {
     title: string;
     description?: (string | null);
@@ -234,12 +202,9 @@ export type Message = {
 export type MonthlyFinancialReport = {
     year: number;
     month: number;
-    total_income?: number;
     total_expenses?: number;
     net_amount?: number;
-    income_count?: number;
     expense_count?: number;
-    incomes?: Array<IncomePublic>;
     transactions?: Array<TransactionPublic>;
     allocation_rules?: Array<AllocationRulePublic>;
 };
@@ -252,10 +217,8 @@ export type MonthlyFinancialReports = {
 export type MonthlyFinancialSummary = {
     year: number;
     month: number;
-    total_income?: number;
     total_expenses?: number;
     net_amount?: number;
-    income_count?: number;
     expense_count?: number;
     category_breakdown?: {
         [key: string]: (number);
@@ -352,7 +315,7 @@ export type TransactionUpdate = {
     category_id?: (string | null);
 };
 
-export type TxnType = 'in' | 'out';
+export type TxnType = 'out' | 'in';
 
 export type UpdatePassword = {
     current_password: string;
@@ -689,41 +652,13 @@ export type GmailCreateTransactionFromEmailData = {
     emailTransactionId: string;
     note?: (string | null);
     sprintId?: (string | null);
+    /**
+     * Transaction type: 'income' or 'expense'
+     */
+    transactionType: string;
 };
 
 export type GmailCreateTransactionFromEmailResponse = (TransactionPublic);
-
-export type IncomesReadIncomesData = {
-    limit?: number;
-    skip?: number;
-};
-
-export type IncomesReadIncomesResponse = (IncomesPublic);
-
-export type IncomesCreateIncomeData = {
-    requestBody: IncomeCreate;
-};
-
-export type IncomesCreateIncomeResponse = (IncomePublic);
-
-export type IncomesUpdateIncomeData = {
-    incomeId: string;
-    requestBody: IncomeUpdate;
-};
-
-export type IncomesUpdateIncomeResponse = (IncomePublic);
-
-export type IncomesReadIncomeData = {
-    incomeId: string;
-};
-
-export type IncomesReadIncomeResponse = (IncomePublic);
-
-export type IncomesDeleteIncomeData = {
-    incomeId: string;
-};
-
-export type IncomesDeleteIncomeResponse = (Message);
 
 export type ItemsReadItemsData = {
     limit?: number;

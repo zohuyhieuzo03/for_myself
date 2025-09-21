@@ -2,7 +2,6 @@ import { Box, Flex, Icon, Text } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link as RouterLink } from "@tanstack/react-router"
 import {
-  FiArrowUpCircle,
   FiBarChart,
   FiBriefcase,
   FiCheckSquare,
@@ -38,7 +37,6 @@ const items = [
 const financeItems = [
   { icon: FiCreditCard, title: "Accounts", path: "/finance/accounts" },
   { icon: FiTag, title: "Categories", path: "/finance/categories" },
-  { icon: FiArrowUpCircle, title: "Incomes", path: "/finance/incomes" },
   {
     icon: FiTrendingUp,
     title: "Transactions",
