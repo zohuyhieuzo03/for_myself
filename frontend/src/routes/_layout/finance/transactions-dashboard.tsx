@@ -69,13 +69,14 @@ function TransactionsDashboardPage() {
           last30Days.setDate(now.getDate() - 29)
           return txDate >= last30Days
         }
-        case "month":
+        case "month": {
           if (!selectedMonth) return true
           const selectedDate = new Date(selectedMonth)
           return (
             txDate.getFullYear() === selectedDate.getFullYear() &&
             txDate.getMonth() === selectedDate.getMonth()
           )
+        }
         case "custom":
           if (!startDate || !endDate) return true
           return txDate >= new Date(startDate) && txDate <= new Date(endDate)
@@ -134,73 +135,70 @@ function TransactionsDashboardPage() {
     a.label.localeCompare(b.label),
   ) as Array<{ label: string; value: number }>
 
-
   const FilterControls = (
     <HStack gap={3}>
-        <select
-          value={selectedAccountId}
-          onChange={(e) => setSelectedAccountId(e.target.value)}
-          style={{ height: 32, paddingInline: 8, minWidth: 200 }}
-        >
-          <option value="">All Accounts</option>
-          {accounts?.data?.map((acc: any) => (
-            <option key={acc.id} value={acc.id}>
-              {acc.name}
-            </option>
-          ))}
-        </select>
+      <select
+        value={selectedAccountId}
+        onChange={(e) => setSelectedAccountId(e.target.value)}
+        style={{ height: 32, paddingInline: 8, minWidth: 200 }}
+      >
+        <option value="">All Accounts</option>
+        {accounts?.data?.map((acc: any) => (
+          <option key={acc.id} value={acc.id}>
+            {acc.name}
+          </option>
+        ))}
+      </select>
 
-        <select
-          value={transactionType}
-          onChange={(e) =>
-            setTransactionType(e.target.value as TransactionType)
-          }
-          style={{ height: 32, paddingInline: 8 }}
-        >
-          <option value="all">All Types</option>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
+      <select
+        value={transactionType}
+        onChange={(e) => setTransactionType(e.target.value as TransactionType)}
+        style={{ height: 32, paddingInline: 8 }}
+      >
+        <option value="all">All Types</option>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
 
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value as FilterType)}
-          style={{ height: 32, paddingInline: 8 }}
-        >
-          <option value="all">All time</option>
-          <option value="month">By month</option>
-          <option value="last7">Last 7 days</option>
-          <option value="last30">Last 30 days</option>
-          <option value="custom">Custom range</option>
-        </select>
+      <select
+        value={filterType}
+        onChange={(e) => setFilterType(e.target.value as FilterType)}
+        style={{ height: 32, paddingInline: 8 }}
+      >
+        <option value="all">All time</option>
+        <option value="month">By month</option>
+        <option value="last7">Last 7 days</option>
+        <option value="last30">Last 30 days</option>
+        <option value="custom">Custom range</option>
+      </select>
 
-        {filterType === "month" && (
-          <input
-            type="month"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            style={{
-              height: 32,
-              paddingInline: 8,
-              border: "1px solid #e2e8f0",
-              borderRadius: 6,
-              fontSize: 14,
-              minWidth: 140,
-              backgroundColor: "white",
-              color: "inherit",
-            }}
-          />
-        )}
+      {filterType === "month" && (
+        <input
+          type="month"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          style={{
+            height: 32,
+            paddingInline: 8,
+            border: "1px solid #e2e8f0",
+            borderRadius: 6,
+            fontSize: 14,
+            minWidth: 140,
+            backgroundColor: "white",
+            color: "inherit",
+          }}
+        />
+      )}
 
-        {filterType === "custom" && (
-          <DateRangePicker
-            startDate={startDate}
-            endDate={endDate}
-            onStartDateChange={setStartDate}
-            onEndDateChange={setEndDate}
-            disabled={false}
-          />
-        )}
+      {filterType === "custom" && (
+        <DateRangePicker
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          disabled={false}
+        />
+      )}
     </HStack>
   )
 

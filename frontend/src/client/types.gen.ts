@@ -76,7 +76,7 @@ export type CategoryCreate = {
     is_envelope?: boolean;
 };
 
-export type CategoryGroup = 'needs' | 'wants' | 'savings_debt';
+export type CategoryGroup = 'needs' | 'wants' | 'savings_debt' | 'income';
 
 export type CategoryPublic = {
     name: string;
@@ -104,7 +104,6 @@ export type EmailTransactionPublic = {
     account_number?: (string | null);
     transaction_type?: (string | null);
     status?: EmailTransactionStatus;
-    seen?: boolean;
     raw_content?: (string | null);
     id: string;
     gmail_connection_id: string;
@@ -128,7 +127,6 @@ export type EmailTransactionUpdate = {
     account_number?: (string | null);
     transaction_type?: (string | null);
     status?: (EmailTransactionStatus | null);
-    seen?: (boolean | null);
     linked_transaction_id?: (string | null);
     category_id?: (string | null);
 };
@@ -514,10 +512,6 @@ export type GmailGetEmailTransactionsData = {
      * Filter by status (pending, processed, ignored)
      */
     status?: string;
-    /**
-     * Filter to show only unseen emails
-     */
-    unseenOnly?: boolean;
 };
 
 export type GmailGetEmailTransactionsResponse = (EmailTransactionsPublic);
@@ -586,12 +580,6 @@ export type GmailDeleteEmailTransactionData = {
 
 export type GmailDeleteEmailTransactionResponse = (Message);
 
-export type GmailMarkEmailTransactionAsSeenData = {
-    transactionId: string;
-};
-
-export type GmailMarkEmailTransactionAsSeenResponse = (EmailTransactionPublic);
-
 export type GmailGetEmailTransactionsDashboardData = {
     /**
      * Gmail connection ID
@@ -608,17 +596,6 @@ export type GmailGetEmailTransactionsDashboardData = {
 };
 
 export type GmailGetEmailTransactionsDashboardResponse = (EmailTxnDashboard);
-
-export type GmailGetUnseenEmailTransactionsData = {
-    /**
-     * Gmail connection ID
-     */
-    connectionId: string;
-    limit?: number;
-    skip?: number;
-};
-
-export type GmailGetUnseenEmailTransactionsResponse = (EmailTransactionsPublic);
 
 export type GmailTriggerAutoSyncData = {
     /**

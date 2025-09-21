@@ -8,7 +8,6 @@ const emailTransactionsSearchSchema = z.object({
   page: z.number().catch(1),
   statusFilter: z.string().optional(),
   sortBy: z.string().optional(),
-  unseenOnly: z.boolean().optional(),
   connectionId: z.string().optional(),
 })
 
@@ -18,8 +17,7 @@ export const Route = createFileRoute("/_layout/email/transactions")({
 })
 
 function EmailTransactions() {
-  const { page, statusFilter, sortBy, unseenOnly, connectionId } =
-    Route.useSearch()
+  const { page, statusFilter, sortBy, connectionId } = Route.useSearch()
 
   return (
     <Container maxW="full">
@@ -29,7 +27,6 @@ function EmailTransactions() {
         sortBy={
           sortBy as "date_desc" | "amount_desc" | "amount_asc" | undefined
         }
-        unseenOnly={unseenOnly}
         connectionId={connectionId}
       />
     </Container>

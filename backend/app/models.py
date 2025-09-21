@@ -194,6 +194,7 @@ class CategoryGroup(str, Enum):
     needs = "needs"
     wants = "wants"
     savings_debt = "savings_debt"
+    income = "income"
 
 
 # ========= ACCOUNT =========
@@ -467,7 +468,6 @@ class EmailTransactionBase(SQLModel):
     account_number: str | None = Field(default=None, max_length=100)
     transaction_type: str | None = Field(default=None, max_length=50)  # debit/credit
     status: EmailTransactionStatus = Field(default=EmailTransactionStatus.pending)
-    seen: bool = Field(default=False)  # Whether the email has been seen by user
     raw_content: str | None = Field(default=None)  # Full email content
 
 
@@ -481,7 +481,6 @@ class EmailTransactionUpdate(BaseModel):
     account_number: str | None = Field(default=None, max_length=100)
     transaction_type: str | None = Field(default=None, max_length=50)
     status: EmailTransactionStatus | None = None
-    seen: bool | None = None
     linked_transaction_id: uuid.UUID | None = None
     category_id: uuid.UUID | None = None
 

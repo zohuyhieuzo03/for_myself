@@ -76,13 +76,14 @@ export default function EmailDashboard() {
         last30Days.setDate(now.getDate() - 29)
         return txDate >= last30Days
       }
-      case "month":
+      case "month": {
         if (!selectedMonth) return true
         const selectedDate = new Date(selectedMonth)
         return (
           txDate.getFullYear() === selectedDate.getFullYear() &&
           txDate.getMonth() === selectedDate.getMonth()
         )
+      }
       case "custom":
         if (!startDate || !endDate) return true
         return txDate >= new Date(startDate) && txDate <= new Date(endDate)
@@ -108,7 +109,6 @@ export default function EmailDashboard() {
   const monthlyData = Object.values(chartData).sort((a: any, b: any) =>
     a.label.localeCompare(b.label),
   ) as Array<{ label: string; value: number }>
-
 
   const DateRangeControls = (
     <HStack gap={3}>

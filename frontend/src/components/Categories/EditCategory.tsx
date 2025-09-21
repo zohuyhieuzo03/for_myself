@@ -127,6 +127,7 @@ const EditCategory = ({ category }: EditCategoryProps) => {
                   <option value="needs">Needs</option>
                   <option value="wants">Wants</option>
                   <option value="savings_debt">Savings/Debt</option>
+                  <option value="income">Income</option>
                 </select>
               </Field>
 

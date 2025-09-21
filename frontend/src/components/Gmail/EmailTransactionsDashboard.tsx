@@ -64,13 +64,14 @@ export default function EmailTransactionsDashboard() {
           last30Days.setDate(now.getDate() - 29)
           return txDate >= last30Days
         }
-        case "month":
+        case "month": {
           if (!selectedMonth) return true
           const selectedDate = new Date(selectedMonth)
           return (
             txDate.getFullYear() === selectedDate.getFullYear() &&
             txDate.getMonth() === selectedDate.getMonth()
           )
+        }
         case "custom":
           if (!startDate || !endDate) return true
           return txDate >= new Date(startDate) && txDate <= new Date(endDate)
@@ -108,7 +109,6 @@ export default function EmailTransactionsDashboard() {
   const monthlyData = Object.values(chartData).sort((a: any, b: any) =>
     a.label.localeCompare(b.label),
   ) as Array<{ label: string; value: number }>
-
 
   const DateRangeControls = (
     <HStack gap={3}>
@@ -170,7 +170,7 @@ export default function EmailTransactionsDashboard() {
   return (
     <Container maxW="6xl" py={6}>
       <HStack justify="space-between" mb={4}>
-        <Heading size="lg">Email Transactions Dashboard</Heading> 
+        <Heading size="lg">Email Transactions Dashboard</Heading>
         {DateRangeControls}
       </HStack>
 

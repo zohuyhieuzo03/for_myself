@@ -353,7 +353,7 @@ export const CategoryCreateSchema = {
 
 export const CategoryGroupSchema = {
     type: 'string',
-    enum: ['needs', 'wants', 'savings_debt'],
+    enum: ['needs', 'wants', 'savings_debt', 'income'],
     title: 'CategoryGroup'
 } as const;
 
@@ -511,11 +511,6 @@ export const EmailTransactionPublicSchema = {
             '$ref': '#/components/schemas/EmailTransactionStatus',
             default: 'pending'
         },
-        seen: {
-            type: 'boolean',
-            title: 'Seen',
-            default: false
-        },
         raw_content: {
             anyOf: [
                 {
@@ -652,17 +647,6 @@ export const EmailTransactionUpdateSchema = {
                     type: 'null'
                 }
             ]
-        },
-        seen: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Seen'
         },
         linked_transaction_id: {
             anyOf: [

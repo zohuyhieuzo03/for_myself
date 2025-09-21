@@ -87,54 +87,6 @@ def get_pending_email_transactions(
     return session.exec(statement).all()
 
 
-def get_unseen_email_transactions(
-    *, session: Session, gmail_connection_id: uuid.UUID, skip: int = 0, limit: int = 100, sort_by: str = "date_desc"
-) -> list[EmailTransaction]:
-    """Get unseen email transactions for a Gmail connection."""
-    statement = select(EmailTransaction).where(
-        EmailTransaction.gmail_connection_id == gmail_connection_id,
-        EmailTransaction.seen == False
-    ).offset(skip).limit(limit)
-    
-    # Apply sorting
-    if sort_by == "amount_desc":
-        statement = statement.order_by(EmailTransaction.amount.desc().nulls_last())
-    elif sort_by == "amount_asc":
-        statement = statement.order_by(EmailTransaction.amount.asc().nulls_last())
-    else:  # Default: date_desc
-        statement = statement.order_by(EmailTransaction.received_at.desc())
-    
-    transactions = session.exec(statement).all()
-    # Eager load category for each transaction
-    for transaction in transactions:
-        if transaction.category_id:
-            session.refresh(transaction, ['category'])
-    return transactions
-
-
-def count_unseen_email_transactions(
-    *, session: Session, gmail_connection_id: uuid.UUID
-) -> int:
-    """Count unseen email transactions for a Gmail connection."""
-    statement = select(func.count(EmailTransaction.id)).where(
-        EmailTransaction.gmail_connection_id == gmail_connection_id,
-        EmailTransaction.seen == False
-    )
-    return session.exec(statement).first() or 0
-
-
-def mark_email_transaction_as_seen(
-    *, session: Session, transaction_id: uuid.UUID
-) -> EmailTransaction | None:
-    """Mark an email transaction as seen."""
-    statement = select(EmailTransaction).where(EmailTransaction.id == transaction_id)
-    transaction = session.exec(statement).first()
-    if transaction:
-        transaction.seen = True
-        session.add(transaction)
-        session.commit()
-        session.refresh(transaction)
-    return transaction
 
 
 def update_email_transaction(
@@ -258,7 +210,7 @@ def get_email_txn_dashboard(
 
 
 def get_email_transactions_for_all_connections(
-    *, session: Session, user_id: uuid.UUID, skip: int = 0, limit: int = 100, status: str | None = None, unseen_only: bool = False, sort_by: str = "date_desc"
+    *, session: Session, user_id: uuid.UUID, skip: int = 0, limit: int = 100, status: str | None = None, sort_by: str = "date_desc"
 ) -> tuple[list[EmailTransaction], int]:
     """Get email transactions for all user's Gmail connections."""
     # Get all user's Gmail connections
@@ -273,14 +225,7 @@ def get_email_transactions_for_all_connections(
     total_count = 0
     
     for conn in connections:
-        if unseen_only:
-            conn_transactions = get_unseen_email_transactions(
-                session=session, gmail_connection_id=conn.id, skip=0, limit=10000
-            )
-            conn_count = count_unseen_email_transactions(
-                session=session, gmail_connection_id=conn.id
-            )
-        elif status:
+        if status:
             conn_transactions = get_email_transactions(
                 session=session, gmail_connection_id=conn.id, skip=0, limit=10000
             )

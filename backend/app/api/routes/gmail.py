@@ -214,7 +214,6 @@ def get_email_transactions(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=50000),
     status: str = Query(None, description="Filter by status (pending, processed, ignored)"),
-    unseen_only: bool = Query(False, description="Filter to show only unseen emails"),
     sort_by: str = Query("date_desc", description="Sort by: date_desc, amount_desc, amount_asc"),
 ) -> Any:
     """Get email transactions for a Gmail connection or all user's connections."""
@@ -227,14 +226,7 @@ def get_email_transactions(
     # Get transactions based on filters
     if connection_id:
         # Single connection logic
-        if unseen_only:
-            transactions = crud.get_unseen_email_transactions(
-                session=session, gmail_connection_id=connection_id, skip=skip, limit=limit, sort_by=sort_by
-            )
-            total_count = crud.count_unseen_email_transactions(
-                session=session, gmail_connection_id=connection_id
-            )
-        elif status:
+        if status:
             if status == "pending":
                 transactions = crud.get_pending_email_transactions(
                     session=session, gmail_connection_id=connection_id, skip=skip, limit=limit, sort_by=sort_by
@@ -258,7 +250,7 @@ def get_email_transactions(
     else:
         # All connections logic - use new CRUD function
         transactions, total_count = crud.get_email_transactions_for_all_connections(
-            session=session, user_id=current_user.id, skip=skip, limit=limit, status=status, unseen_only=unseen_only, sort_by=sort_by
+            session=session, user_id=current_user.id, skip=skip, limit=limit, status=status, sort_by=sort_by
         )
     
     # Create public transactions with category names
@@ -536,27 +528,6 @@ def update_email_transaction(
     return EmailTransactionPublic.model_validate(updated_transaction)
 
 
-@router.post("/email-transactions/{transaction_id}/mark-seen", response_model=EmailTransactionPublic)
-def mark_email_transaction_as_seen(
-    session: SessionDep,
-    current_user: CurrentUser,
-    transaction_id: uuid.UUID,
-) -> Any:
-    """Mark an email transaction as seen."""
-    transaction = crud.get_email_transaction(session=session, transaction_id=transaction_id)
-    if not transaction:
-        raise HTTPException(status_code=404, detail="Email transaction not found")
-    
-    # Verify connection belongs to user
-    connection = crud.get_gmail_connection(session=session, connection_id=transaction.gmail_connection_id)
-    if not connection or connection.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    
-    updated_transaction = crud.mark_email_transaction_as_seen(
-        session=session, transaction_id=transaction_id
-    )
-    
-    return EmailTransactionPublic.model_validate(updated_transaction)
 
 
 @router.delete("/email-transactions/{transaction_id}", response_model=Message)
@@ -611,23 +582,6 @@ def get_email_transactions_dashboard(
     return dashboard
 
 
-@router.get("/email-transactions/unseen", response_model=EmailTransactionsPublic)
-def get_unseen_email_transactions(
-    session: SessionDep,
-    current_user: CurrentUser,
-    connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=50000),
-) -> Any:
-    """Get unseen email transactions for a Gmail connection."""
-    # Verify connection belongs to user
-    connection = crud.get_gmail_connection(session=session, connection_id=connection_id)
-    if not connection or connection.user_id != current_user.id:
-        raise HTTPException(status_code=404, detail="Gmail connection not found")
-    
-    transactions = crud.get_unseen_email_transactions(
-        session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
-    )
     total_count = crud.count_unseen_email_transactions(
         session=session, gmail_connection_id=connection_id
     )

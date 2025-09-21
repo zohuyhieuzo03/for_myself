@@ -63,10 +63,17 @@ const calculateDaysInMonth = (date: Date): number => {
 }
 
 const calculateDaysBetween = (startDate: Date, endDate: Date): number => {
-  return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+  return (
+    Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+    ) + 1
+  )
 }
 
-const getDaysToDivide = (filterType: string, transactions: TransactionItem[]): number => {
+const getDaysToDivide = (
+  filterType: string,
+  transactions: TransactionItem[],
+): number => {
   if (transactions.length === 0) return 1
 
   switch (filterType) {
@@ -80,8 +87,8 @@ const getDaysToDivide = (filterType: string, transactions: TransactionItem[]): n
     }
     case "custom": {
       const dates = transactions.map(getTransactionDate)
-      const minDate = new Date(Math.min(...dates.map(d => d.getTime())))
-      const maxDate = new Date(Math.max(...dates.map(d => d.getTime())))
+      const minDate = new Date(Math.min(...dates.map((d) => d.getTime())))
+      const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())))
       return calculateDaysBetween(minDate, maxDate)
     }
     default:
@@ -108,10 +115,12 @@ export default function TransactionDashboard({
   const stats = useMemo(() => {
     const totalAmount = transactions.reduce((sum, tx) => sum + tx.amount, 0)
     const transactionCount = transactions.length
-    const averageTransaction = transactionCount > 0 ? totalAmount / transactionCount : 0
-    
+    const averageTransaction =
+      transactionCount > 0 ? totalAmount / transactionCount : 0
+
     const daysToDivide = getDaysToDivide(filterType, transactions)
-    const averagePerDay = filterType !== "all" && daysToDivide > 0 ? totalAmount / daysToDivide : 0
+    const averagePerDay =
+      filterType !== "all" && daysToDivide > 0 ? totalAmount / daysToDivide : 0
 
     return {
       totalAmount,
@@ -166,19 +175,26 @@ export default function TransactionDashboard({
         {} as Record<string, { label: string; value: number }>,
       )
 
-      return Object.values(dayData).sort((a, b) => a.label.localeCompare(b.label))
+      return Object.values(dayData).sort((a, b) =>
+        a.label.localeCompare(b.label),
+      )
     }
     return monthlyData
   }, [transactions, pointType, monthlyData])
 
   // Render components
-  const renderStatsCard = (title: string, value: string | number, color: string, subtitle: string) => (
+  const renderStatsCard = (
+    title: string,
+    value: string | number,
+    color: string,
+    subtitle: string,
+  ) => (
     <Box p={4} borderWidth="1px" borderRadius="md" bg="white">
       <Text fontSize="sm" color="gray.600" mb={1}>
         {title}
       </Text>
       <Text fontSize="2xl" fontWeight="bold" color={`${color}.500`}>
-        {typeof value === 'number' ? formatCurrency(value) : value}
+        {typeof value === "number" ? formatCurrency(value) : value}
       </Text>
       <Text fontSize="xs" color="gray.500">
         {subtitle}
@@ -207,7 +223,10 @@ export default function TransactionDashboard({
     </HStack>
   )
 
-  const renderTransactionItem = (transaction: TransactionItem, index: number) => (
+  const renderTransactionItem = (
+    transaction: TransactionItem,
+    index: number,
+  ) => (
     <Box key={index}>
       <HStack justify="space-between" align="center">
         <VStack align="start" gap={1}>
@@ -250,11 +269,35 @@ export default function TransactionDashboard({
   return (
     <VStack gap={6} align="stretch">
       {showStats && (
-        <SimpleGrid columns={{ base: 1, md: showAveragePerDay ? 4 : 3 }} gap={4}>
-          {renderStatsCard("Total Amount", stats.totalAmount, "green", "All transactions")}
-          {renderStatsCard("Average Transaction", stats.averageTransaction, "blue", "Per transaction")}
-          {showAveragePerDay && renderStatsCard("Average Per Day", stats.averagePerDay, "orange", "Daily average")}
-          {renderStatsCard("Transaction Count", stats.transactionCount, "purple", "Total transactions")}
+        <SimpleGrid
+          columns={{ base: 1, md: showAveragePerDay ? 4 : 3 }}
+          gap={4}
+        >
+          {renderStatsCard(
+            "Total Amount",
+            stats.totalAmount,
+            "green",
+            "All transactions",
+          )}
+          {renderStatsCard(
+            "Average Transaction",
+            stats.averageTransaction,
+            "blue",
+            "Per transaction",
+          )}
+          {showAveragePerDay &&
+            renderStatsCard(
+              "Average Per Day",
+              stats.averagePerDay,
+              "orange",
+              "Daily average",
+            )}
+          {renderStatsCard(
+            "Transaction Count",
+            stats.transactionCount,
+            "purple",
+            "Total transactions",
+          )}
         </SimpleGrid>
       )}
 
@@ -401,7 +444,9 @@ export default function TransactionDashboard({
             Recent Transactions
           </Text>
           <VStack gap={2} align="stretch">
-            {recentTransactions.map((transaction, index) => renderTransactionItem(transaction, index))}
+            {recentTransactions.map((transaction, index) =>
+              renderTransactionItem(transaction, index),
+            )}
           </VStack>
         </Box>
       )}

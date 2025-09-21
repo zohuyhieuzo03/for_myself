@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsBatchData, GmailSyncEmailsBatchResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, GmailMarkEmailTransactionAsSeenData, GmailMarkEmailTransactionAsSeenResponse, GmailGetEmailTransactionsDashboardData, GmailGetEmailTransactionsDashboardResponse, GmailGetUnseenEmailTransactionsData, GmailGetUnseenEmailTransactionsResponse, GmailTriggerAutoSyncData, GmailTriggerAutoSyncResponse, GmailGetSchedulerStatusResponse, GmailStartSchedulerResponse, GmailStopSchedulerResponse, GmailTriggerSyncAllConnectionsData, GmailTriggerSyncAllConnectionsResponse, GmailCreateTransactionFromEmailData, GmailCreateTransactionFromEmailResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsBatchData, GmailSyncEmailsBatchResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, GmailGetEmailTransactionsDashboardData, GmailGetEmailTransactionsDashboardResponse, GmailTriggerAutoSyncData, GmailTriggerAutoSyncResponse, GmailGetSchedulerStatusResponse, GmailStartSchedulerResponse, GmailStopSchedulerResponse, GmailTriggerSyncAllConnectionsData, GmailTriggerSyncAllConnectionsResponse, GmailCreateTransactionFromEmailData, GmailCreateTransactionFromEmailResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class AccountsService {
     /**
@@ -451,7 +451,6 @@ export class GmailService {
      * @param data.skip
      * @param data.limit
      * @param data.status Filter by status (pending, processed, ignored)
-     * @param data.unseenOnly Filter to show only unseen emails
      * @param data.sortBy Sort by: date_desc, amount_desc, amount_asc
      * @returns EmailTransactionsPublic Successful Response
      * @throws ApiError
@@ -465,7 +464,6 @@ export class GmailService {
                 skip: data.skip,
                 limit: data.limit,
                 status: data.status,
-                unseen_only: data.unseenOnly,
                 sort_by: data.sortBy
             },
             errors: {
@@ -601,27 +599,6 @@ export class GmailService {
     }
     
     /**
-     * Mark Email Transaction As Seen
-     * Mark an email transaction as seen.
-     * @param data The data for the request.
-     * @param data.transactionId
-     * @returns EmailTransactionPublic Successful Response
-     * @throws ApiError
-     */
-    public static markEmailTransactionAsSeen(data: GmailMarkEmailTransactionAsSeenData): CancelablePromise<GmailMarkEmailTransactionAsSeenResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/v1/gmail/email-transactions/{transaction_id}/mark-seen',
-            path: {
-                transaction_id: data.transactionId
-            },
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
-    
-    /**
      * Get Email Transactions Dashboard
      * Email transaction dashboard data by category and monthly totals, filterable by month.
      *
@@ -641,31 +618,6 @@ export class GmailService {
                 connection_id: data.connectionId,
                 year: data.year,
                 month: data.month
-            },
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
-    
-    /**
-     * Get Unseen Email Transactions
-     * Get unseen email transactions for a Gmail connection.
-     * @param data The data for the request.
-     * @param data.connectionId Gmail connection ID
-     * @param data.skip
-     * @param data.limit
-     * @returns EmailTransactionsPublic Successful Response
-     * @throws ApiError
-     */
-    public static getUnseenEmailTransactions(data: GmailGetUnseenEmailTransactionsData): CancelablePromise<GmailGetUnseenEmailTransactionsResponse> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/api/v1/gmail/email-transactions/unseen',
-            query: {
-                connection_id: data.connectionId,
-                skip: data.skip,
-                limit: data.limit
             },
             errors: {
                 422: 'Validation Error'
