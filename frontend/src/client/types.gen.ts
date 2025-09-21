@@ -538,11 +538,15 @@ export type GmailDeleteGmailConnectionResponse = (Message);
 
 export type GmailGetEmailTransactionsData = {
     /**
-     * Gmail connection ID
+     * Gmail connection ID (optional, if not provided returns all user's connections)
      */
-    connectionId: string;
+    connectionId?: string;
     limit?: number;
     skip?: number;
+    /**
+     * Sort by: date_desc, amount_desc, amount_asc
+     */
+    sortBy?: string;
     /**
      * Filter by status (pending, processed, ignored)
      */

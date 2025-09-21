@@ -57,7 +57,7 @@ function ItemsTable() {
     })
   }
 
-  const items = data?.data.slice(0, PER_PAGE) ?? []
+  const items = data?.data ?? []
   const count = data?.count ?? 0
 
   if (isLoading) {

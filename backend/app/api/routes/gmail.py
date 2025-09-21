@@ -210,46 +210,55 @@ def delete_gmail_connection(
 def get_email_transactions(
     session: SessionDep,
     current_user: CurrentUser,
-    connection_id: uuid.UUID = Query(..., description="Gmail connection ID"),
+    connection_id: uuid.UUID = Query(None, description="Gmail connection ID (optional, if not provided returns all user's connections)"),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=50000),
     status: str = Query(None, description="Filter by status (pending, processed, ignored)"),
     unseen_only: bool = Query(False, description="Filter to show only unseen emails"),
+    sort_by: str = Query("date_desc", description="Sort by: date_desc, amount_desc, amount_asc"),
 ) -> Any:
-    """Get email transactions for a Gmail connection."""
-    # Verify connection belongs to user
-    connection = crud.get_gmail_connection(session=session, connection_id=connection_id)
-    if not connection or connection.user_id != current_user.id:
-        raise HTTPException(status_code=404, detail="Gmail connection not found")
+    """Get email transactions for a Gmail connection or all user's connections."""
+    if connection_id:
+        # Verify connection belongs to user
+        connection = crud.get_gmail_connection(session=session, connection_id=connection_id)
+        if not connection or connection.user_id != current_user.id:
+            raise HTTPException(status_code=404, detail="Gmail connection not found")
     
     # Get transactions based on filters
-    if unseen_only:
-        transactions = crud.get_unseen_email_transactions(
-            session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
-        )
-        total_count = crud.count_unseen_email_transactions(
-            session=session, gmail_connection_id=connection_id
-        )
-    elif status:
-        if status == "pending":
-            transactions = crud.get_pending_email_transactions(
-                session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
+    if connection_id:
+        # Single connection logic
+        if unseen_only:
+            transactions = crud.get_unseen_email_transactions(
+                session=session, gmail_connection_id=connection_id, skip=skip, limit=limit, sort_by=sort_by
+            )
+            total_count = crud.count_unseen_email_transactions(
+                session=session, gmail_connection_id=connection_id
+            )
+        elif status:
+            if status == "pending":
+                transactions = crud.get_pending_email_transactions(
+                    session=session, gmail_connection_id=connection_id, skip=skip, limit=limit, sort_by=sort_by
+                )
+            else:
+                # For other statuses, we need to filter by status
+                transactions = crud.get_email_transactions(
+                    session=session, gmail_connection_id=connection_id, skip=skip, limit=limit, sort_by=sort_by
+                )
+                transactions = [t for t in transactions if t.status == status]
+            total_count = crud.count_email_transactions(
+                session=session, gmail_connection_id=connection_id, status=status
             )
         else:
-            # For other statuses, we need to filter by status
             transactions = crud.get_email_transactions(
-                session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
+                session=session, gmail_connection_id=connection_id, skip=skip, limit=limit, sort_by=sort_by
             )
-            transactions = [t for t in transactions if t.status == status]
-        total_count = crud.count_email_transactions(
-            session=session, gmail_connection_id=connection_id, status=status
-        )
+            total_count = crud.count_email_transactions(
+                session=session, gmail_connection_id=connection_id, status=status
+            )
     else:
-        transactions = crud.get_email_transactions(
-            session=session, gmail_connection_id=connection_id, skip=skip, limit=limit
-        )
-        total_count = crud.count_email_transactions(
-            session=session, gmail_connection_id=connection_id, status=status
+        # All connections logic - use new CRUD function
+        transactions, total_count = crud.get_email_transactions_for_all_connections(
+            session=session, user_id=current_user.id, skip=skip, limit=limit, status=status, unseen_only=unseen_only, sort_by=sort_by
         )
     
     # Create public transactions with category names

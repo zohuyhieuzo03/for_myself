@@ -37,7 +37,6 @@ interface TransactionDashboardProps {
   monthlyData?: Array<{ label: string; value: number }>
   monthlyChartType?: "bar" | "line"
   dataPointType?: "days" | "months"
-  daysToShow?: number
   currency?: string
 }
 
@@ -59,7 +58,6 @@ export default function TransactionDashboard({
   monthlyData = [],
   monthlyChartType = "bar",
   dataPointType = "months",
-  daysToShow = 30,
 }: TransactionDashboardProps) {
   const [chartType, setChartType] = useState<"bar" | "line">(monthlyChartType)
   const [pointType, setPointType] = useState<"days" | "months">(dataPointType)
@@ -108,26 +106,21 @@ export default function TransactionDashboard({
     type: "days" | "months",
   ) => {
     if (type === "days") {
-      // Group by days for the specified number of days
-      const lastDays = Array.from({ length: daysToShow }, (_, i) => {
-        const date = new Date()
-        date.setDate(date.getDate() - i)
-        return date
-      }).reverse()
-
-      const dayData = lastDays.map((date) => {
-        const dayTransactions = transactions.filter((tx) => {
-          const txDate = new Date(tx.received_at || tx.date)
-          return txDate.toDateString() === date.toDateString()
-        })
-        const total = dayTransactions.reduce((sum, tx) => sum + tx.amount, 0)
-        return {
-          label: `${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`,
-          value: total,
+      // When showing days, use the filtered transactions (not all transactions)
+      // This ensures we only show days within the selected month/year
+      const dayData = transactions.reduce((acc, tx) => {
+        const txDate = new Date(tx.received_at || tx.date)
+        const dayKey = `${String(txDate.getMonth() + 1).padStart(2, "0")}/${String(txDate.getDate()).padStart(2, "0")}`
+        
+        if (!acc[dayKey]) {
+          acc[dayKey] = { label: dayKey, value: 0 }
         }
-      })
+        acc[dayKey].value += tx.amount
+        return acc
+      }, {} as Record<string, { label: string; value: number }>)
 
-      return dayData
+      // Sort by date and return as array
+      return Object.values(dayData).sort((a, b) => a.label.localeCompare(b.label))
     }
     // Use monthly data as provided
     return data
@@ -218,7 +211,7 @@ export default function TransactionDashboard({
             <Box>
               <HStack justify="space-between" align="center" mb={4}>
                 <Text fontSize="lg" fontWeight="semibold" color="gray.700">
-                  Monthly Totals
+                  Chart 
                 </Text>
                 <HStack gap={3}>
                   <select

@@ -33,16 +33,20 @@ def get_email_transaction(*, session: Session, transaction_id: uuid.UUID) -> Ema
 
 
 def get_email_transactions(
-    *, session: Session, gmail_connection_id: uuid.UUID, skip: int = 0, limit: int = 100
+    *, session: Session, gmail_connection_id: uuid.UUID, skip: int = 0, limit: int = 100, sort_by: str = "date_desc"
 ) -> list[EmailTransaction]:
     """Get all email transactions for a Gmail connection."""
-    statement = (
-        select(EmailTransaction)
-        .where(EmailTransaction.gmail_connection_id == gmail_connection_id)
-        .offset(skip)
-        .limit(limit)
-        .order_by(EmailTransaction.received_at.desc())
-    )
+    statement = select(EmailTransaction).where(
+        EmailTransaction.gmail_connection_id == gmail_connection_id
+    ).offset(skip).limit(limit)
+    
+    # Apply sorting
+    if sort_by == "amount_desc":
+        statement = statement.order_by(EmailTransaction.amount.desc().nulls_last())
+    elif sort_by == "amount_asc":
+        statement = statement.order_by(EmailTransaction.amount.asc().nulls_last())
+    else:  # Default: date_desc
+        statement = statement.order_by(EmailTransaction.received_at.desc())
     transactions = session.exec(statement).all()
     # Eager load category for each transaction
     for transaction in transactions:
@@ -64,36 +68,42 @@ def count_email_transactions(
 
 
 def get_pending_email_transactions(
-    *, session: Session, gmail_connection_id: uuid.UUID, skip: int = 0, limit: int = 100
+    *, session: Session, gmail_connection_id: uuid.UUID, skip: int = 0, limit: int = 100, sort_by: str = "date_desc"
 ) -> list[EmailTransaction]:
     """Get pending email transactions for a Gmail connection."""
-    statement = (
-        select(EmailTransaction)
-        .where(
-            EmailTransaction.gmail_connection_id == gmail_connection_id,
-            EmailTransaction.status == "pending"
-        )
-        .offset(skip)
-        .limit(limit)
-        .order_by(EmailTransaction.received_at.desc())
-    )
+    statement = select(EmailTransaction).where(
+        EmailTransaction.gmail_connection_id == gmail_connection_id,
+        EmailTransaction.status == "pending"
+    ).offset(skip).limit(limit)
+    
+    # Apply sorting
+    if sort_by == "amount_desc":
+        statement = statement.order_by(EmailTransaction.amount.desc().nulls_last())
+    elif sort_by == "amount_asc":
+        statement = statement.order_by(EmailTransaction.amount.asc().nulls_last())
+    else:  # Default: date_desc
+        statement = statement.order_by(EmailTransaction.received_at.desc())
+    
     return session.exec(statement).all()
 
 
 def get_unseen_email_transactions(
-    *, session: Session, gmail_connection_id: uuid.UUID, skip: int = 0, limit: int = 100
+    *, session: Session, gmail_connection_id: uuid.UUID, skip: int = 0, limit: int = 100, sort_by: str = "date_desc"
 ) -> list[EmailTransaction]:
     """Get unseen email transactions for a Gmail connection."""
-    statement = (
-        select(EmailTransaction)
-        .where(
-            EmailTransaction.gmail_connection_id == gmail_connection_id,
-            EmailTransaction.seen == False
-        )
-        .offset(skip)
-        .limit(limit)
-        .order_by(EmailTransaction.received_at.desc())
-    )
+    statement = select(EmailTransaction).where(
+        EmailTransaction.gmail_connection_id == gmail_connection_id,
+        EmailTransaction.seen == False
+    ).offset(skip).limit(limit)
+    
+    # Apply sorting
+    if sort_by == "amount_desc":
+        statement = statement.order_by(EmailTransaction.amount.desc().nulls_last())
+    elif sort_by == "amount_asc":
+        statement = statement.order_by(EmailTransaction.amount.asc().nulls_last())
+    else:  # Default: date_desc
+        statement = statement.order_by(EmailTransaction.received_at.desc())
+    
     transactions = session.exec(statement).all()
     # Eager load category for each transaction
     for transaction in transactions:
@@ -245,3 +255,59 @@ def get_email_txn_dashboard(
         )
 
     return EmailTxnDashboard(by_category=by_category, monthly=monthly)
+
+
+def get_email_transactions_for_all_connections(
+    *, session: Session, user_id: uuid.UUID, skip: int = 0, limit: int = 100, status: str | None = None, unseen_only: bool = False, sort_by: str = "date_desc"
+) -> tuple[list[EmailTransaction], int]:
+    """Get email transactions for all user's Gmail connections."""
+    # Get all user's Gmail connections
+    from app.crud import gmail_connection as gmail_crud
+    connections = gmail_crud.get_gmail_connections(session=session, user_id=user_id)
+    
+    if not connections:
+        return [], 0
+    
+    # Get all transactions from all connections
+    all_transactions = []
+    total_count = 0
+    
+    for conn in connections:
+        if unseen_only:
+            conn_transactions = get_unseen_email_transactions(
+                session=session, gmail_connection_id=conn.id, skip=0, limit=10000
+            )
+            conn_count = count_unseen_email_transactions(
+                session=session, gmail_connection_id=conn.id
+            )
+        elif status:
+            conn_transactions = get_email_transactions(
+                session=session, gmail_connection_id=conn.id, skip=0, limit=10000
+            )
+            conn_transactions = [t for t in conn_transactions if t.status == status]
+            conn_count = count_email_transactions(
+                session=session, gmail_connection_id=conn.id, status=status
+            )
+        else:
+            conn_transactions = get_email_transactions(
+                session=session, gmail_connection_id=conn.id, skip=0, limit=10000
+            )
+            conn_count = count_email_transactions(
+                session=session, gmail_connection_id=conn.id
+            )
+        
+        all_transactions.extend(conn_transactions)
+        total_count += conn_count
+    
+    # Sort transactions based on sort_by parameter
+    if sort_by == "amount_desc":
+        all_transactions.sort(key=lambda x: x.amount or 0, reverse=True)
+    elif sort_by == "amount_asc":
+        all_transactions.sort(key=lambda x: x.amount or 0, reverse=False)
+    else:  # Default: date_desc
+        all_transactions.sort(key=lambda x: x.received_at, reverse=True)
+    
+    # Apply pagination
+    paginated_transactions = all_transactions[skip:skip + limit]
+    
+    return paginated_transactions, total_count

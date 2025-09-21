@@ -63,6 +63,8 @@ interface EmailTransactionRowProps {
     raw_content: string | null
     category_id?: string | null
     category_name?: string | null
+    linked_transaction_id?: string | null
+    linked_income_id?: string | null
   }
   onView: (transaction: any) => void
   onEdit: (transaction: any) => void
@@ -72,6 +74,7 @@ interface EmailTransactionRowProps {
   onCreateIncome: (transaction: any) => void
   categories: { id: string; name: string }[]
   onAssignCategory: (transactionId: string, categoryId: string | null) => void
+  isPlaceholderData?: boolean
 }
 
 function EmailTransactionRow({
@@ -84,6 +87,7 @@ function EmailTransactionRow({
   onCreateIncome,
   categories,
   onAssignCategory,
+  isPlaceholderData = false,
 }: EmailTransactionRowProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString()
@@ -107,7 +111,10 @@ function EmailTransactionRow({
   }
 
   return (
-    <Table.Row style={getRowStyle(transaction.seen)}>
+    <Table.Row
+      style={getRowStyle(transaction.seen)}
+      opacity={isPlaceholderData ? 0.5 : 1}
+    >
       <Table.Cell>
         <HStack gap={2}>
           <Text
@@ -163,6 +170,29 @@ function EmailTransactionRow({
             Current: {transaction.category_name}
           </Text>
         )}
+      </Table.Cell>
+      <Table.Cell>
+        {(() => {
+          if (transaction.linked_transaction_id) {
+            return (
+              <Badge colorScheme="green" size="sm">
+                Linked to Transaction
+              </Badge>
+            )
+          }
+          if (transaction.linked_income_id) {
+            return (
+              <Badge colorScheme="blue" size="sm">
+                Linked to Income
+              </Badge>
+            )
+          }
+          return (
+            <Badge colorScheme="gray" size="sm">
+              Not Linked
+            </Badge>
+          )
+        })()}
       </Table.Cell>
       <Table.Cell>
         <Text fontSize="sm" color={transaction.seen ? "gray.600" : "black"}>
@@ -417,7 +447,7 @@ function EmailTransactionDetailModal({
 
 const PER_PAGE = 10
 
-// Query options function for all email transactions (independent of connections)
+// Query options function for email transactions (backend pagination like admin)
 function getEmailTransactionsQueryOptions({
   page,
   statusFilter,
@@ -433,73 +463,19 @@ function getEmailTransactionsQueryOptions({
 }) {
   return {
     queryFn: async () => {
-      const allTransactions: any[] = []
-      let totalCount = 0
-
-      const fetchForConnection = async (connId: string) => {
-        const response = await GmailService.getEmailTransactions({
-          connectionId: connId,
-          status: statusFilter === "all" ? undefined : statusFilter,
-          unseenOnly: unseenOnly,
-          skip: 0,
-          limit: 50000, // Increased limit to get more emails
-        })
-        allTransactions.push(...response.data)
-        totalCount += response.count
-      }
-
-      if (!connectionId || connectionId === "all") {
-        // Get all Gmail connections first
-        const connectionsResponse = await GmailService.getGmailConnections()
-        if (!connectionsResponse.data.length) {
-          return { data: [], count: 0 }
-        }
-        for (const connection of connectionsResponse.data) {
-          try {
-            await fetchForConnection(connection.id)
-          } catch (error) {
-            console.error(
-              "Error fetching transactions for connection",
-              connection.id,
-              error,
-            )
-          }
-        }
-      } else {
-        // Single connection only
-        await fetchForConnection(connectionId)
-      }
-
-      // Sort before pagination
-      if (sortBy === "amount_desc") {
-        allTransactions.sort((a, b) => {
-          const av = a.amount ?? Number.NEGATIVE_INFINITY
-          const bv = b.amount ?? Number.NEGATIVE_INFINITY
-          return (bv as number) - (av as number)
-        })
-      } else if (sortBy === "amount_asc") {
-        allTransactions.sort((a, b) => {
-          const av = a.amount ?? Number.POSITIVE_INFINITY
-          const bv = b.amount ?? Number.POSITIVE_INFINITY
-          return (av as number) - (bv as number)
-        })
-      } else {
-        // Default: date desc
-        allTransactions.sort(
-          (a, b) =>
-            new Date(b.received_at).getTime() -
-            new Date(a.received_at).getTime(),
-        )
-      }
-
-      // Apply pagination
-      const startIndex = (page - 1) * PER_PAGE
-      const endIndex = startIndex + PER_PAGE
-      const paginatedTransactions = allTransactions.slice(startIndex, endIndex)
+      // Use backend pagination for both single connection and all connections
+      const response = await GmailService.getEmailTransactions({
+        connectionId: connectionId === "all" ? undefined : connectionId,
+        status: statusFilter === "all" ? undefined : statusFilter,
+        unseenOnly: unseenOnly,
+        skip: (page - 1) * PER_PAGE,
+        limit: PER_PAGE,
+        sortBy: sortBy,
+      })
 
       return {
-        data: paginatedTransactions,
-        count: totalCount,
+        data: response.data,
+        count: response.count,
       }
     },
     queryKey: [
@@ -513,11 +489,13 @@ function getEmailTransactionsQueryOptions({
 export function EmailTransactionsTable({
   page = 1,
   statusFilter = "all",
+  sortBy = "date_desc",
   unseenOnly = false,
   connectionId = "all",
 }: {
   page?: number
   statusFilter?: string
+  sortBy?: "date_desc" | "amount_desc" | "amount_asc"
   unseenOnly?: boolean
   connectionId?: string | "all"
 }) {
@@ -528,9 +506,6 @@ export function EmailTransactionsTable({
 
   const [currentStatusFilter, setCurrentStatusFilter] =
     useState<string>(statusFilter)
-  const [currentSortBy, setCurrentSortBy] = useState<
-    "date_desc" | "amount_desc" | "amount_asc"
-  >("date_desc")
   const [currentUnseenOnly, setCurrentUnseenOnly] =
     useState<boolean>(unseenOnly)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
@@ -554,17 +529,21 @@ export function EmailTransactionsTable({
     string | "all"
   >(connectionId)
 
-  // Get email transactions using the new query options function
-  const { data: transactions, isLoading } = useQuery({
+  // Get email transactions using the new query options function (like admin)
+  const { data, isLoading, isPlaceholderData } = useQuery({
     ...getEmailTransactionsQueryOptions({
       page: currentPage,
       statusFilter: currentStatusFilter,
-      sortBy: currentSortBy,
+      sortBy: sortBy,
       unseenOnly: currentUnseenOnly,
       connectionId: currentConnectionId,
     }),
     placeholderData: (prevData) => prevData,
   })
+
+  // Extract data following admin pattern
+  const transactions = data?.data ?? []
+  const totalCount = data?.count ?? 0
 
   // Load categories for selector
   const { data: categoriesData } = useQuery({
@@ -577,7 +556,8 @@ export function EmailTransactionsTable({
   // Load accounts for transaction creation
   const { data: accountsData } = useQuery({
     queryKey: ["accounts", { page: 1 }],
-    queryFn: async () => AccountsService.readAccounts({ skip: 0, limit: 50000 }),
+    queryFn: async () =>
+      AccountsService.readAccounts({ skip: 0, limit: 50000 }),
     staleTime: 5 * 60 * 1000,
   })
 
@@ -854,17 +834,11 @@ export function EmailTransactionsTable({
     }
   }
 
-  // Page change handler (similar to admin page)
+  // Page change handler (following admin pattern)
   const setPage = (page: number) => {
     navigate({
       to: "/email/transactions",
-      search: (prev) => ({
-        ...prev,
-        page,
-        statusFilter: currentStatusFilter,
-        sortBy: currentSortBy,
-        unseenOnly: currentUnseenOnly,
-      }),
+      search: (prev) => ({ ...prev, page, sortBy: sortBy }),
     })
   }
 
@@ -877,8 +851,7 @@ export function EmailTransactionsTable({
         ...prev,
         page: 1,
         statusFilter: status,
-        sortBy: currentSortBy,
-        unseenOnly: currentUnseenOnly,
+        sortBy: sortBy,
       }),
     })
   }
@@ -886,21 +859,19 @@ export function EmailTransactionsTable({
   const handleSortChange = (
     value: "date_desc" | "amount_desc" | "amount_asc",
   ) => {
-    setCurrentSortBy(value)
     navigate({
       to: "/email/transactions",
       search: (prev) => ({
         ...prev,
         page: 1,
-        statusFilter: currentStatusFilter,
         sortBy: value,
-        unseenOnly: currentUnseenOnly,
+        statusFilter: currentStatusFilter,
       }),
     })
   }
 
-  // Check if all emails are seen
-  const allEmailsSeen = transactions?.data?.every((t: any) => t.seen) || false
+  // Check if all emails are seen (following admin pattern)
+  const allEmailsSeen = transactions?.every((t: any) => t.seen) || false
 
   return (
     <VStack gap={6} align="stretch">
@@ -931,10 +902,8 @@ export function EmailTransactionsTable({
                     search: (prev) => ({
                       ...prev,
                       page: 1,
-                      statusFilter: currentStatusFilter,
-                      sortBy: currentSortBy,
-                      unseenOnly: currentUnseenOnly,
                       connectionId: next,
+                      sortBy: sortBy,
                     }),
                   })
                 }}
@@ -967,7 +936,7 @@ export function EmailTransactionsTable({
                 Sort by
               </Text>
               <select
-                value={currentSortBy}
+                value={sortBy}
                 onChange={(e) => handleSortChange(e.target.value as any)}
               >
                 <option value="date_desc">Date (newest)</option>
@@ -990,10 +959,8 @@ export function EmailTransactionsTable({
                     search: (prev) => ({
                       ...prev,
                       page: 1,
-                      statusFilter: currentStatusFilter,
-                      sortBy: currentSortBy,
                       unseenOnly: unseenOnly,
-                      connectionId: currentConnectionId,
+                      sortBy: sortBy,
                     }),
                   })
                 }}
@@ -1038,7 +1005,7 @@ export function EmailTransactionsTable({
           <Spinner size="lg" />
           <Text mt={4}>Loading email transactions...</Text>
         </Box>
-      ) : !transactions?.data.length ? (
+      ) : !transactions.length ? (
         <Card.Root>
           <Card.Body textAlign="center" py={12}>
             <FiMail size={48} color="var(--chakra-colors-gray-400)" />
@@ -1067,9 +1034,9 @@ export function EmailTransactionsTable({
             <HStack justify="space-between">
               <VStack align="start" gap={1}>
                 <Text fontSize="lg" fontWeight="semibold">
-                  Email Transactions ({transactions.count})
+                  Email Transactions ({totalCount})
                 </Text>
-                {allEmailsSeen && transactions.count > 0 && (
+                {allEmailsSeen && totalCount > 0 && (
                   <Text fontSize="sm" color="green.600" fontWeight="medium">
                     ✅ Tất cả email đã được seen
                   </Text>
@@ -1085,12 +1052,13 @@ export function EmailTransactionsTable({
                     <Table.ColumnHeader>Email</Table.ColumnHeader>
                     <Table.ColumnHeader>Amount</Table.ColumnHeader>
                     <Table.ColumnHeader>Category</Table.ColumnHeader>
+                    <Table.ColumnHeader>Link Status</Table.ColumnHeader>
                     <Table.ColumnHeader>Date</Table.ColumnHeader>
                     <Table.ColumnHeader>Actions</Table.ColumnHeader>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {transactions.data.map((transaction: any) => (
+                  {transactions.map((transaction: any) => (
                     <EmailTransactionRow
                       key={transaction.id}
                       transaction={transaction}
@@ -1102,16 +1070,17 @@ export function EmailTransactionsTable({
                       onCreateIncome={handleCreateIncome}
                       categories={categoriesData?.data || []}
                       onAssignCategory={handleAssignCategory}
+                      isPlaceholderData={isPlaceholderData}
                     />
                   ))}
                 </Table.Body>
               </Table.Root>
             </Box>
-            {/* Pagination - similar to admin page */}
-            {transactions && transactions.count > PER_PAGE && (
+            {/* Pagination - following admin pattern */}
+            {totalCount > PER_PAGE && (
               <Flex justifyContent="flex-end" mt={4}>
                 <PaginationRoot
-                  count={transactions.count}
+                  count={totalCount}
                   pageSize={PER_PAGE}
                   onPageChange={({ page }) => setPage(page)}
                 >

@@ -254,6 +254,7 @@ export function UnseenEmailTransactions({
                 <Table.ColumnHeader>Email</Table.ColumnHeader>
                 <Table.ColumnHeader>Amount</Table.ColumnHeader>
                 <Table.ColumnHeader>Status</Table.ColumnHeader>
+                <Table.ColumnHeader>Link Status</Table.ColumnHeader>
                 <Table.ColumnHeader>Date</Table.ColumnHeader>
                 <Table.ColumnHeader>Actions</Table.ColumnHeader>
               </Table.Row>
@@ -288,6 +289,29 @@ export function UnseenEmailTransactions({
                     <Badge colorScheme={getStatusColor(transaction.status)}>
                       {transaction.status}
                     </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    {(() => {
+                      if (transaction.linked_transaction_id) {
+                        return (
+                          <Badge colorScheme="green" size="sm">
+                            Linked to Transaction
+                          </Badge>
+                        )
+                      }
+                      if (transaction.linked_income_id) {
+                        return (
+                          <Badge colorScheme="blue" size="sm">
+                            Linked to Income
+                          </Badge>
+                        )
+                      }
+                      return (
+                        <Badge colorScheme="gray" size="sm">
+                          Not Linked
+                        </Badge>
+                      )
+                    })()}
                   </Table.Cell>
                   <Table.Cell>
                     <Text fontSize="sm" color="gray.600">

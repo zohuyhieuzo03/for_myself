@@ -33,6 +33,7 @@ class EntitiesPublic(SQLModel):      # List response wrapper
 - Tạo file CRUD cho entity mới
 - Implement các hàm: create, read, update, delete
 - Sử dụng SQLModel và SQLAlchemy patterns
+- **NHỚ**: Luôn import functions vào `crud/__init__.py` và thêm vào `__all__` list để API routes có thể sử dụng
 
 #### 1.3 API Routes (`backend/app/api/routes/`)
 - Tạo route file cho entity

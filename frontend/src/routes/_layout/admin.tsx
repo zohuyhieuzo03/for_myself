@@ -51,7 +51,7 @@ function UsersTable() {
     })
   }
 
-  const users = data?.data.slice(0, PER_PAGE) ?? []
+  const users = data?.data ?? []
   const count = data?.count ?? 0
 
   if (isLoading) {

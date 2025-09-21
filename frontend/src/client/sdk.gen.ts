@@ -445,17 +445,18 @@ export class GmailService {
     
     /**
      * Get Email Transactions
-     * Get email transactions for a Gmail connection.
+     * Get email transactions for a Gmail connection or all user's connections.
      * @param data The data for the request.
-     * @param data.connectionId Gmail connection ID
+     * @param data.connectionId Gmail connection ID (optional, if not provided returns all user's connections)
      * @param data.skip
      * @param data.limit
      * @param data.status Filter by status (pending, processed, ignored)
      * @param data.unseenOnly Filter to show only unseen emails
+     * @param data.sortBy Sort by: date_desc, amount_desc, amount_asc
      * @returns EmailTransactionsPublic Successful Response
      * @throws ApiError
      */
-    public static getEmailTransactions(data: GmailGetEmailTransactionsData): CancelablePromise<GmailGetEmailTransactionsResponse> {
+    public static getEmailTransactions(data: GmailGetEmailTransactionsData = {}): CancelablePromise<GmailGetEmailTransactionsResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/gmail/email-transactions',
@@ -464,7 +465,8 @@ export class GmailService {
                 skip: data.skip,
                 limit: data.limit,
                 status: data.status,
-                unseen_only: data.unseenOnly
+                unseen_only: data.unseenOnly,
+                sort_by: data.sortBy
             },
             errors: {
                 422: 'Validation Error'

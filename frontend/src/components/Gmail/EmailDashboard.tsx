@@ -81,21 +81,6 @@ export default function EmailDashboard() {
     (_, i) => new Date().getFullYear() - i,
   )
 
-  // Determine days to show based on filter type
-  const getDaysToShow = () => {
-    switch (filterType) {
-      case "last7":
-        return 7
-      case "last30":
-        return 30
-      case "month":
-        return 30 // Default to 30 days for month view
-      case "all":
-        return 30 // Default to 30 days for all time
-      default:
-        return 30
-    }
-  }
 
   function DateRangeControls() {
     return (
@@ -176,7 +161,6 @@ export default function EmailDashboard() {
           showRecentTransactions={true}
           showMonthlyChart={true}
           monthlyData={monthlyData}
-          daysToShow={getDaysToShow()}
         />
       </VStack>
     </Container>

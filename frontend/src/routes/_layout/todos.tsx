@@ -85,7 +85,7 @@ function TodosTable() {
     })
   }
 
-  const todos = data?.data.slice(0, PER_PAGE) ?? []
+  const todos = data?.data ?? []
   const count = data?.count ?? 0
 
   if (isLoading) {

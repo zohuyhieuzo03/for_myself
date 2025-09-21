@@ -71,6 +71,7 @@ from .email_transaction import (
     get_email_txn_dashboard,
     mark_email_transaction_as_seen,
     update_email_transaction,
+    get_email_transactions_for_all_connections,
 )
 
 __all__ = [
@@ -145,4 +146,5 @@ __all__ = [
     "get_email_txn_dashboard",
     "mark_email_transaction_as_seen",
     "update_email_transaction",
+    "get_email_transactions_for_all_connections",
 ]
