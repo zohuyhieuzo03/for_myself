@@ -1,15 +1,17 @@
 import {
   Badge,
+  Button,
   Container,
   EmptyState,
   Flex,
   Heading,
+  HStack,
   Table,
   VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { FiCheckSquare } from "react-icons/fi"
+import { FiCheckSquare, FiArchive } from "react-icons/fi"
 import { z } from "zod"
 
 import { TodosService, type TodoUpdate, type TodoStatus } from "@/client"
@@ -17,6 +19,7 @@ import type { ApiError } from "@/client/core/ApiError"
 import PendingTodos from "@/components/Pending/PendingTodos"
 import AddTodo from "@/components/Todos/AddTodo"
 import { TodoActionsMenu } from "@/components/Todos/TodoActionsMenu"
+import TodosKanban from "@/components/Todos/TodosKanban"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   PaginationItems,
@@ -29,6 +32,7 @@ import { formatDateTimeShort, handleError } from "@/utils"
 
 const todosSearchSchema = z.object({
   page: z.number().catch(1),
+  view: z.enum(["table", "kanban"]).catch("table"),
 })
 
 const PER_PAGE = 5
@@ -48,7 +52,7 @@ export const Route = createFileRoute("/_layout/todos")({
 
 function TodosTable() {
   const navigate = useNavigate()
-  const { page } = Route.useSearch()
+  const { page, view } = Route.useSearch()
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
@@ -76,18 +80,58 @@ function TodosTable() {
 
   const handleToggleTodo = (id: string, currentStatus: TodoStatus) => {
     const newStatus = currentStatus === "done" ? "todo" : "done"
+    
+    // Only call API if status actually changed
+    if (currentStatus === newStatus) return
+    
     updateTodoStatusMutation.mutate({ id, status: newStatus })
+  }
+
+  const archiveTodoMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: TodoStatus }) =>
+      TodosService.updateTodoEndpoint({
+        id,
+        requestBody: { status } as TodoUpdate,
+      }),
+    onSuccess: () => {
+      showSuccessToast("Todo archived successfully.")
+    },
+    onError: (err: ApiError) => {
+      handleError(err)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+    },
+  })
+
+  const handleArchiveTodo = (id: string) => {
+    // Find the todo to check current status
+    const todo = allTodos.find(t => t.id === id)
+    if (!todo) return
+    
+    // Only call API if todo is not already archived
+    if (todo.status === "archived") return
+    
+    archiveTodoMutation.mutate({ id, status: "archived" })
   }
 
   const setPage = (page: number) => {
     navigate({
       to: "/todos",
-      search: { page },
+      search: { page, view },
     })
   }
 
-  const todos = data?.data ?? []
-  const count = data?.count ?? 0
+  const setView = (newView: "table" | "kanban") => {
+    navigate({
+      to: "/todos",
+      search: { page: 1, view: newView },
+    })
+  }
+
+  const allTodos = data?.data ?? []
+  const todos = allTodos.filter(todo => todo.status !== "archived")
+  const count = todos.length
 
   if (isLoading) {
     return <PendingTodos />
@@ -113,6 +157,26 @@ function TodosTable() {
 
   return (
     <>
+      <Flex justify="space-between" align="center" mb={4}>
+        <Heading size="lg">Todo Management</Heading>
+        <HStack gap={2}>
+          <Button
+            variant={view === "table" ? "solid" : "outline"}
+            onClick={() => setView("table")}
+          >
+            Table View
+          </Button>
+          <Button
+            variant={view === "kanban" ? "solid" : "outline"}
+            onClick={() => setView("kanban")}
+          >
+            Kanban View
+          </Button>
+        </HStack>
+      </Flex>
+      
+      <AddTodo />
+      
       <Table.Root size={{ base: "sm", md: "md" }}>
         <Table.Header>
           <Table.Row>
@@ -197,7 +261,19 @@ function TodosTable() {
                 {formatDateTimeShort(todo.updated_at)}
               </Table.Cell>
               <Table.Cell>
-                <TodoActionsMenu todo={todo} />
+                <HStack gap={1}>
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    colorScheme="gray"
+                    onClick={() => handleArchiveTodo(todo.id)}
+                    disabled={archiveTodoMutation.isPending}
+                    title="Archive todo"
+                  >
+                    <FiArchive fontSize="12px" />
+                  </Button>
+                  <TodoActionsMenu todo={todo} />
+                </HStack>
               </Table.Cell>
             </Table.Row>
           ))}
@@ -221,12 +297,22 @@ function TodosTable() {
 }
 
 function Todos() {
+  const navigate = useNavigate()
+  const { view } = Route.useSearch()
+  
+  const setView = (newView: "table" | "kanban") => {
+    navigate({
+      to: "/todos",
+      search: { page: 1, view: newView },
+    })
+  }
+  
+  if (view === "kanban") {
+    return <TodosKanban viewMode={view} onViewModeChange={setView} />
+  }
+  
   return (
     <Container maxW="full">
-      <Heading size="lg" pt={12}>
-        Todo Management
-      </Heading>
-      <AddTodo />
       <TodosTable />
     </Container>
   )
