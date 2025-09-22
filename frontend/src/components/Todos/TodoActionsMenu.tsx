@@ -3,7 +3,6 @@ import { BsThreeDotsVertical } from "react-icons/bs"
 import type { TodoPublic } from "@/client"
 import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu"
 import DeleteTodo from "./DeleteTodo"
-import EditTodo from "./EditTodo"
 
 interface TodoActionsMenuProps {
   todo: TodoPublic
@@ -18,7 +17,6 @@ export const TodoActionsMenu = ({ todo }: TodoActionsMenuProps) => {
         </IconButton>
       </MenuTrigger>
       <MenuContent>
-        <EditTodo todo={todo} />
         <DeleteTodo id={todo.id} />
       </MenuContent>
     </MenuRoot>

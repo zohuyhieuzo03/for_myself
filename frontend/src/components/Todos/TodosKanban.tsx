@@ -11,27 +11,36 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
-import { FiCheckSquare, FiArchive } from "react-icons/fi"
 import {
   DndContext,
-  DragEndEvent,
+  type DragEndEvent,
   DragOverlay,
-  DragStartEvent,
+  type DragStartEvent,
   PointerSensor,
+  useDroppable,
   useSensor,
   useSensors,
-  useDroppable,
 } from "@dnd-kit/core"
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
-import { useSortable } from "@dnd-kit/sortable"
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { FiArchive, FiCheckSquare } from "react-icons/fi"
 
-import { TodosService, type TodoPublic, type TodoUpdate, type TodoStatus } from "@/client"
+import {
+  type TodoPublic,
+  type TodoStatus,
+  TodosService,
+  type TodoUpdate,
+} from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import PendingTodos from "@/components/Pending/PendingTodos"
 import AddTodo from "@/components/Todos/AddTodo"
+import TodoDetailDialog from "@/components/Todos/TodoDetailDialog"
 import { TodoActionsMenu } from "@/components/Todos/TodoActionsMenu"
 import useCustomToast from "@/hooks/useCustomToast"
 import { formatDateTimeShort, handleError } from "@/utils"
@@ -47,9 +56,20 @@ const STATUS_COLUMNS: Array<{
   color: string
   bgColor: string
 }> = [
-  { status: "backlog", title: "Backlog", color: "white", bgColor: "purple.500" },
+  {
+    status: "backlog",
+    title: "Backlog",
+    color: "white",
+    bgColor: "purple.500",
+  },
   { status: "todo", title: "To Do", color: "white", bgColor: "orange.500" },
-  { status: "planning", title: "Planning", color: "white", bgColor: "blue.500" },
+  {
+    status: "planning",
+    title: "Planning",
+    color: "white",
+    bgColor: "blue.500",
+  },
+  { status: "doing", title: "Doing", color: "white", bgColor: "teal.500" },
   { status: "done", title: "Done", color: "white", bgColor: "green.500" },
 ]
 
@@ -60,7 +80,7 @@ function getTodosQueryOptions() {
   }
 }
 
-function DraggableTodoCard({ todo }: { todo: TodoPublic }) {
+function DraggableTodoCard({ todo, onOpen }: { todo: TodoPublic; onOpen: (todo: TodoPublic) => void }) {
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
@@ -92,10 +112,10 @@ function DraggableTodoCard({ todo }: { todo: TodoPublic }) {
 
   const handleArchive = (e: React.MouseEvent) => {
     e.stopPropagation()
-    
+
     // Only call API if todo is not already archived
     if (todo.status === "archived") return
-    
+
     archiveTodoMutation.mutate({ id: todo.id, status: "archived" })
   }
 
@@ -106,7 +126,7 @@ function DraggableTodoCard({ todo }: { todo: TodoPublic }) {
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={() => onOpen(todo)}>
       <Card.Root
         size="sm"
         variant="outline"
@@ -118,7 +138,13 @@ function DraggableTodoCard({ todo }: { todo: TodoPublic }) {
         <Card.Body p={3}>
           <VStack align="stretch" gap={2}>
             <Flex justify="space-between" align="start">
-              <Text fontWeight="medium" fontSize="sm" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
+              <Text
+                fontWeight="medium"
+                fontSize="sm"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+              >
                 {todo.title}
               </Text>
               <HStack gap={1}>
@@ -135,13 +161,22 @@ function DraggableTodoCard({ todo }: { todo: TodoPublic }) {
                 <TodoActionsMenu todo={todo} />
               </HStack>
             </Flex>
-            
+
             {todo.description && (
-              <Text fontSize="xs" color="gray.600" overflow="hidden" textOverflow="ellipsis" display="-webkit-box" style={{ WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
+              <Text
+                fontSize="xs"
+                color="gray.600"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                display="-webkit-box"
+                style={{ WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
+              >
                 {todo.description}
               </Text>
             )}
-            
+
+            {/* Checklist hidden in Kanban; available in Detail Dialog */}
+
             <HStack justify="space-between" fontSize="xs" color="gray.500">
               <Text>{formatDateTimeShort(todo.created_at)}</Text>
             </HStack>
@@ -152,18 +187,20 @@ function DraggableTodoCard({ todo }: { todo: TodoPublic }) {
   )
 }
 
-function KanbanColumn({ 
+function KanbanColumn({
   status,
-  title, 
-  color, 
-  bgColor, 
-  todos 
-}: { 
+  title,
+  color,
+  bgColor,
+  todos,
+  onOpen,
+}: {
   status: TodoStatus
   title: string
   color: string
   bgColor: string
   todos: TodoPublic[]
+  onOpen: (todo: TodoPublic) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: status,
@@ -187,10 +224,10 @@ function KanbanColumn({
           </Badge>
         </HStack>
       </Box>
-      
-      <VStack 
-        align="stretch" 
-        gap={2} 
+
+      <VStack
+        align="stretch"
+        gap={2}
         flex="1"
         p={2}
         borderRadius="md"
@@ -212,9 +249,12 @@ function KanbanColumn({
             </Text>
           </Box>
         ) : (
-          <SortableContext items={todos.map(todo => todo.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            items={todos.map((todo) => todo.id)}
+            strategy={verticalListSortingStrategy}
+          >
             {todos.map((todo) => (
-              <DraggableTodoCard key={todo.id} todo={todo} />
+              <DraggableTodoCard key={todo.id} todo={todo} onOpen={onOpen} />
             ))}
           </SortableContext>
         )}
@@ -223,18 +263,22 @@ function KanbanColumn({
   )
 }
 
-export default function TodosKanban({ viewMode, onViewModeChange }: TodosKanbanProps) {
+export default function TodosKanban({
+  viewMode,
+  onViewModeChange,
+}: TodosKanbanProps) {
   const { data, isLoading } = useQuery(getTodosQueryOptions())
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [detailTodo, setDetailTodo] = useState<TodoPublic | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
       },
-    })
+    }),
   )
 
   const updateTodoStatusMutation = useMutation({
@@ -255,9 +299,9 @@ export default function TodosKanban({ viewMode, onViewModeChange }: TodosKanbanP
   })
 
   const todos = data?.data ?? []
-  
+
   // Filter out archived todos
-  const activeTodos = todos.filter(todo => todo.status !== "archived")
+  const activeTodos = todos.filter((todo) => todo.status !== "archived")
 
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id as string)
@@ -273,7 +317,7 @@ export default function TodosKanban({ viewMode, onViewModeChange }: TodosKanbanP
     const newStatus = over.id as TodoStatus
 
     // Find the todo to get current status
-    const todo = todos.find(t => t.id === todoId)
+    const todo = todos.find((t) => t.id === todoId)
     if (!todo) return
 
     // Only call API if status actually changed
@@ -306,7 +350,7 @@ export default function TodosKanban({ viewMode, onViewModeChange }: TodosKanbanP
             </Button>
           </HStack>
         </Flex>
-        
+
         <EmptyState.Root>
           <EmptyState.Content>
             <EmptyState.Indicator>
@@ -320,17 +364,22 @@ export default function TodosKanban({ viewMode, onViewModeChange }: TodosKanbanP
             </VStack>
           </EmptyState.Content>
         </EmptyState.Root>
-        
+
         <AddTodo />
       </Container>
     )
   }
 
   // Group active todos by status
-  const todosByStatus = STATUS_COLUMNS.reduce((acc, column) => {
-    acc[column.status] = activeTodos.filter(todo => todo.status === column.status)
-    return acc
-  }, {} as Record<TodoStatus, TodoPublic[]>)
+  const todosByStatus = STATUS_COLUMNS.reduce(
+    (acc, column) => {
+      acc[column.status] = activeTodos.filter(
+        (todo) => todo.status === column.status,
+      )
+      return acc
+    },
+    {} as Record<TodoStatus, TodoPublic[]>,
+  )
 
   return (
     <Container maxW="full">
@@ -351,9 +400,9 @@ export default function TodosKanban({ viewMode, onViewModeChange }: TodosKanbanP
           </Button>
         </HStack>
       </Flex>
-      
+
       <AddTodo />
-      
+
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
@@ -362,17 +411,18 @@ export default function TodosKanban({ viewMode, onViewModeChange }: TodosKanbanP
         <Flex gap={4} overflowX="auto" pb={4}>
           {STATUS_COLUMNS.map((column) => (
             <Box key={column.status} minW="280px" flex="1">
-            <KanbanColumn
-              status={column.status}
-              title={column.title}
-              color={column.color}
-              bgColor={column.bgColor}
-              todos={todosByStatus[column.status]}
-            />
+              <KanbanColumn
+                status={column.status}
+                title={column.title}
+                color={column.color}
+                bgColor={column.bgColor}
+                todos={todosByStatus[column.status]}
+                onOpen={setDetailTodo}
+              />
             </Box>
           ))}
         </Flex>
-        
+
         <DragOverlay>
           {activeId ? (
             <Box
@@ -385,12 +435,22 @@ export default function TodosKanban({ viewMode, onViewModeChange }: TodosKanbanP
               minW="280px"
             >
               <Text fontWeight="medium" fontSize="sm">
-                {todos.find(todo => todo.id === activeId)?.title}
+                {todos.find((todo) => todo.id === activeId)?.title}
               </Text>
             </Box>
           ) : null}
         </DragOverlay>
       </DndContext>
+      {/* Todo Detail Dialog */}
+      {detailTodo && (
+        <TodoDetailDialog
+          open={!!detailTodo}
+          onOpenChange={(open) => {
+            if (!open) setDetailTodo(null)
+          }}
+          todo={detailTodo}
+        />
+      )}
     </Container>
   )
 }

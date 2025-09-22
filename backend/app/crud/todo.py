@@ -5,6 +5,9 @@ from typing import Any
 from sqlmodel import Session, select
 
 from app.models import (
+    ChecklistItem,
+    ChecklistItemCreate,
+    ChecklistItemUpdate,
     Item,
     ItemCreate,
     Todo,
@@ -62,3 +65,45 @@ def delete_todo(*, session: Session, todo_id: uuid.UUID) -> Todo | None:
         session.delete(todo)
         session.commit()
     return todo
+
+
+# ========= CHECKLIST ITEM CRUD =========
+def create_checklist_item(*, session: Session, checklist_item_in: ChecklistItemCreate, todo_id: uuid.UUID) -> ChecklistItem:
+    db_checklist_item = ChecklistItem.model_validate(checklist_item_in, update={"todo_id": todo_id})
+    session.add(db_checklist_item)
+    session.commit()
+    session.refresh(db_checklist_item)
+    return db_checklist_item
+
+
+def update_checklist_item(*, session: Session, db_checklist_item: ChecklistItem, checklist_item_in: ChecklistItemUpdate) -> Any:
+    checklist_item_data = checklist_item_in.model_dump(exclude_unset=True)
+    extra_data = {"updated_at": datetime.now(timezone.utc)}
+    db_checklist_item.sqlmodel_update(checklist_item_data, update=extra_data)
+    session.add(db_checklist_item)
+    session.commit()
+    session.refresh(db_checklist_item)
+    return db_checklist_item
+
+
+def get_checklist_item(*, session: Session, checklist_item_id: uuid.UUID) -> ChecklistItem | None:
+    statement = select(ChecklistItem).where(ChecklistItem.id == checklist_item_id)
+    checklist_item = session.exec(statement).first()
+    return checklist_item
+
+
+def get_checklist_items_by_todo(
+    *, session: Session, todo_id: uuid.UUID
+) -> list[ChecklistItem]:
+    statement = select(ChecklistItem).where(ChecklistItem.todo_id == todo_id).order_by(ChecklistItem.order_index)
+    checklist_items = list(session.exec(statement).all())
+    return checklist_items
+
+
+def delete_checklist_item(*, session: Session, checklist_item_id: uuid.UUID) -> ChecklistItem | None:
+    statement = select(ChecklistItem).where(ChecklistItem.id == checklist_item_id)
+    checklist_item = session.exec(statement).first()
+    if checklist_item:
+        session.delete(checklist_item)
+        session.commit()
+    return checklist_item

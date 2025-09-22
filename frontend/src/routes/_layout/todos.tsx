@@ -11,10 +11,10 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { FiCheckSquare, FiArchive } from "react-icons/fi"
+import { FiArchive, FiCheckSquare } from "react-icons/fi"
 import { z } from "zod"
 
-import { TodosService, type TodoUpdate, type TodoStatus } from "@/client"
+import { type TodoStatus, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import PendingTodos from "@/components/Pending/PendingTodos"
 import AddTodo from "@/components/Todos/AddTodo"
@@ -40,7 +40,10 @@ function getTodosQueryOptions({ page }: { page: number | undefined }) {
   const currentPage = page || 1
   return {
     queryFn: () =>
-      TodosService.readTodos({ skip: (currentPage - 1) * PER_PAGE, limit: PER_PAGE }),
+      TodosService.readTodos({
+        skip: (currentPage - 1) * PER_PAGE,
+        limit: PER_PAGE,
+      }),
     queryKey: ["todos", { page: currentPage }],
   }
 }
@@ -61,7 +64,6 @@ function TodosTable() {
     placeholderData: (prevData) => prevData,
   })
 
-
   const archiveTodoMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: TodoStatus }) =>
       TodosService.updateTodoEndpoint({
@@ -81,12 +83,12 @@ function TodosTable() {
 
   const handleArchiveTodo = (id: string) => {
     // Find the todo to check current status
-    const todo = allTodos.find(t => t.id === id)
+    const todo = allTodos.find((t) => t.id === id)
     if (!todo) return
-    
+
     // Only call API if todo is not already archived
     if (todo.status === "archived") return
-    
+
     archiveTodoMutation.mutate({ id, status: "archived" })
   }
 
@@ -148,9 +150,9 @@ function TodosTable() {
           </Button>
         </HStack>
       </Flex>
-      
+
       <AddTodo />
-      
+
       <Table.Root size={{ base: "sm", md: "md" }}>
         <Table.Header>
           <Table.Row>
@@ -182,38 +184,44 @@ function TodosTable() {
               <Table.Cell>
                 <Badge
                   colorScheme={
-                    todo.status === "done" 
-                      ? "green" 
-                      : todo.status === "archived" 
-                      ? "gray" 
-                      : todo.status === "planning"
-                      ? "blue"
-                      : todo.status === "backlog"
-                      ? "purple"
-                      : "orange"
+                    todo.status === "done"
+                      ? "green"
+                      : todo.status === "archived"
+                        ? "gray"
+                        : todo.status === "doing"
+                          ? "teal"
+                        : todo.status === "planning"
+                          ? "blue"
+                          : todo.status === "backlog"
+                            ? "purple"
+                            : "orange"
                   }
                   bg={
-                    todo.status === "done" 
-                      ? "green.500" 
-                      : todo.status === "archived" 
-                      ? "gray.500" 
-                      : todo.status === "planning"
-                      ? "blue.500"
-                      : todo.status === "backlog"
-                      ? "purple.500"
-                      : "orange.500"
+                    todo.status === "done"
+                      ? "green.500"
+                      : todo.status === "archived"
+                        ? "gray.500"
+                        : todo.status === "doing"
+                          ? "teal.500"
+                        : todo.status === "planning"
+                          ? "blue.500"
+                          : todo.status === "backlog"
+                            ? "purple.500"
+                            : "orange.500"
                   }
                   color="white"
                 >
-                  {todo.status === "done" 
-                    ? "Done" 
-                    : todo.status === "archived" 
-                    ? "Archived" 
-                    : todo.status === "planning"
-                    ? "Planning"
-                    : todo.status === "backlog"
-                    ? "Backlog"
-                    : "Todo"}
+                  {todo.status === "done"
+                    ? "Done"
+                    : todo.status === "archived"
+                      ? "Archived"
+                      : todo.status === "doing"
+                        ? "Doing"
+                      : todo.status === "planning"
+                        ? "Planning"
+                        : todo.status === "backlog"
+                          ? "Backlog"
+                          : "Todo"}
                 </Badge>
               </Table.Cell>
               <Table.Cell truncate maxW="sm">
@@ -261,18 +269,18 @@ function TodosTable() {
 function Todos() {
   const navigate = useNavigate()
   const { view, page } = Route.useSearch()
-  
+
   const setView = (newView: "table" | "kanban") => {
     navigate({
       to: "/todos",
       search: { page: newView === "table" ? page : undefined, view: newView },
     })
   }
-  
+
   if (view === "kanban") {
     return <TodosKanban viewMode={view} onViewModeChange={setView} />
   }
-  
+
   return (
     <Container maxW="full">
       <TodosTable />

@@ -11,7 +11,7 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaPlus } from "react-icons/fa"
 
-import { type TodoCreate, TodosService, type TodoStatus } from "@/client"
+import { type TodoCreate, type TodoStatus, TodosService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -25,6 +25,9 @@ import {
   DialogTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
+// Checklist is managed post-creation in the detail dialog via ChecklistManager
+
+// Using simple create; checklist items will be added after creation
 
 const AddTodo = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -46,8 +49,16 @@ const AddTodo = () => {
   })
 
   const mutation = useMutation({
-    mutationFn: (data: TodoCreate) =>
-      TodosService.createTodoEndpoint({ requestBody: data }),
+    mutationFn: async (data: TodoCreate) => {
+      const todo = await TodosService.createTodoEndpoint({
+        requestBody: {
+          title: data.title,
+          description: data.description,
+          status: data.status,
+        },
+      })
+      return todo
+    },
     onSuccess: () => {
       showSuccessToast("Todo created successfully.")
       reset()
@@ -131,10 +142,13 @@ const AddTodo = () => {
                   <option value="backlog">Backlog</option>
                   <option value="todo">Todo</option>
                   <option value="planning">Planning</option>
+                  <option value="doing">Doing</option>
                   <option value="done">Done</option>
                   <option value="archived">Archived</option>
                 </select>
               </Field>
+
+              {/* Checklist items are managed after creation in the detail dialog */}
             </VStack>
           </DialogBody>
 

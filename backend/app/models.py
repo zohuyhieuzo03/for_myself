@@ -157,6 +157,7 @@ class CategoryGroup(str, Enum):
 class TodoStatus(str, Enum):
     backlog = "backlog"
     todo = "todo"
+    doing = "doing"
     planning = "planning"
     done = "done"
     archived = "archived"
@@ -190,6 +191,9 @@ class Todo(TodoBase, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     owner: User | None = Relationship(back_populates="todos")
+    checklist_items: list["ChecklistItem"] = Relationship(
+        back_populates="todo", cascade_delete=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -198,10 +202,55 @@ class TodoPublic(TodoBase):
     owner_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    checklist_items: list["ChecklistItemPublic"] = []
 
 
 class TodosPublic(SQLModel):
     data: list[TodoPublic]
+    count: int
+
+
+# ========= CHECKLIST ITEM =========
+# Shared properties for ChecklistItem
+class ChecklistItemBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    is_completed: bool = Field(default=False)
+    order_index: int = Field(default=0)
+
+
+# Properties to receive on checklist item creation
+class ChecklistItemCreate(ChecklistItemBase):
+    pass
+
+
+# Properties to receive on checklist item update
+class ChecklistItemUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    is_completed: bool | None = None
+    order_index: int | None = None
+
+
+# Database model, database table inferred from class name
+class ChecklistItem(ChecklistItemBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    todo_id: uuid.UUID = Field(
+        foreign_key="todo.id", nullable=False, ondelete="CASCADE"
+    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    todo: Todo | None = Relationship(back_populates="checklist_items")
+
+
+# Properties to return via API, id is always required
+class ChecklistItemPublic(ChecklistItemBase):
+    id: uuid.UUID
+    todo_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+class ChecklistItemsPublic(SQLModel):
+    data: list[ChecklistItemPublic]
     count: int
 
 

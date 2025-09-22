@@ -524,7 +524,9 @@ function CreateTransactionFromEmailModal({
               <Button
                 type="submit"
                 colorScheme="blue"
-                disabled={!isValid || createTransactionFromEmailMutation.isPending}
+                disabled={
+                  !isValid || createTransactionFromEmailMutation.isPending
+                }
                 loading={createTransactionFromEmailMutation.isPending}
               >
                 Create Transaction

@@ -94,6 +94,33 @@ export type CategoryUpdate = {
     is_envelope?: (boolean | null);
 };
 
+export type ChecklistItemCreate = {
+    title: string;
+    is_completed?: boolean;
+    order_index?: number;
+};
+
+export type ChecklistItemPublic = {
+    title: string;
+    is_completed?: boolean;
+    order_index?: number;
+    id: string;
+    todo_id: string;
+    created_at: string;
+    updated_at: string;
+};
+
+export type ChecklistItemsPublic = {
+    data: Array<ChecklistItemPublic>;
+    count: number;
+};
+
+export type ChecklistItemUpdate = {
+    title?: (string | null);
+    is_completed?: (boolean | null);
+    order_index?: (number | null);
+};
+
 export type EmailTransactionPublic = {
     email_id: string;
     subject: string;
@@ -252,6 +279,7 @@ export type TodoPublic = {
     owner_id: string;
     created_at: string;
     updated_at: string;
+    checklist_items?: Array<ChecklistItemPublic>;
 };
 
 export type TodosPublic = {
@@ -259,7 +287,7 @@ export type TodosPublic = {
     count: number;
 };
 
-export type TodoStatus = 'backlog' | 'todo' | 'planning' | 'done' | 'archived';
+export type TodoStatus = 'backlog' | 'todo' | 'doing' | 'planning' | 'done' | 'archived';
 
 export type TodoUpdate = {
     title?: (string | null);
@@ -769,6 +797,32 @@ export type TodosDeleteTodoEndpointData = {
 };
 
 export type TodosDeleteTodoEndpointResponse = (Message);
+
+export type TodosReadChecklistItemsData = {
+    todoId: string;
+};
+
+export type TodosReadChecklistItemsResponse = (ChecklistItemsPublic);
+
+export type TodosCreateChecklistItemEndpointData = {
+    requestBody: ChecklistItemCreate;
+    todoId: string;
+};
+
+export type TodosCreateChecklistItemEndpointResponse = (ChecklistItemPublic);
+
+export type TodosUpdateChecklistItemEndpointData = {
+    checklistItemId: string;
+    requestBody: ChecklistItemUpdate;
+};
+
+export type TodosUpdateChecklistItemEndpointResponse = (ChecklistItemPublic);
+
+export type TodosDeleteChecklistItemEndpointData = {
+    checklistItemId: string;
+};
+
+export type TodosDeleteChecklistItemEndpointResponse = (Message);
 
 export type TransactionsReadTransactionsData = {
     limit?: number;

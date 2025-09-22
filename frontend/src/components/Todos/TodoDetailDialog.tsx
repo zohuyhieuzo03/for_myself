@@ -1,15 +1,13 @@
 import {
   Button,
   ButtonGroup,
-  DialogActionTrigger,
   Input,
   Text,
-  VStack,
+  VStack
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import { FaExchangeAlt } from "react-icons/fa"
 
 import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
@@ -23,18 +21,22 @@ import {
   DialogHeader,
   DialogRoot,
   DialogTitle,
-  DialogTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
+import ChecklistManager from "./ChecklistManager"
 
-interface EditTodoProps {
+interface TodoDetailDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
   todo: TodoPublic
 }
 
-const EditTodo = ({ todo }: EditTodoProps) => {
-  const [isOpen, setIsOpen] = useState(false)
+export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetailDialogProps) {
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+
+  // Checklist items are managed independently by ChecklistManager
+
   const {
     register,
     handleSubmit,
@@ -50,79 +52,66 @@ const EditTodo = ({ todo }: EditTodoProps) => {
     },
   })
 
+  // seed form when open or todo changes
+  useEffect(() => {
+    if (!open) return
+    reset({
+      title: todo.title,
+      description: todo.description || "",
+      status: todo.status || "todo",
+    })
+  }, [open, reset, todo])
+
   const mutation = useMutation({
-    mutationFn: (data: TodoUpdate) =>
-      TodosService.updateTodoEndpoint({ id: todo.id, requestBody: data }),
+    mutationFn: async (data: TodoUpdate) => {
+      await TodosService.updateTodoEndpoint({
+        id: todo.id,
+        requestBody: {
+          title: data.title,
+          description: data.description,
+          status: data.status,
+        },
+      })
+      // Checklist CRUD is handled inline by ChecklistManager
+    },
     onSuccess: () => {
       showSuccessToast("Todo updated successfully.")
-      reset()
-      setIsOpen(false)
     },
-    onError: (err: ApiError) => {
-      handleError(err)
-    },
+    onError: (err: ApiError) => handleError(err),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] })
+      queryClient.invalidateQueries({ queryKey: ["checklist", todo.id] })
+      onOpenChange(false)
     },
   })
 
-  const onSubmit: SubmitHandler<TodoUpdate> = async (data) => {
+  const onSubmit: SubmitHandler<TodoUpdate> = (data) => {
     mutation.mutate(data)
   }
 
   return (
-    <DialogRoot
-      size={{ base: "xs", md: "md" }}
-      placement="center"
-      open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
-    >
-      <DialogTrigger asChild>
-        <Button variant="ghost">
-          <FaExchangeAlt fontSize="16px" />
-          Edit Todo
-        </Button>
-      </DialogTrigger>
+    <DialogRoot size={{ base: "xs", md: "lg" }} placement="center" open={open} onOpenChange={({ open }) => onOpenChange(open)}>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Edit Todo</DialogTitle>
+            <DialogTitle>Todo Detail</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>Update the todo details below.</Text>
-            <VStack gap={4}>
-              <Field
-                required
-                invalid={!!errors.title}
-                errorText={errors.title?.message}
-                label="Title"
-              >
+            <Text mb={4}>View or edit todo details below.</Text>
+            <VStack gap={4} align="stretch">
+              <Field required invalid={!!errors.title} errorText={errors.title?.message} label="Title">
                 <Input
-                  {...register("title", {
-                    required: "Title is required",
-                  })}
+                  {...register("title", { required: "Title is required" })}
                   placeholder="Title"
                   type="text"
                 />
               </Field>
 
-              <Field
-                invalid={!!errors.description}
-                errorText={errors.description?.message}
-                label="Description"
-              >
-                <Input
-                  {...register("description")}
-                  placeholder="Description"
-                  type="text"
-                />
+              <Field invalid={!!errors.description} errorText={errors.description?.message} label="Description">
+                <Input {...register("description")} placeholder="Description" type="text" />
               </Field>
 
-              <Field
-                invalid={!!errors.status}
-                errorText={errors.status?.message}
-                label="Status"
-              >
+              <Field invalid={!!errors.status} errorText={errors.status?.message} label="Status">
                 <select
                   {...register("status")}
                   style={{
@@ -136,24 +125,22 @@ const EditTodo = ({ todo }: EditTodoProps) => {
                   <option value="backlog">Backlog</option>
                   <option value="todo">Todo</option>
                   <option value="planning">Planning</option>
+                  <option value="doing">Doing</option>
                   <option value="done">Done</option>
                   <option value="archived">Archived</option>
                 </select>
               </Field>
+              
+              <Field label="Checklist">
+                <ChecklistManager todoId={todo.id} />
+              </Field>
             </VStack>
           </DialogBody>
-
           <DialogFooter gap={2}>
             <ButtonGroup>
-              <DialogActionTrigger asChild>
-                <Button
-                  variant="subtle"
-                  colorPalette="gray"
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-              </DialogActionTrigger>
+              <Button variant="subtle" colorPalette="gray" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+                Close
+              </Button>
               <Button variant="solid" type="submit" loading={isSubmitting}>
                 Save
               </Button>
@@ -165,5 +152,3 @@ const EditTodo = ({ todo }: EditTodoProps) => {
     </DialogRoot>
   )
 }
-
-export default EditTodo

@@ -438,6 +438,135 @@ export const CategoryUpdateSchema = {
     title: 'CategoryUpdate'
 } as const;
 
+export const ChecklistItemCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        is_completed: {
+            type: 'boolean',
+            title: 'Is Completed',
+            default: false
+        },
+        order_index: {
+            type: 'integer',
+            title: 'Order Index',
+            default: 0
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'ChecklistItemCreate'
+} as const;
+
+export const ChecklistItemPublicSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        is_completed: {
+            type: 'boolean',
+            title: 'Is Completed',
+            default: false
+        },
+        order_index: {
+            type: 'integer',
+            title: 'Order Index',
+            default: 0
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        todo_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Todo Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'todo_id', 'created_at', 'updated_at'],
+    title: 'ChecklistItemPublic'
+} as const;
+
+export const ChecklistItemUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        is_completed: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Completed'
+        },
+        order_index: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Order Index'
+        }
+    },
+    type: 'object',
+    title: 'ChecklistItemUpdate'
+} as const;
+
+export const ChecklistItemsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/ChecklistItemPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'ChecklistItemsPublic'
+} as const;
+
 export const EmailTransactionPublicSchema = {
     properties: {
         email_id: {
@@ -1231,6 +1360,14 @@ export const TodoPublicSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Updated At'
+        },
+        checklist_items: {
+            items: {
+                '$ref': '#/components/schemas/ChecklistItemPublic'
+            },
+            type: 'array',
+            title: 'Checklist Items',
+            default: []
         }
     },
     type: 'object',
@@ -1240,7 +1377,7 @@ export const TodoPublicSchema = {
 
 export const TodoStatusSchema = {
     type: 'string',
-    enum: ['backlog', 'todo', 'planning', 'done', 'archived'],
+    enum: ['backlog', 'todo', 'doing', 'planning', 'done', 'archived'],
     title: 'TodoStatus'
 } as const;
 

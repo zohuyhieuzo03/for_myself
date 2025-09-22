@@ -6,11 +6,16 @@ from .user import (
     update_user,
 )
 from .todo import (
+    create_checklist_item,
     create_item,
     create_todo,
+    delete_checklist_item,
     delete_todo,
+    get_checklist_item,
+    get_checklist_items_by_todo,
     get_todo,
     get_todos,
+    update_checklist_item,
     update_todo,
 )
 from .account import (
@@ -77,6 +82,12 @@ __all__ = [
     "get_todo",
     "get_todos",
     "update_todo",
+    # Checklist functions
+    "create_checklist_item",
+    "delete_checklist_item",
+    "get_checklist_item",
+    "get_checklist_items_by_todo",
+    "update_checklist_item",
     # Sprint functions
     "create_sprint",
     "delete_sprint",
