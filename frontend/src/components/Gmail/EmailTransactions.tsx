@@ -942,10 +942,6 @@ export function EmailTransactionsTable({
     })
   }
 
-  // Check if all emails are processed (following admin pattern)
-  const allEmailsProcessed =
-    transactions?.every((t: any) => t.status === "processed") || false
-
   if (isLoading && !isPlaceholderData) {
     return (
       <Card.Root>
@@ -1059,20 +1055,6 @@ export function EmailTransactionsTable({
                   </Flex>
                 </PaginationRoot>
               </Flex>
-
-              {/* Summary */}
-              <Box mt={4} p={3} bg="gray.50" borderRadius="md">
-                <Text fontSize="sm" color="gray.600">
-                  Showing {transactions.length} of {totalCount} transactions
-                  {statusFilter !== "all" && ` (filtered by ${statusFilter})`}
-                  {connectionId !== "all" && " (single connection)"}
-                </Text>
-                {allEmailsProcessed && (
-                  <Text fontSize="sm" color="green.600" mt={1}>
-                    ✅ Tất cả email đã được processed
-                  </Text>
-                )}
-              </Box>
             </>
           )}
         </Card.Body>

@@ -20,7 +20,6 @@ import PendingTodos from "@/components/Pending/PendingTodos"
 import AddTodo from "@/components/Todos/AddTodo"
 import { TodoActionsMenu } from "@/components/Todos/TodoActionsMenu"
 import TodosKanban from "@/components/Todos/TodosKanban"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   PaginationItems,
   PaginationNextTrigger,
@@ -31,17 +30,18 @@ import useCustomToast from "@/hooks/useCustomToast"
 import { formatDateTimeShort, handleError } from "@/utils"
 
 const todosSearchSchema = z.object({
-  page: z.number().catch(1),
-  view: z.enum(["table", "kanban"]).catch("table"),
+  page: z.number().optional().catch(1),
+  view: z.enum(["table", "kanban"]).catch("kanban"),
 })
 
 const PER_PAGE = 5
 
-function getTodosQueryOptions({ page }: { page: number }) {
+function getTodosQueryOptions({ page }: { page: number | undefined }) {
+  const currentPage = page || 1
   return {
     queryFn: () =>
-      TodosService.readTodos({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
-    queryKey: ["todos", { page }],
+      TodosService.readTodos({ skip: (currentPage - 1) * PER_PAGE, limit: PER_PAGE }),
+    queryKey: ["todos", { page: currentPage }],
   }
 }
 
@@ -61,31 +61,6 @@ function TodosTable() {
     placeholderData: (prevData) => prevData,
   })
 
-  const updateTodoStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: TodoStatus }) =>
-      TodosService.updateTodoEndpoint({
-        id,
-        requestBody: { status } as TodoUpdate,
-      }),
-    onSuccess: () => {
-      showSuccessToast("Todo status updated successfully.")
-    },
-    onError: (err: ApiError) => {
-      handleError(err)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] })
-    },
-  })
-
-  const handleToggleTodo = (id: string, currentStatus: TodoStatus) => {
-    const newStatus = currentStatus === "done" ? "todo" : "done"
-    
-    // Only call API if status actually changed
-    if (currentStatus === newStatus) return
-    
-    updateTodoStatusMutation.mutate({ id, status: newStatus })
-  }
 
   const archiveTodoMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: TodoStatus }) =>
@@ -125,19 +100,18 @@ function TodosTable() {
   const setView = (newView: "table" | "kanban") => {
     navigate({
       to: "/todos",
-      search: { page: 1, view: newView },
+      search: { page: newView === "table" ? page : undefined, view: newView },
     })
   }
 
   const allTodos = data?.data ?? []
-  const todos = allTodos.filter(todo => todo.status !== "archived")
-  const count = todos.length
+  const count = data?.count ?? 0
 
   if (isLoading) {
     return <PendingTodos />
   }
 
-  if (todos.length === 0) {
+  if (allTodos.length === 0) {
     return (
       <EmptyState.Root>
         <EmptyState.Content>
@@ -180,7 +154,6 @@ function TodosTable() {
       <Table.Root size={{ base: "sm", md: "md" }}>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader w="xs">Done</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">ID</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Title</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Description</Table.ColumnHeader>
@@ -191,19 +164,8 @@ function TodosTable() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {todos?.map((todo) => (
+          {allTodos?.map((todo) => (
             <Table.Row key={todo.id} opacity={isPlaceholderData ? 0.5 : 1}>
-              <Table.Cell>
-                <Checkbox
-                  checked={todo.status === "done"}
-                  onCheckedChange={() =>
-                    handleToggleTodo(todo.id, todo.status || "todo")
-                  }
-                  disabled={updateTodoStatusMutation.isPending}
-                  colorScheme="green"
-                  size="md"
-                />
-              </Table.Cell>
               <Table.Cell truncate maxW="sm">
                 {todo.id}
               </Table.Cell>
@@ -298,12 +260,12 @@ function TodosTable() {
 
 function Todos() {
   const navigate = useNavigate()
-  const { view } = Route.useSearch()
+  const { view, page } = Route.useSearch()
   
   const setView = (newView: "table" | "kanban") => {
     navigate({
       to: "/todos",
-      search: { page: 1, view: newView },
+      search: { page: newView === "table" ? page : undefined, view: newView },
     })
   }
   
