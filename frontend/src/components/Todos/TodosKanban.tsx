@@ -28,7 +28,7 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { FiArchive, FiCheckSquare } from "react-icons/fi"
 
 import {
@@ -310,12 +310,13 @@ function KanbanColumn({
 export default function TodosKanban({
   viewMode,
   onViewModeChange,
-}: TodosKanbanProps) {
+  selectedId,
+  onSelectedIdChange,
+}: TodosKanbanProps & { selectedId: string | null; onSelectedIdChange: (id: string | null) => void }) {
   const { data, isLoading } = useQuery(getTodosQueryOptions())
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [detailTodo, setDetailTodo] = useState<TodoPublic | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -343,6 +344,8 @@ export default function TodosKanban({
   })
 
   const todos = data?.data ?? []
+  const selectedTodo = useMemo(() => todos.find((t) => t.id === selectedId) ?? null, [todos, selectedId])
+  // Dialog open is derived from URL id via selectedTodo
 
   // Filter out archived todos
   const activeTodos = todos.filter((todo) => todo.status !== "archived")
@@ -461,7 +464,9 @@ export default function TodosKanban({
                 color={column.color}
                 bgColor={column.bgColor}
                 todos={todosByStatus[column.status]}
-                onOpen={setDetailTodo}
+                onOpen={(todo) => {
+                  onSelectedIdChange(todo.id)
+                }}
               />
             </Box>
           ))}
@@ -486,13 +491,13 @@ export default function TodosKanban({
         </DragOverlay>
       </DndContext>
       {/* Todo Detail Dialog */}
-      {detailTodo && (
+      {selectedTodo && (
         <TodoDetailDialog
-          open={!!detailTodo}
+          open={!!selectedTodo}
           onOpenChange={(open) => {
-            if (!open) setDetailTodo(null)
+            if (!open) onSelectedIdChange(null)
           }}
-          todo={detailTodo}
+          todo={selectedTodo}
         />
       )}
     </Container>

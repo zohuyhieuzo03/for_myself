@@ -67,6 +67,24 @@ def delete_todo(*, session: Session, todo_id: uuid.UUID) -> Todo | None:
     return todo
 
 
+# ========= PARENT / CHILD QUERIES =========
+def get_todo_children(*, session: Session, todo_id: uuid.UUID) -> list[Todo]:
+    statement = select(Todo).where(Todo.parent_id == todo_id).order_by(Todo.created_at)
+    children = list(session.exec(statement).all())
+    return children
+
+
+def get_todo_parent(*, session: Session, todo_id: uuid.UUID) -> Todo | None:
+    statement = select(Todo).where(Todo.id == todo_id)
+    todo = session.exec(statement).first()
+    if not todo:
+        return None
+    if todo.parent_id is None:
+        return None
+    parent = session.get(Todo, todo.parent_id)
+    return parent
+
+
 # ========= CHECKLIST ITEM CRUD =========
 def create_checklist_item(*, session: Session, checklist_item_in: ChecklistItemCreate, todo_id: uuid.UUID) -> ChecklistItem:
     db_checklist_item = ChecklistItem.model_validate(checklist_item_in, update={"todo_id": todo_id})

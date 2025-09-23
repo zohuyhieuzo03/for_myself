@@ -5,7 +5,7 @@ import {
   Text,
   VStack
 } from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
@@ -68,6 +68,19 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
     })
   }, [open, reset, todo])
 
+  // Fetch parent and children when dialog is open
+  const { data: parentData } = useQuery({
+    enabled: open,
+    queryKey: ["todos", todo.id, "parent"],
+    queryFn: () => TodosService.readTodoParent({ id: todo.id }),
+  })
+
+  const { data: childrenData } = useQuery({
+    enabled: open,
+    queryKey: ["todos", todo.id, "children"],
+    queryFn: () => TodosService.readTodoChildren({ id: todo.id }),
+  })
+
   const mutation = useMutation({
     mutationFn: async (data: TodoUpdate) => {
       await TodosService.updateTodoEndpoint({
@@ -108,6 +121,14 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
           <DialogBody>
             <Text mb={4}>View or edit todo details below.</Text>
             <VStack gap={4} align="stretch">
+              {parentData && (
+                <Field label="Parent">
+                  <Text fontSize="sm" color="gray.700">
+                    {parentData.title}
+                  </Text>
+                </Field>
+              )}
+
               <Field required invalid={!!errors.title} errorText={errors.title?.message} label="Title">
                 <Input
                   {...register("title", { required: "Title is required" })}
@@ -194,6 +215,20 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
               
               <Field label="Checklist">
                 <ChecklistManager todoId={todo.id} />
+              </Field>
+
+              <Field label="Subitems">
+                <VStack gap={2} align="stretch">
+                  {(childrenData?.data ?? []).length === 0 ? (
+                    <Text fontSize="sm" color="gray.600">No subitems</Text>
+                  ) : (
+                    (childrenData?.data ?? []).map((child) => (
+                      <Text key={child.id} fontSize="sm">
+                        {child.title}
+                      </Text>
+                    ))
+                  )}
+                </VStack>
               </Field>
             </VStack>
           </DialogBody>

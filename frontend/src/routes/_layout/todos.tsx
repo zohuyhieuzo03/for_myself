@@ -32,6 +32,7 @@ import { formatDateTimeShort, handleError } from "@/utils"
 const todosSearchSchema = z.object({
   page: z.number().optional().catch(1),
   view: z.enum(["table", "kanban"]).catch("kanban"),
+  id: z.string().uuid().optional().catch(undefined),
 })
 
 const PER_PAGE = 5
@@ -268,17 +269,26 @@ function TodosTable() {
 
 function Todos() {
   const navigate = useNavigate()
-  const { view, page } = Route.useSearch()
+  const { view, page, id } = Route.useSearch()
 
   const setView = (newView: "table" | "kanban") => {
     navigate({
       to: "/todos",
-      search: { page: newView === "table" ? page : undefined, view: newView },
+      search: { page: newView === "table" ? page : undefined, view: newView, id },
     })
   }
 
   if (view === "kanban") {
-    return <TodosKanban viewMode={view} onViewModeChange={setView} />
+    return (
+      <TodosKanban
+        viewMode={view}
+        onViewModeChange={setView}
+        selectedId={id ?? null}
+        onSelectedIdChange={(newId) =>
+          navigate({ to: "/todos", search: { page: undefined, view, id: newId ?? undefined } })
+        }
+      />
+    )
   }
 
   return (

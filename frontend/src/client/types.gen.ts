@@ -272,6 +272,7 @@ export type TodoCreate = {
     estimate_minutes?: (number | null);
     priority?: TodoPriority;
     type?: TodoType;
+    parent_id?: (string | null);
 };
 
 export type TodoPriority = 'low' | 'medium' | 'high' | 'urgent';
@@ -285,6 +286,7 @@ export type TodoPublic = {
     type?: TodoType;
     id: string;
     owner_id: string;
+    parent_id?: (string | null);
     created_at: string;
     updated_at: string;
     checklist_items?: Array<ChecklistItemPublic>;
@@ -306,6 +308,7 @@ export type TodoUpdate = {
     estimate_minutes?: (number | null);
     priority?: (TodoPriority | null);
     type?: (TodoType | null);
+    parent_id?: (string | null);
 };
 
 export type Token = {
@@ -810,6 +813,18 @@ export type TodosDeleteTodoEndpointData = {
 };
 
 export type TodosDeleteTodoEndpointResponse = (Message);
+
+export type TodosReadTodoChildrenData = {
+    id: string;
+};
+
+export type TodosReadTodoChildrenResponse = (TodosPublic);
+
+export type TodosReadTodoParentData = {
+    id: string;
+};
+
+export type TodosReadTodoParentResponse = ((TodoPublic | null));
 
 export type TodosReadChecklistItemsData = {
     todoId: string;

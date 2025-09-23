@@ -12,6 +12,8 @@ from app.crud import (
     delete_todo,
     get_checklist_item,
     get_checklist_items_by_todo,
+    get_todo_children,
+    get_todo_parent,
     update_checklist_item,
     update_todo,
 )
@@ -120,6 +122,34 @@ def delete_todo_endpoint(
         raise HTTPException(status_code=400, detail="Not enough permissions")
     delete_todo(session=session, todo_id=id)
     return Message(message="Todo deleted successfully")
+
+
+@router.get("/{id}/children", response_model=TodosPublic)
+def read_todo_children(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
+    """
+    Get children (subitems) of a todo.
+    """
+    todo = session.get(Todo, id)
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    if not current_user.is_superuser and (todo.owner_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    children = get_todo_children(session=session, todo_id=id)
+    return TodosPublic(data=children, count=len(children))
+
+
+@router.get("/{id}/parent", response_model=TodoPublic | None)
+def read_todo_parent(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
+    """
+    Get parent of a todo, if any.
+    """
+    todo = session.get(Todo, id)
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    if not current_user.is_superuser and (todo.owner_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    parent = get_todo_parent(session=session, todo_id=id)
+    return parent
 
 
 # ========= CHECKLIST ITEM ENDPOINTS =========

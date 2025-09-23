@@ -1330,6 +1330,18 @@ export const TodoCreateSchema = {
         type: {
             '$ref': '#/components/schemas/TodoType',
             default: 'task'
+        },
+        parent_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Parent Id'
         }
     },
     type: 'object',
@@ -1396,6 +1408,18 @@ export const TodoPublicSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Owner Id'
+        },
+        parent_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Parent Id'
         },
         created_at: {
             type: 'string',
@@ -1501,6 +1525,18 @@ export const TodoUpdateSchema = {
                     type: 'null'
                 }
             ]
+        },
+        parent_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Parent Id'
         }
     },
     type: 'object',

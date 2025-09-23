@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsBatchData, GmailSyncEmailsBatchResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, GmailGetEmailTransactionsDashboardData, GmailGetEmailTransactionsDashboardResponse, GmailTriggerAutoSyncData, GmailTriggerAutoSyncResponse, GmailGetSchedulerStatusResponse, GmailStartSchedulerResponse, GmailStopSchedulerResponse, GmailTriggerSyncAllConnectionsData, GmailTriggerSyncAllConnectionsResponse, GmailCreateTransactionFromEmailData, GmailCreateTransactionFromEmailResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TodosReadChecklistItemsData, TodosReadChecklistItemsResponse, TodosCreateChecklistItemEndpointData, TodosCreateChecklistItemEndpointResponse, TodosUpdateChecklistItemEndpointData, TodosUpdateChecklistItemEndpointResponse, TodosDeleteChecklistItemEndpointData, TodosDeleteChecklistItemEndpointResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsBatchData, GmailSyncEmailsBatchResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, GmailGetEmailTransactionsDashboardData, GmailGetEmailTransactionsDashboardResponse, GmailTriggerAutoSyncData, GmailTriggerAutoSyncResponse, GmailGetSchedulerStatusResponse, GmailStartSchedulerResponse, GmailStopSchedulerResponse, GmailTriggerSyncAllConnectionsData, GmailTriggerSyncAllConnectionsResponse, GmailCreateTransactionFromEmailData, GmailCreateTransactionFromEmailResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TodosReadTodoChildrenData, TodosReadTodoChildrenResponse, TodosReadTodoParentData, TodosReadTodoParentResponse, TodosReadChecklistItemsData, TodosReadChecklistItemsResponse, TodosCreateChecklistItemEndpointData, TodosCreateChecklistItemEndpointResponse, TodosUpdateChecklistItemEndpointData, TodosUpdateChecklistItemEndpointResponse, TodosDeleteChecklistItemEndpointData, TodosDeleteChecklistItemEndpointResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class AccountsService {
     /**
@@ -1146,6 +1146,48 @@ export class TodosService {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/api/v1/todos/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Todo Children
+     * Get children (subitems) of a todo.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns TodosPublic Successful Response
+     * @throws ApiError
+     */
+    public static readTodoChildren(data: TodosReadTodoChildrenData): CancelablePromise<TodosReadTodoChildrenResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/todos/{id}/children',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Todo Parent
+     * Get parent of a todo, if any.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static readTodoParent(data: TodosReadTodoParentData): CancelablePromise<TodosReadTodoParentResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/todos/{id}/parent',
             path: {
                 id: data.id
             },

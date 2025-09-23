@@ -1,6 +1,7 @@
 import uuid
 from datetime import date, datetime, timezone
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, EmailStr, field_validator
 from sqlmodel import Field, Relationship, SQLModel
@@ -193,7 +194,12 @@ class TodoBase(SQLModel):
 
 # Properties to receive on todo creation
 class TodoCreate(TodoBase):
-    pass
+    parent_id: uuid.UUID | None = None
+
+    @field_validator('parent_id', mode='before')
+    @classmethod
+    def validate_parent_id(cls, v):
+        return convert_empty_string_to_none(v)
 
 
 # Properties to receive on todo update
@@ -204,6 +210,12 @@ class TodoUpdate(BaseModel):
     estimate_minutes: int | None = Field(default=None, ge=0)
     priority: TodoPriority | None = None
     type: TodoType | None = None
+    parent_id: uuid.UUID | None = None
+
+    @field_validator('parent_id', mode='before')
+    @classmethod
+    def validate_parent_id(cls, v):
+        return convert_empty_string_to_none(v)
 
 
 # Database model, database table inferred from class name
@@ -212,9 +224,16 @@ class Todo(TodoBase, table=True):
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
+    parent_id: uuid.UUID | None = Field(
+        default=None, foreign_key="todo.id", ondelete="SET NULL"
+    )
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     owner: User | None = Relationship(back_populates="todos")
+    parent: Optional["Todo"] = Relationship(
+        back_populates="children", sa_relationship_kwargs={"remote_side": "Todo.id"}
+    )
+    children: list["Todo"] = Relationship(back_populates="parent")
     checklist_items: list["ChecklistItem"] = Relationship(
         back_populates="todo", cascade_delete=True
     )
@@ -224,6 +243,7 @@ class Todo(TodoBase, table=True):
 class TodoPublic(TodoBase):
     id: uuid.UUID
     owner_id: uuid.UUID
+    parent_id: uuid.UUID | None = None
     created_at: datetime
     updated_at: datetime
     checklist_items: list["ChecklistItemPublic"] = []
