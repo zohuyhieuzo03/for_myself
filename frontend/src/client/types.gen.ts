@@ -269,12 +269,20 @@ export type TodoCreate = {
     title: string;
     description?: (string | null);
     status?: TodoStatus;
+    estimate_minutes?: (number | null);
+    priority?: TodoPriority;
+    type?: TodoType;
 };
+
+export type TodoPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 export type TodoPublic = {
     title: string;
     description?: (string | null);
     status?: TodoStatus;
+    estimate_minutes?: (number | null);
+    priority?: TodoPriority;
+    type?: TodoType;
     id: string;
     owner_id: string;
     created_at: string;
@@ -289,10 +297,15 @@ export type TodosPublic = {
 
 export type TodoStatus = 'backlog' | 'todo' | 'doing' | 'planning' | 'done' | 'archived';
 
+export type TodoType = 'work' | 'learning' | 'daily_life' | 'task' | 'personal' | 'health' | 'finance' | 'other';
+
 export type TodoUpdate = {
     title?: (string | null);
     description?: (string | null);
     status?: (TodoStatus | null);
+    estimate_minutes?: (number | null);
+    priority?: (TodoPriority | null);
+    type?: (TodoType | null);
 };
 
 export type Token = {

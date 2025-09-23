@@ -163,11 +163,32 @@ class TodoStatus(str, Enum):
     archived = "archived"
 
 
+class TodoPriority(str, Enum):
+    low = "low"
+    medium = "medium"
+    high = "high"
+    urgent = "urgent"
+
+
+class TodoType(str, Enum):
+    work = "work"
+    learning = "learning"
+    daily_life = "daily_life"
+    task = "task"
+    personal = "personal"
+    health = "health"
+    finance = "finance"
+    other = "other"
+
+
 # Shared properties for Todo
 class TodoBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=500)
     status: TodoStatus = Field(default=TodoStatus.todo)
+    estimate_minutes: int | None = Field(default=None, ge=0)  # Estimate in minutes
+    priority: TodoPriority = Field(default=TodoPriority.medium)
+    type: TodoType = Field(default=TodoType.task)
 
 
 # Properties to receive on todo creation
@@ -180,6 +201,9 @@ class TodoUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=500)
     status: TodoStatus | None = None
+    estimate_minutes: int | None = Field(default=None, ge=0)
+    priority: TodoPriority | None = None
+    type: TodoType | None = None
 
 
 # Database model, database table inferred from class name

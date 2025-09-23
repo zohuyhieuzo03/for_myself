@@ -1310,11 +1310,37 @@ export const TodoCreateSchema = {
         status: {
             '$ref': '#/components/schemas/TodoStatus',
             default: 'todo'
+        },
+        estimate_minutes: {
+            anyOf: [
+                {
+                    type: 'integer',
+                    minimum: 0
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Estimate Minutes'
+        },
+        priority: {
+            '$ref': '#/components/schemas/TodoPriority',
+            default: 'medium'
+        },
+        type: {
+            '$ref': '#/components/schemas/TodoType',
+            default: 'task'
         }
     },
     type: 'object',
     required: ['title'],
     title: 'TodoCreate'
+} as const;
+
+export const TodoPrioritySchema = {
+    type: 'string',
+    enum: ['low', 'medium', 'high', 'urgent'],
+    title: 'TodoPriority'
 } as const;
 
 export const TodoPublicSchema = {
@@ -1340,6 +1366,26 @@ export const TodoPublicSchema = {
         status: {
             '$ref': '#/components/schemas/TodoStatus',
             default: 'todo'
+        },
+        estimate_minutes: {
+            anyOf: [
+                {
+                    type: 'integer',
+                    minimum: 0
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Estimate Minutes'
+        },
+        priority: {
+            '$ref': '#/components/schemas/TodoPriority',
+            default: 'medium'
+        },
+        type: {
+            '$ref': '#/components/schemas/TodoType',
+            default: 'task'
         },
         id: {
             type: 'string',
@@ -1381,6 +1427,12 @@ export const TodoStatusSchema = {
     title: 'TodoStatus'
 } as const;
 
+export const TodoTypeSchema = {
+    type: 'string',
+    enum: ['work', 'learning', 'daily_life', 'task', 'personal', 'health', 'finance', 'other'],
+    title: 'TodoType'
+} as const;
+
 export const TodoUpdateSchema = {
     properties: {
         title: {
@@ -1412,6 +1464,38 @@ export const TodoUpdateSchema = {
             anyOf: [
                 {
                     '$ref': '#/components/schemas/TodoStatus'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        estimate_minutes: {
+            anyOf: [
+                {
+                    type: 'integer',
+                    minimum: 0
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Estimate Minutes'
+        },
+        priority: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/TodoPriority'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        type: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/TodoType'
                 },
                 {
                     type: 'null'

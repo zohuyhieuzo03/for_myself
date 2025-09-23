@@ -15,6 +15,7 @@ from app.models import (
     Item,
     Transaction,
     User,
+    EmailTransaction
 )
 from app.tests.utils.user import authentication_token_from_email
 from app.tests.utils.utils import get_superuser_token_headers
@@ -28,21 +29,19 @@ def db() -> Generator[Session, None, None]:
         yield session
         # Clean up in reverse order of dependencies
         statement = delete(Transaction)
-        session.execute(statement)
+        session.exec(statement)
         statement = delete(AllocationRule)
-        session.execute(statement)
-        # Delete EmailTransaction first to avoid foreign key constraint
-        from app.models import EmailTransaction
+        session.exec(statement)
         statement = delete(EmailTransaction)
-        session.execute(statement)
+        session.exec(statement)
         statement = delete(Category)
-        session.execute(statement)
+        session.exec(statement)
         statement = delete(Account)
-        session.execute(statement)
+        session.exec(statement)
         statement = delete(Item)
-        session.execute(statement)
+        session.exec(statement)
         statement = delete(User)
-        session.execute(statement)
+        session.exec(statement)
         session.commit()
 
 

@@ -45,6 +45,9 @@ const AddTodo = () => {
       title: "",
       description: "",
       status: "todo" as TodoStatus,
+      estimate_minutes: undefined,
+      priority: "medium" as const,
+      type: "task" as const,
     },
   })
 
@@ -55,6 +58,9 @@ const AddTodo = () => {
           title: data.title,
           description: data.description,
           status: data.status,
+          estimate_minutes: data.estimate_minutes,
+          priority: data.priority,
+          type: data.type,
         },
       })
       return todo
@@ -145,6 +151,70 @@ const AddTodo = () => {
                   <option value="doing">Doing</option>
                   <option value="done">Done</option>
                   <option value="archived">Archived</option>
+                </select>
+              </Field>
+
+              <Field
+                invalid={!!errors.estimate_minutes}
+                errorText={errors.estimate_minutes?.message}
+                label="Estimate (minutes)"
+              >
+                <Input
+                  {...register("estimate_minutes", { 
+                    valueAsNumber: true,
+                    min: { value: 0, message: "Estimate must be 0 or greater" }
+                  })}
+                  placeholder="Enter estimated time in minutes"
+                  type="number"
+                  min="0"
+                />
+              </Field>
+
+              <Field
+                invalid={!!errors.priority}
+                errorText={errors.priority?.message}
+                label="Priority"
+              >
+                <select
+                  {...register("priority")}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                  }}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+              </Field>
+
+              <Field
+                invalid={!!errors.type}
+                errorText={errors.type?.message}
+                label="Type"
+              >
+                <select
+                  {...register("type")}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                  }}
+                >
+                  <option value="work">Work</option>
+                  <option value="learning">Learning</option>
+                  <option value="daily_life">Daily Life</option>
+                  <option value="task">Task</option>
+                  <option value="personal">Personal</option>
+                  <option value="health">Health</option>
+                  <option value="finance">Finance</option>
+                  <option value="other">Other</option>
                 </select>
               </Field>
 

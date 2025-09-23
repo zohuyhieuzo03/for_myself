@@ -175,6 +175,50 @@ function DraggableTodoCard({ todo, onOpen }: { todo: TodoPublic; onOpen: (todo: 
               </Text>
             )}
 
+            {/* Type, Priority and Estimate */}
+            <HStack gap={2} flexWrap="wrap">
+              {todo.type && (
+                <Badge
+                  size="sm"
+                  colorPalette={
+                    todo.type === "work" ? "blue" :
+                    todo.type === "learning" ? "purple" :
+                    todo.type === "daily_life" ? "green" :
+                    todo.type === "health" ? "pink" :
+                    todo.type === "finance" ? "yellow" :
+                    todo.type === "personal" ? "orange" : "gray"
+                  }
+                  variant="subtle"
+                >
+                  {todo.type === "daily_life" ? "Daily Life" : 
+                   todo.type === "health" ? "Health" :
+                   todo.type === "finance" ? "Finance" :
+                   todo.type === "personal" ? "Personal" :
+                   todo.type === "learning" ? "Learning" :
+                   todo.type === "work" ? "Work" :
+                   todo.type === "task" ? "Task" : "Other"}
+                </Badge>
+              )}
+              {todo.priority && (
+                <Badge
+                  size="sm"
+                  colorPalette={
+                    todo.priority === "urgent" ? "red" :
+                    todo.priority === "high" ? "orange" :
+                    todo.priority === "medium" ? "blue" : "gray"
+                  }
+                  variant="subtle"
+                >
+                  {todo.priority}
+                </Badge>
+              )}
+              {todo.estimate_minutes && (
+                <Badge size="sm" colorPalette="green" variant="subtle">
+                  {todo.estimate_minutes}m
+                </Badge>
+              )}
+            </HStack>
+
             {/* Checklist hidden in Kanban; available in Detail Dialog */}
 
             <HStack justify="space-between" fontSize="xs" color="gray.500">
