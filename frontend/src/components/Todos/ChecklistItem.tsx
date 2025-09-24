@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
-import { FiCheck, FiEdit2, FiTrash2, FiX } from "react-icons/fi"
+import { FiCheck, FiEdit2, FiPlusSquare, FiTrash2, FiX } from "react-icons/fi"
 
 import {
   type ChecklistItemPublic,
@@ -60,6 +60,25 @@ const ChecklistItem = ({ item, todoId }: ChecklistItemProps) => {
     onError: (err: ApiError) => {
       handleError(err)
     },
+  })
+
+  const createSubitemMutation = useMutation({
+    mutationFn: () =>
+      TodosService.createTodoEndpoint({
+        requestBody: {
+          title: item.title,
+          parent_id: todoId,
+        },
+      }),
+    onSuccess: () => {
+      showSuccessToast("Subitem created from checklist.")
+      // Remove checklist item after creating subitem
+      deleteItemMutation.mutate(item.id)
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+      queryClient.invalidateQueries({ queryKey: ["todos", todoId, "children"] })
+      queryClient.invalidateQueries({ queryKey: ["checklist", todoId] })
+    },
+    onError: (err: ApiError) => handleError(err),
   })
 
   const handleToggleComplete = () => {
@@ -155,6 +174,17 @@ const ChecklistItem = ({ item, todoId }: ChecklistItemProps) => {
             </Text>
 
             <HStack gap={1}>
+              <IconButton
+                size="xs"
+                variant="ghost"
+                colorPalette="green"
+                onClick={() => createSubitemMutation.mutate()}
+                loading={createSubitemMutation.isPending}
+                aria-label="Create subitem"
+                title="Create subitem from this checklist and remove it"
+              >
+                <FiPlusSquare />
+              </IconButton>
               <IconButton
                 size="xs"
                 variant="ghost"

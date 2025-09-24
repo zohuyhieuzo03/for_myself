@@ -24,6 +24,7 @@ import {
 } from "../ui/dialog"
 import { Field } from "../ui/field"
 import ChecklistManager from "./ChecklistManager"
+import TodoCard from "./TodoCard"
 
 interface TodoDetailDialogProps {
   open: boolean
@@ -119,13 +120,12 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
             <DialogTitle>Todo Detail</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>View or edit todo details below.</Text>
             <VStack gap={4} align="stretch">
               {parentData && (
                 <Field label="Parent">
-                  <Text fontSize="sm" color="gray.700">
-                    {parentData.title}
-                  </Text>
+                  <div style={{ width: '100%' }}>
+                    <TodoCard todo={parentData} />
+                  </div>
                 </Field>
               )}
 
@@ -218,17 +218,15 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
               </Field>
 
               <Field label="Subitems">
-                <VStack gap={2} align="stretch">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                   {(childrenData?.data ?? []).length === 0 ? (
                     <Text fontSize="sm" color="gray.600">No subitems</Text>
                   ) : (
                     (childrenData?.data ?? []).map((child) => (
-                      <Text key={child.id} fontSize="sm">
-                        {child.title}
-                      </Text>
+                      <TodoCard key={child.id} todo={child} />
                     ))
                   )}
-                </VStack>
+                </div>
               </Field>
             </VStack>
           </DialogBody>

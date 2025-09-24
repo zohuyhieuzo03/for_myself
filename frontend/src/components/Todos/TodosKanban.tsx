@@ -29,6 +29,7 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
+import { useDndContext } from "@dnd-kit/core"
 import { FiArchive, FiCheckSquare } from "react-icons/fi"
 
 import {
@@ -72,6 +73,24 @@ const STATUS_COLUMNS: Array<{
   { status: "doing", title: "Doing", color: "white", bgColor: "teal.500" },
   { status: "done", title: "Done", color: "white", bgColor: "green.500" },
 ]
+
+// Higher number means higher priority for sorting (desc)
+const PRIORITY_WEIGHT: Record<NonNullable<TodoPublic["priority"]>, number> = {
+  urgent: 4,
+  high: 3,
+  medium: 2,
+  low: 1,
+}
+
+function compareTodosByPriority(a: TodoPublic, b: TodoPublic): number {
+  const wa = a.priority ? PRIORITY_WEIGHT[a.priority] : 0
+  const wb = b.priority ? PRIORITY_WEIGHT[b.priority] : 0
+  if (wb !== wa) return wb - wa // higher priority first
+  // fallback: newer first by created_at
+  const ta = new Date(a.created_at).getTime()
+  const tb = new Date(b.created_at).getTime()
+  return tb - ta
+}
 
 function getTodosQueryOptions() {
   return {
@@ -143,7 +162,9 @@ function DraggableTodoCard({ todo, onOpen }: { todo: TodoPublic; onOpen: (todo: 
                 fontSize="sm"
                 overflow="hidden"
                 textOverflow="ellipsis"
-                whiteSpace="nowrap"
+                display="-webkit-box"
+                style={{ WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
+                wordBreak="break-word"
               >
                 {todo.title}
               </Text>
@@ -249,9 +270,13 @@ function KanbanColumn({
   const { setNodeRef, isOver } = useDroppable({
     id: status,
   })
+  const { over } = useDndContext()
+  const isOverColumn =
+    isOver ||
+    (over?.id != null && (over.id === status || todos.some((t) => t.id === (over.id as string))))
 
   return (
-    <VStack align="stretch" gap={3} minH="400px" ref={setNodeRef}>
+    <VStack align="stretch" gap={3} ref={setNodeRef}>
       <Box
         bg={bgColor}
         color={color}
@@ -275,10 +300,12 @@ function KanbanColumn({
         flex="1"
         p={2}
         borderRadius="md"
-        bg={isOver ? "blue.50" : "transparent"}
-        border={isOver ? "2px dashed" : "2px dashed transparent"}
-        borderColor={isOver ? "blue.300" : "transparent"}
+        bg={isOverColumn ? "blue.50" : "transparent"}
+        border={isOverColumn ? "2px dashed" : "2px dashed transparent"}
+        borderColor={isOverColumn ? "blue.300" : "transparent"}
         transition="all 0.2s"
+        ref={setNodeRef}
+        minH="200px"
       >
         {todos.length === 0 ? (
           <Box
@@ -361,14 +388,37 @@ export default function TodosKanban({
     if (!over) return
 
     const todoId = active.id as string
-    const newStatus = over.id as TodoStatus
+    const overId = String(over.id)
+
+    // Resolve target status whether dropping on column (status id) or on a card (todo id)
+    let newStatus: TodoStatus | null = null
+    if (STATUS_COLUMNS.some((c) => c.status === overId)) {
+      newStatus = overId as TodoStatus
+    } else {
+      const overTodo = todos.find((t) => t.id === overId)
+      if (!overTodo) return
+      newStatus = (overTodo.status ?? "todo") as TodoStatus
+    }
 
     // Find the todo to get current status
     const todo = todos.find((t) => t.id === todoId)
     if (!todo) return
 
     // Only call API if status actually changed
-    if (todo.status === newStatus) return
+    if (!newStatus || todo.status === newStatus) return
+
+    // Prevent moving to done if any checklist item is not completed
+    if (
+      newStatus === "done" &&
+      (todo.checklist_items?.some((item) => !item.is_completed) ?? false)
+    ) {
+      handleError({
+        message: "Complete all checklist items before marking as done.",
+        status: 400,
+        name: "ChecklistIncomplete",
+      } as unknown as ApiError)
+      return
+    }
 
     updateTodoStatusMutation.mutate({ id: todoId, status: newStatus })
   }
@@ -420,9 +470,9 @@ export default function TodosKanban({
   // Group active todos by status
   const todosByStatus = STATUS_COLUMNS.reduce(
     (acc, column) => {
-      acc[column.status] = activeTodos.filter(
-        (todo) => todo.status === column.status,
-      )
+      acc[column.status] = activeTodos
+        .filter((todo) => todo.status === column.status)
+        .sort(compareTodosByPriority)
       return acc
     },
     {} as Record<TodoStatus, TodoPublic[]>,
