@@ -42,7 +42,7 @@ import type { ApiError } from "@/client/core/ApiError"
 import PendingTodos from "@/components/Pending/PendingTodos"
 import AddTodo from "@/components/Todos/AddTodo"
 import TodoDetailDialog from "@/components/Todos/TodoDetailDialog"
-import { TodoActionsMenu } from "@/components/Todos/TodoActionsMenu"
+// import { TodoActionsMenu } from "@/components/Todos/TodoActionsMenu"
 import useCustomToast from "@/hooks/useCustomToast"
 import { formatDateTimeShort, handleError } from "@/utils"
 
@@ -179,7 +179,7 @@ function DraggableTodoCard({ todo, onOpen }: { todo: TodoPublic; onOpen: (todo: 
                 >
                   <FiArchive fontSize="12px" />
                 </Button>
-                <TodoActionsMenu todo={todo} />
+                {/* <TodoActionsMenu todo={todo} /> */}
               </HStack>
             </Flex>
 

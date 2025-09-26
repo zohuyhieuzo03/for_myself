@@ -3,7 +3,7 @@ import {
   ButtonGroup,
   Input,
   Text,
-  VStack
+  VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
@@ -25,6 +25,10 @@ import {
 import { Field } from "../ui/field"
 import ChecklistManager from "./ChecklistManager"
 import TodoCard from "./TodoCard"
+import AddParent from "./AddParent"
+import AddSubitem from "./AddSubitem"
+import { TODO_PRIORITY_OPTIONS, TODO_STATUS_OPTIONS, TODO_TYPE_OPTIONS } from "@/client/options"
+import DeleteTodo from "./DeleteTodo"
 
 interface TodoDetailDialogProps {
   open: boolean
@@ -121,13 +125,18 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
           </DialogHeader>
           <DialogBody>
             <VStack gap={4} align="stretch">
-              {parentData && (
-                <Field label="Parent">
-                  <div style={{ width: '100%' }}>
+              <Field label="Parent">
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {parentData ? (
                     <TodoCard todo={parentData} />
-                  </div>
-                </Field>
-              )}
+                  ) : (
+                    <>
+                      <Text fontSize="sm" color="gray.600">No parent</Text>
+                      <AddParent todo={todo} hasParent={false} />
+                    </>
+                  )}
+                </div>
+              </Field>
 
               <Field required invalid={!!errors.title} errorText={errors.title?.message} label="Title">
                 <Input
@@ -152,12 +161,9 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
                     fontSize: "14px",
                   }}
                 >
-                  <option value="backlog">Backlog</option>
-                  <option value="todo">Todo</option>
-                  <option value="planning">Planning</option>
-                  <option value="doing">Doing</option>
-                  <option value="done">Done</option>
-                  <option value="archived">Archived</option>
+                  {TODO_STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
                 </select>
               </Field>
 
@@ -184,10 +190,9 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
                     fontSize: "14px",
                   }}
                 >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
+                  {TODO_PRIORITY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
                 </select>
               </Field>
 
@@ -202,14 +207,9 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
                     fontSize: "14px",
                   }}
                 >
-                  <option value="work">Work</option>
-                  <option value="learning">Learning</option>
-                  <option value="daily_life">Daily Life</option>
-                  <option value="task">Task</option>
-                  <option value="personal">Personal</option>
-                  <option value="health">Health</option>
-                  <option value="finance">Finance</option>
-                  <option value="other">Other</option>
+                  {TODO_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
                 </select>
               </Field>
               
@@ -226,12 +226,14 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
                       <TodoCard key={child.id} todo={child} />
                     ))
                   )}
+                  <AddSubitem todo={todo} />
                 </div>
               </Field>
             </VStack>
           </DialogBody>
           <DialogFooter gap={2}>
             <ButtonGroup>
+              <DeleteTodo id={todo.id} onDeleted={() => onOpenChange(false)} />
               <Button variant="subtle" colorPalette="gray" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
                 Close
               </Button>

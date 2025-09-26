@@ -12,7 +12,18 @@ export const TodoActionsMenu = ({ todo }: TodoActionsMenuProps) => {
   return (
     <MenuRoot>
       <MenuTrigger asChild>
-        <IconButton variant="ghost" color="inherit">
+        <IconButton
+          variant="ghost"
+          color="inherit"
+          aria-label="Actions"
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+          onPointerDown={(e) => {
+            // Prevent drag or parent click when opening menu
+            e.stopPropagation()
+          }}
+        >
           <BsThreeDotsVertical />
         </IconButton>
       </MenuTrigger>

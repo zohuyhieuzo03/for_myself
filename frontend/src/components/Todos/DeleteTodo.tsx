@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import useCustomToast from "@/hooks/useCustomToast"
 
-const DeleteTodo = ({ id }: { id: string }) => {
+const DeleteTodo = ({ id, onDeleted }: { id: string; onDeleted?: (id: string) => void }) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -35,6 +35,7 @@ const DeleteTodo = ({ id }: { id: string }) => {
     onSuccess: () => {
       showSuccessToast("The todo was deleted successfully")
       setIsOpen(false)
+      onDeleted?.(id)
     },
     onError: () => {
       showErrorToast("An error occurred while deleting the todo")
@@ -57,7 +58,17 @@ const DeleteTodo = ({ id }: { id: string }) => {
       onOpenChange={({ open }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" colorPalette="red">
+        <Button
+          variant="ghost"
+          size="sm"
+          colorPalette="red"
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+          onPointerDown={(e) => {
+            e.stopPropagation()
+          }}
+        >
           <FiTrash2 fontSize="16px" />
           Delete Todo
         </Button>
