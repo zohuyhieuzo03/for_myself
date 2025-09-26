@@ -191,11 +191,11 @@ function TodosTable() {
                         ? "gray"
                         : todo.status === "doing"
                           ? "teal"
-                        : todo.status === "planning"
-                          ? "blue"
-                          : todo.status === "backlog"
-                            ? "purple"
-                            : "orange"
+                          : todo.status === "planning"
+                            ? "blue"
+                            : todo.status === "backlog"
+                              ? "purple"
+                              : "orange"
                   }
                   bg={
                     todo.status === "done"
@@ -204,11 +204,11 @@ function TodosTable() {
                         ? "gray.500"
                         : todo.status === "doing"
                           ? "teal.500"
-                        : todo.status === "planning"
-                          ? "blue.500"
-                          : todo.status === "backlog"
-                            ? "purple.500"
-                            : "orange.500"
+                          : todo.status === "planning"
+                            ? "blue.500"
+                            : todo.status === "backlog"
+                              ? "purple.500"
+                              : "orange.500"
                   }
                   color="white"
                 >
@@ -218,11 +218,11 @@ function TodosTable() {
                       ? "Archived"
                       : todo.status === "doing"
                         ? "Doing"
-                      : todo.status === "planning"
-                        ? "Planning"
-                        : todo.status === "backlog"
-                          ? "Backlog"
-                          : "Todo"}
+                        : todo.status === "planning"
+                          ? "Planning"
+                          : todo.status === "backlog"
+                            ? "Backlog"
+                            : "Todo"}
                 </Badge>
               </Table.Cell>
               <Table.Cell truncate maxW="sm">
@@ -274,7 +274,11 @@ function Todos() {
   const setView = (newView: "table" | "kanban") => {
     navigate({
       to: "/todos",
-      search: { page: newView === "table" ? page : undefined, view: newView, id },
+      search: {
+        page: newView === "table" ? page : undefined,
+        view: newView,
+        id,
+      },
     })
   }
 
@@ -285,7 +289,10 @@ function Todos() {
         onViewModeChange={setView}
         selectedId={id ?? null}
         onSelectedIdChange={(newId) =>
-          navigate({ to: "/todos", search: { page: undefined, view, id: newId ?? undefined } })
+          navigate({
+            to: "/todos",
+            search: { page: undefined, view, id: newId ?? undefined },
+          })
         }
       />
     )

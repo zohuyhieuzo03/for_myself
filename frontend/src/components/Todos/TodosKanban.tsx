@@ -17,6 +17,7 @@ import {
   DragOverlay,
   type DragStartEvent,
   PointerSensor,
+  useDndContext,
   useDroppable,
   useSensor,
   useSensors,
@@ -29,7 +30,6 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
-import { useDndContext } from "@dnd-kit/core"
 import { FiArchive, FiCheckSquare } from "react-icons/fi"
 
 import {
@@ -99,7 +99,13 @@ function getTodosQueryOptions() {
   }
 }
 
-function DraggableTodoCard({ todo, onOpen }: { todo: TodoPublic; onOpen: (todo: TodoPublic) => void }) {
+function DraggableTodoCard({
+  todo,
+  onOpen,
+}: {
+  todo: TodoPublic
+  onOpen: (todo: TodoPublic) => void
+}) {
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
@@ -145,7 +151,13 @@ function DraggableTodoCard({ todo, onOpen }: { todo: TodoPublic; onOpen: (todo: 
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={() => onOpen(todo)}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={() => onOpen(todo)}
+    >
       <Card.Root
         size="sm"
         variant="outline"
@@ -202,31 +214,50 @@ function DraggableTodoCard({ todo, onOpen }: { todo: TodoPublic; onOpen: (todo: 
                 <Badge
                   size="sm"
                   colorPalette={
-                    todo.type === "work" ? "blue" :
-                    todo.type === "learning" ? "purple" :
-                    todo.type === "daily_life" ? "green" :
-                    todo.type === "health" ? "pink" :
-                    todo.type === "finance" ? "yellow" :
-                    todo.type === "personal" ? "orange" : "gray"
+                    todo.type === "work"
+                      ? "blue"
+                      : todo.type === "learning"
+                        ? "purple"
+                        : todo.type === "daily_life"
+                          ? "green"
+                          : todo.type === "health"
+                            ? "pink"
+                            : todo.type === "finance"
+                              ? "yellow"
+                              : todo.type === "personal"
+                                ? "orange"
+                                : "gray"
                   }
                   variant="subtle"
                 >
-                  {todo.type === "daily_life" ? "Daily Life" : 
-                   todo.type === "health" ? "Health" :
-                   todo.type === "finance" ? "Finance" :
-                   todo.type === "personal" ? "Personal" :
-                   todo.type === "learning" ? "Learning" :
-                   todo.type === "work" ? "Work" :
-                   todo.type === "task" ? "Task" : "Other"}
+                  {todo.type === "daily_life"
+                    ? "Daily Life"
+                    : todo.type === "health"
+                      ? "Health"
+                      : todo.type === "finance"
+                        ? "Finance"
+                        : todo.type === "personal"
+                          ? "Personal"
+                          : todo.type === "learning"
+                            ? "Learning"
+                            : todo.type === "work"
+                              ? "Work"
+                              : todo.type === "task"
+                                ? "Task"
+                                : "Other"}
                 </Badge>
               )}
               {todo.priority && (
                 <Badge
                   size="sm"
                   colorPalette={
-                    todo.priority === "urgent" ? "red" :
-                    todo.priority === "high" ? "orange" :
-                    todo.priority === "medium" ? "blue" : "gray"
+                    todo.priority === "urgent"
+                      ? "red"
+                      : todo.priority === "high"
+                        ? "orange"
+                        : todo.priority === "medium"
+                          ? "blue"
+                          : "gray"
                   }
                   variant="subtle"
                 >
@@ -273,7 +304,8 @@ function KanbanColumn({
   const { over } = useDndContext()
   const isOverColumn =
     isOver ||
-    (over?.id != null && (over.id === status || todos.some((t) => t.id === (over.id as string))))
+    (over?.id != null &&
+      (over.id === status || todos.some((t) => t.id === (over.id as string))))
 
   return (
     <VStack align="stretch" gap={3} ref={setNodeRef}>
@@ -339,7 +371,10 @@ export default function TodosKanban({
   onViewModeChange,
   selectedId,
   onSelectedIdChange,
-}: TodosKanbanProps & { selectedId: string | null; onSelectedIdChange: (id: string | null) => void }) {
+}: TodosKanbanProps & {
+  selectedId: string | null
+  onSelectedIdChange: (id: string | null) => void
+}) {
   const { data, isLoading } = useQuery(getTodosQueryOptions())
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -371,7 +406,10 @@ export default function TodosKanban({
   })
 
   const todos = data?.data ?? []
-  const selectedTodo = useMemo(() => todos.find((t) => t.id === selectedId) ?? null, [todos, selectedId])
+  const selectedTodo = useMemo(
+    () => todos.find((t) => t.id === selectedId) ?? null,
+    [todos, selectedId],
+  )
   // Dialog open is derived from URL id via selectedTodo
 
   // Filter out archived todos

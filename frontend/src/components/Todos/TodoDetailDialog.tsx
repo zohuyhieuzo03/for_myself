@@ -1,16 +1,15 @@
-import {
-  Button,
-  ButtonGroup,
-  Input,
-  Text,
-  VStack,
-} from "@chakra-ui/react"
+import { Button, ButtonGroup, Input, Text, VStack } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
 import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
+import {
+  TODO_PRIORITY_OPTIONS,
+  TODO_STATUS_OPTIONS,
+  TODO_TYPE_OPTIONS,
+} from "@/client/options"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 import {
@@ -23,12 +22,11 @@ import {
   DialogTitle,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
-import ChecklistManager from "./ChecklistManager"
-import TodoCard from "./TodoCard"
 import AddParent from "./AddParent"
 import AddSubitem from "./AddSubitem"
-import { TODO_PRIORITY_OPTIONS, TODO_STATUS_OPTIONS, TODO_TYPE_OPTIONS } from "@/client/options"
+import ChecklistManager from "./ChecklistManager"
 import DeleteTodo from "./DeleteTodo"
+import TodoCard from "./TodoCard"
 
 interface TodoDetailDialogProps {
   open: boolean
@@ -36,7 +34,11 @@ interface TodoDetailDialogProps {
   todo: TodoPublic
 }
 
-export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetailDialogProps) {
+export default function TodoDetailDialog({
+  open,
+  onOpenChange,
+  todo,
+}: TodoDetailDialogProps) {
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
@@ -116,8 +118,39 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
     mutation.mutate(data)
   }
 
+  // ========== Parent unlink logic (hooks section) ==========
+  const unlinkParentMutation = useMutation({
+    mutationFn: async () => {
+      await TodosService.updateTodoEndpoint({
+        id: todo.id,
+        requestBody: { parent_id: null } as TodoUpdate,
+      })
+    },
+    onSuccess: () => {
+      showSuccessToast("Parent unlinked successfully.")
+    },
+    onError: (err: ApiError) => handleError(err),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos", todo.id, "parent"] })
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+    },
+  })
+
+  const handleUnlinkParent = () => {
+    unlinkParentMutation.mutate()
+  }
+
+  const handleChildUnlinked = () => {
+    queryClient.invalidateQueries({ queryKey: ["todos", todo.id, "children"] })
+  }
+
   return (
-    <DialogRoot size={{ base: "xs", md: "lg" }} placement="center" open={open} onOpenChange={({ open }) => onOpenChange(open)}>
+    <DialogRoot
+      size={{ base: "xs", md: "lg" }}
+      placement="center"
+      open={open}
+      onOpenChange={({ open }) => onOpenChange(open)}
+    >
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
@@ -126,19 +159,44 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
           <DialogBody>
             <VStack gap={4} align="stretch">
               <Field label="Parent">
-                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                  }}
+                >
                   {parentData ? (
-                    <TodoCard todo={parentData} />
+                    <VStack gap={2} align="stretch">
+                      <TodoCard todo={parentData} />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        colorPalette="red"
+                        onClick={handleUnlinkParent}
+                        loading={unlinkParentMutation.isPending}
+                      >
+                        Unlink Parent
+                      </Button>
+                    </VStack>
                   ) : (
                     <>
-                      <Text fontSize="sm" color="gray.600">No parent</Text>
+                      <Text fontSize="sm" color="gray.600">
+                        No parent
+                      </Text>
                       <AddParent todo={todo} hasParent={false} />
                     </>
                   )}
                 </div>
               </Field>
 
-              <Field required invalid={!!errors.title} errorText={errors.title?.message} label="Title">
+              <Field
+                required
+                invalid={!!errors.title}
+                errorText={errors.title?.message}
+                label="Title"
+              >
                 <Input
                   {...register("title", { required: "Title is required" })}
                   placeholder="Title"
@@ -146,11 +204,23 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
                 />
               </Field>
 
-              <Field invalid={!!errors.description} errorText={errors.description?.message} label="Description">
-                <Input {...register("description")} placeholder="Description" type="text" />
+              <Field
+                invalid={!!errors.description}
+                errorText={errors.description?.message}
+                label="Description"
+              >
+                <Input
+                  {...register("description")}
+                  placeholder="Description"
+                  type="text"
+                />
               </Field>
 
-              <Field invalid={!!errors.status} errorText={errors.status?.message} label="Status">
+              <Field
+                invalid={!!errors.status}
+                errorText={errors.status?.message}
+                label="Status"
+              >
                 <select
                   {...register("status")}
                   style={{
@@ -162,16 +232,22 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
                   }}
                 >
                   {TODO_STATUS_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
                   ))}
                 </select>
               </Field>
 
-              <Field invalid={!!errors.estimate_minutes} errorText={errors.estimate_minutes?.message} label="Estimate (minutes)">
+              <Field
+                invalid={!!errors.estimate_minutes}
+                errorText={errors.estimate_minutes?.message}
+                label="Estimate (minutes)"
+              >
                 <Input
-                  {...register("estimate_minutes", { 
+                  {...register("estimate_minutes", {
                     valueAsNumber: true,
-                    min: { value: 0, message: "Estimate must be 0 or greater" }
+                    min: { value: 0, message: "Estimate must be 0 or greater" },
                   })}
                   placeholder="Enter estimated time in minutes"
                   type="number"
@@ -179,7 +255,11 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
                 />
               </Field>
 
-              <Field invalid={!!errors.priority} errorText={errors.priority?.message} label="Priority">
+              <Field
+                invalid={!!errors.priority}
+                errorText={errors.priority?.message}
+                label="Priority"
+              >
                 <select
                   {...register("priority")}
                   style={{
@@ -191,12 +271,18 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
                   }}
                 >
                   {TODO_PRIORITY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
                   ))}
                 </select>
               </Field>
 
-              <Field invalid={!!errors.type} errorText={errors.type?.message} label="Type">
+              <Field
+                invalid={!!errors.type}
+                errorText={errors.type?.message}
+                label="Type"
+              >
                 <select
                   {...register("type")}
                   style={{
@@ -208,22 +294,38 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
                   }}
                 >
                   {TODO_TYPE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
                   ))}
                 </select>
               </Field>
-              
+
               <Field label="Checklist">
                 <ChecklistManager todoId={todo.id} />
               </Field>
 
               <Field label="Subitems">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                    width: "100%",
+                  }}
+                >
                   {(childrenData?.data ?? []).length === 0 ? (
-                    <Text fontSize="sm" color="gray.600">No subitems</Text>
+                    <Text fontSize="sm" color="gray.600">
+                      No subitems
+                    </Text>
                   ) : (
                     (childrenData?.data ?? []).map((child) => (
-                      <TodoCard key={child.id} todo={child} />
+                      <TodoCard 
+                        key={child.id} 
+                        todo={child} 
+                        showUnlinkButton={true}
+                        onUnlink={handleChildUnlinked}
+                      />
                     ))
                   )}
                   <AddSubitem todo={todo} />
@@ -234,7 +336,12 @@ export default function TodoDetailDialog({ open, onOpenChange, todo }: TodoDetai
           <DialogFooter gap={2}>
             <ButtonGroup>
               <DeleteTodo id={todo.id} onDeleted={() => onOpenChange(false)} />
-              <Button variant="subtle" colorPalette="gray" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+              <Button
+                variant="subtle"
+                colorPalette="gray"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
                 Close
               </Button>
               <Button variant="solid" type="submit" loading={isSubmitting}>

@@ -1,9 +1,10 @@
-import { Button, HStack, Input } from "@chakra-ui/react"
+import { Button, HStack, Input, Text, VStack } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 
-import { type TodoPublic, TodosService } from "@/client"
+import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
+import TodoSearchDialog from "@/components/Todos/TodoSearchDialog"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 
@@ -32,34 +33,73 @@ export default function AddSubitem({ todo }: AddSubitemProps) {
     onError: (err: ApiError) => handleError(err),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] })
-      queryClient.invalidateQueries({ queryKey: ["todos", todo.id, "children"] })
+      queryClient.invalidateQueries({
+        queryKey: ["todos", todo.id, "children"],
+      })
+    },
+  })
+
+  const assignExistingSubitemMutation = useMutation({
+    mutationFn: async (subitemTodo: TodoPublic) => {
+      await TodosService.updateTodoEndpoint({
+        id: subitemTodo.id,
+        requestBody: { parent_id: todo.id } as TodoUpdate,
+      })
+    },
+    onSuccess: () => {
+      showSuccessToast("Subitem assigned successfully.")
+    },
+    onError: (err: ApiError) => handleError(err),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+      queryClient.invalidateQueries({
+        queryKey: ["todos", todo.id, "children"],
+      })
     },
   })
 
   return (
-    <HStack gap={2}>
-      <Input
-        value={newSubitemTitle}
-        onChange={(e) => setNewSubitemTitle(e.target.value)}
-        placeholder="Enter subitem title"
-        size="sm"
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && newSubitemTitle.trim()) {
+    <VStack gap={2} align="stretch">
+      <HStack gap={2}>
+        <Input
+          value={newSubitemTitle}
+          onChange={(e) => setNewSubitemTitle(e.target.value)}
+          placeholder="Enter subitem title"
+          size="sm"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && newSubitemTitle.trim()) {
+              createSubitemMutation.mutate(newSubitemTitle.trim())
+            }
+          }}
+        />
+        <Button
+          size="sm"
+          variant="solid"
+          onClick={() =>
+            newSubitemTitle.trim() &&
             createSubitemMutation.mutate(newSubitemTitle.trim())
           }
-        }}
+          loading={createSubitemMutation.isPending}
+        >
+          Create & Add
+        </Button>
+      </HStack>
+
+      <HStack gap={2} justify="center">
+        <Text fontSize="sm" color="gray.500">
+          or
+        </Text>
+      </HStack>
+
+      <TodoSearchDialog
+        onSelectTodo={(selectedTodo) =>
+          assignExistingSubitemMutation.mutate(selectedTodo)
+        }
+        excludeIds={[todo.id]} // Exclude current todo and its children
+        triggerText="Select Existing Subitem"
+        title="Select Subitem Todo"
+        placeholder="Search for subitem todo..."
       />
-      <Button
-        size="sm"
-        variant="solid"
-        onClick={() => newSubitemTitle.trim() && createSubitemMutation.mutate(newSubitemTitle.trim())}
-        loading={createSubitemMutation.isPending}
-      >
-        Add subitem
-      </Button>
-    </HStack>
+    </VStack>
   )
 }
-
-
-

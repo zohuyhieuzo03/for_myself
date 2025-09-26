@@ -25,6 +25,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
+
 // Checklist is managed post-creation in the detail dialog via ChecklistManager
 
 // Using simple create; checklist items will be added after creation
@@ -160,9 +161,9 @@ const AddTodo = () => {
                 label="Estimate (minutes)"
               >
                 <Input
-                  {...register("estimate_minutes", { 
+                  {...register("estimate_minutes", {
                     valueAsNumber: true,
-                    min: { value: 0, message: "Estimate must be 0 or greater" }
+                    min: { value: 0, message: "Estimate must be 0 or greater" },
                   })}
                   placeholder="Enter estimated time in minutes"
                   type="number"

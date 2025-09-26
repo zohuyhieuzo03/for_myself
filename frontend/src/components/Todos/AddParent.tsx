@@ -1,9 +1,10 @@
-import { Button, HStack, Input} from "@chakra-ui/react"
+import { Button, HStack, Input, Text, VStack } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 
 import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
+import TodoSearchDialog from "@/components/Todos/TodoSearchDialog"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 
@@ -38,34 +39,69 @@ export default function AddParent({ todo, hasParent }: AddParentProps) {
     },
   })
 
+  const assignExistingParentMutation = useMutation({
+    mutationFn: async (parentTodo: TodoPublic) => {
+      await TodosService.updateTodoEndpoint({
+        id: todo.id,
+        requestBody: { parent_id: parentTodo.id } as TodoUpdate,
+      })
+    },
+    onSuccess: () => {
+      showSuccessToast("Parent assigned successfully.")
+    },
+    onError: (err: ApiError) => handleError(err),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+      queryClient.invalidateQueries({ queryKey: ["todos", todo.id, "parent"] })
+    },
+  })
+
   if (hasParent) {
     return null
   }
 
   return (
-    <HStack gap={2}>
-      <Input
-        value={newParentTitle}
-        onChange={(e) => setNewParentTitle(e.target.value)}
-        placeholder="Enter parent title"
-        size="sm"
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && newParentTitle.trim()) {
+    <VStack gap={2} align="stretch">
+      <HStack gap={2}>
+        <Input
+          value={newParentTitle}
+          onChange={(e) => setNewParentTitle(e.target.value)}
+          placeholder="Enter parent title"
+          size="sm"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && newParentTitle.trim()) {
+              createParentAndAssignMutation.mutate(newParentTitle.trim())
+            }
+          }}
+        />
+        <Button
+          size="sm"
+          variant="solid"
+          onClick={() =>
+            newParentTitle.trim() &&
             createParentAndAssignMutation.mutate(newParentTitle.trim())
           }
-        }}
+          loading={createParentAndAssignMutation.isPending}
+        >
+          Create & Add
+        </Button>
+      </HStack>
+
+      <HStack gap={2} justify="center">
+        <Text fontSize="sm" color="gray.500">
+          or
+        </Text>
+      </HStack>
+
+      <TodoSearchDialog
+        onSelectTodo={(selectedTodo) =>
+          assignExistingParentMutation.mutate(selectedTodo)
+        }
+        excludeIds={[todo.id]} // Exclude current todo and its children
+        triggerText="Select Existing Parent"
+        title="Select Parent Todo"
+        placeholder="Search for parent todo..."
       />
-      <Button
-        size="sm"
-        variant="solid"
-        onClick={() => newParentTitle.trim() && createParentAndAssignMutation.mutate(newParentTitle.trim())}
-        loading={createParentAndAssignMutation.isPending}
-      >
-        Add parent
-      </Button>
-    </HStack>
+    </VStack>
   )
 }
-
-
-

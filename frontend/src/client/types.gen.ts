@@ -784,6 +784,7 @@ export type PrivateCreateUserResponse = (UserPublic);
 
 export type TodosReadTodosData = {
     limit?: number;
+    search?: (string | null);
     skip?: number;
 };
 

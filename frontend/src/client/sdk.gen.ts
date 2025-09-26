@@ -1048,10 +1048,11 @@ export class PrivateService {
 export class TodosService {
     /**
      * Read Todos
-     * Retrieve todos.
+     * Retrieve todos with optional search functionality.
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
+     * @param data.search
      * @returns TodosPublic Successful Response
      * @throws ApiError
      */
@@ -1061,7 +1062,8 @@ export class TodosService {
             url: '/api/v1/todos/',
             query: {
                 skip: data.skip,
-                limit: data.limit
+                limit: data.limit,
+                search: data.search
             },
             errors: {
                 422: 'Validation Error'

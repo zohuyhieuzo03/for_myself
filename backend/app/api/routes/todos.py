@@ -35,31 +35,42 @@ router = APIRouter(prefix="/todos", tags=["todos"])
 
 @router.get("/", response_model=TodosPublic)
 def read_todos(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    session: SessionDep, 
+    current_user: CurrentUser, 
+    skip: int = 0, 
+    limit: int = 100,
+    search: str | None = None
 ) -> Any:
     """
-    Retrieve todos.
+    Retrieve todos with optional search functionality.
     """
 
-    if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(Todo)
-        count = session.exec(count_statement).one()
-        statement = select(Todo).offset(skip).limit(limit)
-        todos = session.exec(statement).all()
-    else:
-        count_statement = (
-            select(func.count())
-            .select_from(Todo)
-            .where(Todo.owner_id == current_user.id)
+    # Base query conditions
+    base_conditions = []
+    if not current_user.is_superuser:
+        base_conditions.append(Todo.owner_id == current_user.id)
+    
+    # Add search condition if provided
+    if search and search.strip():
+        search_term = f"%{search.strip()}%"
+        search_condition = (
+            Todo.title.ilike(search_term) | 
+            Todo.description.ilike(search_term)
         )
-        count = session.exec(count_statement).one()
-        statement = (
-            select(Todo)
-            .where(Todo.owner_id == current_user.id)
-            .offset(skip)
-            .limit(limit)
-        )
-        todos = session.exec(statement).all()
+        base_conditions.append(search_condition)
+
+    # Build count statement
+    count_statement = select(func.count()).select_from(Todo)
+    if base_conditions:
+        count_statement = count_statement.where(*base_conditions)
+    count = session.exec(count_statement).one()
+
+    # Build main query statement
+    statement = select(Todo)
+    if base_conditions:
+        statement = statement.where(*base_conditions)
+    statement = statement.offset(skip).limit(limit).order_by(Todo.created_at.desc())
+    todos = session.exec(statement).all()
 
     return TodosPublic(data=todos, count=count)
 

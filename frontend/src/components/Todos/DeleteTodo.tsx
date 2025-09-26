@@ -17,7 +17,13 @@ import {
 } from "@/components/ui/dialog"
 import useCustomToast from "@/hooks/useCustomToast"
 
-const DeleteTodo = ({ id, onDeleted }: { id: string; onDeleted?: (id: string) => void }) => {
+const DeleteTodo = ({
+  id,
+  onDeleted,
+}: {
+  id: string
+  onDeleted?: (id: string) => void
+}) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
