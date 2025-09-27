@@ -9,6 +9,7 @@ from app.api.routes import (
     login,
     monthly_reports,
     private,
+    roadmap,
     todos,
     transactions,
     users,
@@ -27,6 +28,7 @@ api_router.include_router(categories.router)
 api_router.include_router(transactions.router)
 api_router.include_router(allocation_rules.router)
 api_router.include_router(monthly_reports.router, prefix="/monthly-reports", tags=["monthly-reports"])
+api_router.include_router(roadmap.router)
 api_router.include_router(gmail.router)
 
 

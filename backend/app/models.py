@@ -64,6 +64,9 @@ class User(UserBase, table=True):
     gmail_connections: list["GmailConnection"] = Relationship(
         back_populates="user", cascade_delete=True
     )
+    roadmaps: list["Roadmap"] = Relationship(
+        back_populates="user", cascade_delete=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -630,3 +633,121 @@ class EmailTxnMonthlyAmount(SQLModel):
 class EmailTxnDashboard(SQLModel):
     by_category: list[EmailTxnCategoryAmount] = []
     monthly: list[EmailTxnMonthlyAmount] = []
+
+
+# ========= ROADMAP =========
+class RoadmapStatus(str, Enum):
+    planning = "planning"
+    in_progress = "in_progress"
+    completed = "completed"
+    on_hold = "on_hold"
+    cancelled = "cancelled"
+
+
+class RoadmapPriority(str, Enum):
+    low = "low"
+    medium = "medium"
+    high = "high"
+    critical = "critical"
+
+
+class RoadmapBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=1000)
+    status: RoadmapStatus = Field(default=RoadmapStatus.planning)
+    priority: RoadmapPriority = Field(default=RoadmapPriority.medium)
+    start_date: date | None = None
+    target_date: date | None = None
+    completed_date: date | None = None
+    progress_percentage: int = Field(default=0, ge=0, le=100)
+
+
+class RoadmapCreate(RoadmapBase):
+    pass
+
+
+class RoadmapUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=1000)
+    status: RoadmapStatus | None = None
+    priority: RoadmapPriority | None = None
+    start_date: date | None = None
+    target_date: date | None = None
+    completed_date: date | None = None
+    progress_percentage: int | None = Field(default=None, ge=0, le=100)
+
+
+class Roadmap(RoadmapBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    user: User | None = Relationship(back_populates="roadmaps")
+    milestones: list["RoadmapMilestone"] = Relationship(
+        back_populates="roadmap", cascade_delete=True
+    )
+
+
+class RoadmapPublic(RoadmapBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+    milestones: list["RoadmapMilestonePublic"] = []
+
+
+class RoadmapsPublic(SQLModel):
+    data: list[RoadmapPublic]
+    count: int
+
+
+# ========= ROADMAP MILESTONE =========
+class MilestoneStatus(str, Enum):
+    pending = "pending"
+    in_progress = "in_progress"
+    completed = "completed"
+    blocked = "blocked"
+
+
+class MilestoneBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=500)
+    status: MilestoneStatus = Field(default=MilestoneStatus.pending)
+    target_date: date | None = None
+    completed_date: date | None = None
+    order_index: int = Field(default=0)
+
+
+class MilestoneCreate(MilestoneBase):
+    pass
+
+
+class MilestoneUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=500)
+    status: MilestoneStatus | None = None
+    target_date: date | None = None
+    completed_date: date | None = None
+    order_index: int | None = None
+
+
+class RoadmapMilestone(MilestoneBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    roadmap_id: uuid.UUID = Field(foreign_key="roadmap.id", nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    roadmap: Roadmap | None = Relationship(back_populates="milestones")
+
+
+class RoadmapMilestonePublic(MilestoneBase):
+    id: uuid.UUID
+    roadmap_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+class RoadmapMilestonesPublic(SQLModel):
+    data: list[RoadmapMilestonePublic]
+    count: int

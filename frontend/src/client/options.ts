@@ -1,10 +1,10 @@
-import type { TodoPriority, TodoStatus, TodoType } from "./types.gen"
+import type { TodoStatus, TodoPriority, TodoType } from "./types.gen"
 
 export const TODO_STATUS_OPTIONS: Array<{ value: TodoStatus; label: string }> = [
   { value: "backlog", label: "Backlog" },
   { value: "todo", label: "Todo" },
-  { value: "planning", label: "Planning" },
   { value: "doing", label: "Doing" },
+  { value: "planning", label: "Planning" },
   { value: "done", label: "Done" },
   { value: "archived", label: "Archived" },
 ]
@@ -26,6 +26,3 @@ export const TODO_TYPE_OPTIONS: Array<{ value: TodoType; label: string }> = [
   { value: "finance", label: "Finance" },
   { value: "other", label: "Other" },
 ]
-
-
-

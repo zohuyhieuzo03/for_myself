@@ -9,6 +9,7 @@ import {
   FiHome,
   FiInbox,
   FiMail,
+  FiMap,
   FiPieChart,
   FiSettings,
   FiTag,
@@ -24,6 +25,7 @@ const items = [
   { icon: FiHome, title: "Dashboard", path: "/" },
   { icon: FiBriefcase, title: "Items", path: "/items" },
   { icon: FiCheckSquare, title: "Todos", path: "/todos" },
+  { icon: FiMap, title: "Roadmap", path: "/roadmap" },
   { icon: FiMail, title: "Gmail Integration", path: "/email" },
   { icon: FiInbox, title: "Email Transactions", path: "/email/transactions" },
   {

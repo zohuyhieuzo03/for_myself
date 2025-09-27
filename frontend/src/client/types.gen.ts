@@ -224,6 +224,26 @@ export type Message = {
     message: string;
 };
 
+export type MilestoneCreate = {
+    title: string;
+    description?: (string | null);
+    status?: MilestoneStatus;
+    target_date?: (string | null);
+    completed_date?: (string | null);
+    order_index?: number;
+};
+
+export type MilestoneStatus = 'pending' | 'in_progress' | 'completed' | 'blocked';
+
+export type MilestoneUpdate = {
+    title?: (string | null);
+    description?: (string | null);
+    status?: (MilestoneStatus | null);
+    target_date?: (string | null);
+    completed_date?: (string | null);
+    order_index?: (number | null);
+};
+
 export type MonthlyFinancialReport = {
     year: number;
     month: number;
@@ -263,6 +283,71 @@ export type PrivateUserCreate = {
     password: string;
     full_name: string;
     is_verified?: boolean;
+};
+
+export type RoadmapCreate = {
+    title: string;
+    description?: (string | null);
+    status?: RoadmapStatus;
+    priority?: RoadmapPriority;
+    start_date?: (string | null);
+    target_date?: (string | null);
+    completed_date?: (string | null);
+    progress_percentage?: number;
+};
+
+export type RoadmapMilestonePublic = {
+    title: string;
+    description?: (string | null);
+    status?: MilestoneStatus;
+    target_date?: (string | null);
+    completed_date?: (string | null);
+    order_index?: number;
+    id: string;
+    roadmap_id: string;
+    created_at: string;
+    updated_at: string;
+};
+
+export type RoadmapMilestonesPublic = {
+    data: Array<RoadmapMilestonePublic>;
+    count: number;
+};
+
+export type RoadmapPriority = 'low' | 'medium' | 'high' | 'critical';
+
+export type RoadmapPublic = {
+    title: string;
+    description?: (string | null);
+    status?: RoadmapStatus;
+    priority?: RoadmapPriority;
+    start_date?: (string | null);
+    target_date?: (string | null);
+    completed_date?: (string | null);
+    progress_percentage?: number;
+    id: string;
+    user_id: string;
+    created_at: string;
+    updated_at: string;
+    milestones?: Array<RoadmapMilestonePublic>;
+};
+
+export type RoadmapsPublic = {
+    data: Array<RoadmapPublic>;
+    count: number;
+};
+
+export type RoadmapStatus = 'planning' | 'in_progress' | 'completed' | 'on_hold' | 'cancelled';
+
+export type RoadmapUpdate = {
+    title?: (string | null);
+    description?: (string | null);
+    status?: (RoadmapStatus | null);
+    priority?: (RoadmapPriority | null);
+    start_date?: (string | null);
+    target_date?: (string | null);
+    completed_date?: (string | null);
+    progress_percentage?: (number | null);
 };
 
 export type TodoCreate = {
@@ -781,6 +866,68 @@ export type PrivateCreateUserData = {
 };
 
 export type PrivateCreateUserResponse = (UserPublic);
+
+export type RoadmapReadRoadmapsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type RoadmapReadRoadmapsResponse = (RoadmapsPublic);
+
+export type RoadmapCreateRoadmapData = {
+    requestBody: RoadmapCreate;
+};
+
+export type RoadmapCreateRoadmapResponse = (RoadmapPublic);
+
+export type RoadmapReadRoadmapData = {
+    roadmapId: string;
+};
+
+export type RoadmapReadRoadmapResponse = (RoadmapPublic);
+
+export type RoadmapUpdateRoadmapData = {
+    requestBody: RoadmapUpdate;
+    roadmapId: string;
+};
+
+export type RoadmapUpdateRoadmapResponse = (RoadmapPublic);
+
+export type RoadmapDeleteRoadmapData = {
+    roadmapId: string;
+};
+
+export type RoadmapDeleteRoadmapResponse = (Message);
+
+export type RoadmapReadMilestonesData = {
+    limit?: number;
+    roadmapId: string;
+    skip?: number;
+};
+
+export type RoadmapReadMilestonesResponse = (RoadmapMilestonesPublic);
+
+export type RoadmapCreateMilestoneData = {
+    requestBody: MilestoneCreate;
+    roadmapId: string;
+};
+
+export type RoadmapCreateMilestoneResponse = (RoadmapMilestonePublic);
+
+export type RoadmapUpdateMilestoneData = {
+    milestoneId: string;
+    requestBody: MilestoneUpdate;
+    roadmapId: string;
+};
+
+export type RoadmapUpdateMilestoneResponse = (RoadmapMilestonePublic);
+
+export type RoadmapDeleteMilestoneData = {
+    milestoneId: string;
+    roadmapId: string;
+};
+
+export type RoadmapDeleteMilestoneResponse = (Message);
 
 export type TodosReadTodosData = {
     limit?: number;

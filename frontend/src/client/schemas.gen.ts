@@ -1131,6 +1131,148 @@ export const MessageSchema = {
     title: 'Message'
 } as const;
 
+export const MilestoneCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        status: {
+            '$ref': '#/components/schemas/MilestoneStatus',
+            default: 'pending'
+        },
+        target_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Target Date'
+        },
+        completed_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Completed Date'
+        },
+        order_index: {
+            type: 'integer',
+            title: 'Order Index',
+            default: 0
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'MilestoneCreate'
+} as const;
+
+export const MilestoneStatusSchema = {
+    type: 'string',
+    enum: ['pending', 'in_progress', 'completed', 'blocked'],
+    title: 'MilestoneStatus'
+} as const;
+
+export const MilestoneUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        status: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/MilestoneStatus'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        target_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Target Date'
+        },
+        completed_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Completed Date'
+        },
+        order_index: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Order Index'
+        }
+    },
+    type: 'object',
+    title: 'MilestoneUpdate'
+} as const;
+
 export const MonthlyFinancialReportSchema = {
     properties: {
         year: {
@@ -1285,6 +1427,418 @@ export const PrivateUserCreateSchema = {
     type: 'object',
     required: ['email', 'password', 'full_name'],
     title: 'PrivateUserCreate'
+} as const;
+
+export const RoadmapCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        status: {
+            '$ref': '#/components/schemas/RoadmapStatus',
+            default: 'planning'
+        },
+        priority: {
+            '$ref': '#/components/schemas/RoadmapPriority',
+            default: 'medium'
+        },
+        start_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Start Date'
+        },
+        target_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Target Date'
+        },
+        completed_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Completed Date'
+        },
+        progress_percentage: {
+            type: 'integer',
+            maximum: 100,
+            minimum: 0,
+            title: 'Progress Percentage',
+            default: 0
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'RoadmapCreate'
+} as const;
+
+export const RoadmapMilestonePublicSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        status: {
+            '$ref': '#/components/schemas/MilestoneStatus',
+            default: 'pending'
+        },
+        target_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Target Date'
+        },
+        completed_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Completed Date'
+        },
+        order_index: {
+            type: 'integer',
+            title: 'Order Index',
+            default: 0
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        roadmap_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Roadmap Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'roadmap_id', 'created_at', 'updated_at'],
+    title: 'RoadmapMilestonePublic'
+} as const;
+
+export const RoadmapMilestonesPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/RoadmapMilestonePublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'RoadmapMilestonesPublic'
+} as const;
+
+export const RoadmapPrioritySchema = {
+    type: 'string',
+    enum: ['low', 'medium', 'high', 'critical'],
+    title: 'RoadmapPriority'
+} as const;
+
+export const RoadmapPublicSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        status: {
+            '$ref': '#/components/schemas/RoadmapStatus',
+            default: 'planning'
+        },
+        priority: {
+            '$ref': '#/components/schemas/RoadmapPriority',
+            default: 'medium'
+        },
+        start_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Start Date'
+        },
+        target_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Target Date'
+        },
+        completed_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Completed Date'
+        },
+        progress_percentage: {
+            type: 'integer',
+            maximum: 100,
+            minimum: 0,
+            title: 'Progress Percentage',
+            default: 0
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        user_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'User Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        },
+        milestones: {
+            items: {
+                '$ref': '#/components/schemas/RoadmapMilestonePublic'
+            },
+            type: 'array',
+            title: 'Milestones',
+            default: []
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'user_id', 'created_at', 'updated_at'],
+    title: 'RoadmapPublic'
+} as const;
+
+export const RoadmapStatusSchema = {
+    type: 'string',
+    enum: ['planning', 'in_progress', 'completed', 'on_hold', 'cancelled'],
+    title: 'RoadmapStatus'
+} as const;
+
+export const RoadmapUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        status: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/RoadmapStatus'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        priority: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/RoadmapPriority'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        start_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Start Date'
+        },
+        target_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Target Date'
+        },
+        completed_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Completed Date'
+        },
+        progress_percentage: {
+            anyOf: [
+                {
+                    type: 'integer',
+                    maximum: 100,
+                    minimum: 0
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Progress Percentage'
+        }
+    },
+    type: 'object',
+    title: 'RoadmapUpdate'
+} as const;
+
+export const RoadmapsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/RoadmapPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'RoadmapsPublic'
 } as const;
 
 export const TodoCreateSchema = {

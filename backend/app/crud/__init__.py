@@ -70,6 +70,19 @@ from .email_transaction import (
     update_email_transaction,
     get_email_transactions_for_all_connections,
 )
+from .roadmap import (
+    create_roadmap,
+    delete_roadmap,
+    get_roadmap,
+    get_roadmap_with_milestones,
+    get_roadmaps,
+    update_roadmap,
+    create_milestone,
+    delete_milestone,
+    get_milestone,
+    get_milestones_by_roadmap,
+    update_milestone,
+)
 
 __all__ = [
     # User functions
@@ -143,4 +156,17 @@ __all__ = [
     "get_email_txn_dashboard",
     "update_email_transaction",
     "get_email_transactions_for_all_connections",
+    # Roadmap functions
+    "create_roadmap",
+    "delete_roadmap",
+    "get_roadmap",
+    "get_roadmap_with_milestones",
+    "get_roadmaps",
+    "update_roadmap",
+    # Milestone functions
+    "create_milestone",
+    "delete_milestone",
+    "get_milestone",
+    "get_milestones_by_roadmap",
+    "update_milestone",
 ]

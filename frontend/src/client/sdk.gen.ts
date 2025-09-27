@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsBatchData, GmailSyncEmailsBatchResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, GmailGetEmailTransactionsDashboardData, GmailGetEmailTransactionsDashboardResponse, GmailTriggerAutoSyncData, GmailTriggerAutoSyncResponse, GmailGetSchedulerStatusResponse, GmailStartSchedulerResponse, GmailStopSchedulerResponse, GmailTriggerSyncAllConnectionsData, GmailTriggerSyncAllConnectionsResponse, GmailCreateTransactionFromEmailData, GmailCreateTransactionFromEmailResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TodosReadTodoChildrenData, TodosReadTodoChildrenResponse, TodosReadTodoParentData, TodosReadTodoParentResponse, TodosReadChecklistItemsData, TodosReadChecklistItemsResponse, TodosCreateChecklistItemEndpointData, TodosCreateChecklistItemEndpointResponse, TodosUpdateChecklistItemEndpointData, TodosUpdateChecklistItemEndpointResponse, TodosDeleteChecklistItemEndpointData, TodosDeleteChecklistItemEndpointResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsBatchData, GmailSyncEmailsBatchResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, GmailGetEmailTransactionsDashboardData, GmailGetEmailTransactionsDashboardResponse, GmailTriggerAutoSyncData, GmailTriggerAutoSyncResponse, GmailGetSchedulerStatusResponse, GmailStartSchedulerResponse, GmailStopSchedulerResponse, GmailTriggerSyncAllConnectionsData, GmailTriggerSyncAllConnectionsResponse, GmailCreateTransactionFromEmailData, GmailCreateTransactionFromEmailResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, RoadmapReadRoadmapsData, RoadmapReadRoadmapsResponse, RoadmapCreateRoadmapData, RoadmapCreateRoadmapResponse, RoadmapReadRoadmapData, RoadmapReadRoadmapResponse, RoadmapUpdateRoadmapData, RoadmapUpdateRoadmapResponse, RoadmapDeleteRoadmapData, RoadmapDeleteRoadmapResponse, RoadmapReadMilestonesData, RoadmapReadMilestonesResponse, RoadmapCreateMilestoneData, RoadmapCreateMilestoneResponse, RoadmapUpdateMilestoneData, RoadmapUpdateMilestoneResponse, RoadmapDeleteMilestoneData, RoadmapDeleteMilestoneResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TodosReadTodoChildrenData, TodosReadTodoChildrenResponse, TodosReadTodoParentData, TodosReadTodoParentResponse, TodosReadChecklistItemsData, TodosReadChecklistItemsResponse, TodosCreateChecklistItemEndpointData, TodosCreateChecklistItemEndpointResponse, TodosUpdateChecklistItemEndpointData, TodosUpdateChecklistItemEndpointResponse, TodosDeleteChecklistItemEndpointData, TodosDeleteChecklistItemEndpointResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class AccountsService {
     /**
@@ -1038,6 +1038,217 @@ export class PrivateService {
             url: '/api/v1/private/users/',
             body: data.requestBody,
             mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class RoadmapService {
+    /**
+     * Read Roadmaps
+     * Retrieve roadmaps for current user.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns RoadmapsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readRoadmaps(data: RoadmapReadRoadmapsData = {}): CancelablePromise<RoadmapReadRoadmapsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/roadmap/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Roadmap
+     * Create new roadmap.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns RoadmapPublic Successful Response
+     * @throws ApiError
+     */
+    public static createRoadmap(data: RoadmapCreateRoadmapData): CancelablePromise<RoadmapCreateRoadmapResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/roadmap/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Roadmap
+     * Get roadmap by ID.
+     * @param data The data for the request.
+     * @param data.roadmapId
+     * @returns RoadmapPublic Successful Response
+     * @throws ApiError
+     */
+    public static readRoadmap(data: RoadmapReadRoadmapData): CancelablePromise<RoadmapReadRoadmapResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/roadmap/{roadmap_id}',
+            path: {
+                roadmap_id: data.roadmapId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Roadmap
+     * Update a roadmap.
+     * @param data The data for the request.
+     * @param data.roadmapId
+     * @param data.requestBody
+     * @returns RoadmapPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateRoadmap(data: RoadmapUpdateRoadmapData): CancelablePromise<RoadmapUpdateRoadmapResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/roadmap/{roadmap_id}',
+            path: {
+                roadmap_id: data.roadmapId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Roadmap
+     * Delete a roadmap.
+     * @param data The data for the request.
+     * @param data.roadmapId
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteRoadmap(data: RoadmapDeleteRoadmapData): CancelablePromise<RoadmapDeleteRoadmapResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/roadmap/{roadmap_id}',
+            path: {
+                roadmap_id: data.roadmapId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Milestones
+     * Retrieve milestones for a roadmap.
+     * @param data The data for the request.
+     * @param data.roadmapId
+     * @param data.skip
+     * @param data.limit
+     * @returns RoadmapMilestonesPublic Successful Response
+     * @throws ApiError
+     */
+    public static readMilestones(data: RoadmapReadMilestonesData): CancelablePromise<RoadmapReadMilestonesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/roadmap/{roadmap_id}/milestones',
+            path: {
+                roadmap_id: data.roadmapId
+            },
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Milestone
+     * Create new milestone for a roadmap.
+     * @param data The data for the request.
+     * @param data.roadmapId
+     * @param data.requestBody
+     * @returns RoadmapMilestonePublic Successful Response
+     * @throws ApiError
+     */
+    public static createMilestone(data: RoadmapCreateMilestoneData): CancelablePromise<RoadmapCreateMilestoneResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/roadmap/{roadmap_id}/milestones',
+            path: {
+                roadmap_id: data.roadmapId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Milestone
+     * Update a milestone.
+     * @param data The data for the request.
+     * @param data.roadmapId
+     * @param data.milestoneId
+     * @param data.requestBody
+     * @returns RoadmapMilestonePublic Successful Response
+     * @throws ApiError
+     */
+    public static updateMilestone(data: RoadmapUpdateMilestoneData): CancelablePromise<RoadmapUpdateMilestoneResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/roadmap/{roadmap_id}/milestones/{milestone_id}',
+            path: {
+                roadmap_id: data.roadmapId,
+                milestone_id: data.milestoneId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Milestone
+     * Delete a milestone.
+     * @param data The data for the request.
+     * @param data.roadmapId
+     * @param data.milestoneId
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteMilestone(data: RoadmapDeleteMilestoneData): CancelablePromise<RoadmapDeleteMilestoneResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/roadmap/{roadmap_id}/milestones/{milestone_id}',
+            path: {
+                roadmap_id: data.roadmapId,
+                milestone_id: data.milestoneId
+            },
             errors: {
                 422: 'Validation Error'
             }
