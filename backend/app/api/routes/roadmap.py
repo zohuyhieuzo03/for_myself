@@ -13,6 +13,7 @@ from app.models import (
     RoadmapMilestone,
     MilestoneCreate,
     MilestoneUpdate,
+    MilestoneReorderRequest,
     RoadmapMilestonePublic,
     RoadmapMilestonesPublic,
     Message,
@@ -43,6 +44,10 @@ def create_roadmap(
     """
     roadmap = crud.create_roadmap(
         session=session, roadmap_in=roadmap_in, user_id=current_user.id
+    )
+    # Load with milestones to ensure progress_percentage is calculated correctly
+    roadmap = crud.get_roadmap_with_milestones(
+        session=session, roadmap_id=roadmap.id, user_id=current_user.id
     )
     return roadmap
 
@@ -140,6 +145,31 @@ def create_milestone(
         session=session, milestone_in=milestone_in, roadmap_id=roadmap_id
     )
     return milestone
+
+
+@router.put("/{roadmap_id}/milestones/reorder", response_model=RoadmapMilestonesPublic)
+def reorder_milestones(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    roadmap_id: uuid.UUID,
+    reorder_request: MilestoneReorderRequest,
+) -> Any:
+    """
+    Reorder milestones by drag and drop.
+    """
+    # Verify roadmap ownership
+    roadmap = crud.get_roadmap(session=session, roadmap_id=roadmap_id)
+    if not roadmap or roadmap.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Roadmap not found")
+    
+    try:
+        milestones = crud.reorder_milestones(
+            session=session, roadmap_id=roadmap_id, reorder_request=reorder_request
+        )
+        return RoadmapMilestonesPublic(data=milestones, count=len(milestones))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.put("/{roadmap_id}/milestones/{milestone_id}", response_model=RoadmapMilestonePublic)

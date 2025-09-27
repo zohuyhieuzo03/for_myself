@@ -659,7 +659,6 @@ class RoadmapBase(SQLModel):
     start_date: date | None = None
     target_date: date | None = None
     completed_date: date | None = None
-    progress_percentage: int = Field(default=0, ge=0, le=100)
 
 
 class RoadmapCreate(RoadmapBase):
@@ -674,7 +673,6 @@ class RoadmapUpdate(BaseModel):
     start_date: date | None = None
     target_date: date | None = None
     completed_date: date | None = None
-    progress_percentage: int | None = Field(default=None, ge=0, le=100)
 
 
 class Roadmap(RoadmapBase, table=True):
@@ -695,6 +693,7 @@ class RoadmapPublic(RoadmapBase):
     created_at: datetime
     updated_at: datetime
     milestones: list["RoadmapMilestonePublic"] = []
+    progress_percentage: int = 0
 
 
 class RoadmapsPublic(SQLModel):
@@ -716,11 +715,14 @@ class MilestoneBase(SQLModel):
     status: MilestoneStatus = Field(default=MilestoneStatus.pending)
     target_date: date | None = None
     completed_date: date | None = None
-    order_index: int = Field(default=0)
 
 
-class MilestoneCreate(MilestoneBase):
-    pass
+class MilestoneCreate(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=500)
+    status: MilestoneStatus = Field(default=MilestoneStatus.pending)
+    target_date: date | None = None
+    completed_date: date | None = None
 
 
 class MilestoneUpdate(BaseModel):
@@ -729,7 +731,10 @@ class MilestoneUpdate(BaseModel):
     status: MilestoneStatus | None = None
     target_date: date | None = None
     completed_date: date | None = None
-    order_index: int | None = None
+
+
+class MilestoneReorderRequest(SQLModel):
+    milestone_ids: list[uuid.UUID] = Field(min_items=1)
 
 
 class RoadmapMilestone(MilestoneBase, table=True):

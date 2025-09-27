@@ -18,6 +18,7 @@ import { RoadmapService } from "@/client"
 import type { RoadmapPublic } from "@/client"
 import RoadmapForm from "./RoadmapForm"
 import { MilestoneList } from "./MilestoneList"
+import { MilestoneForm } from "./MilestoneForm"
 import useCustomToast from "@/hooks/useCustomToast"
 
 interface RoadmapDetailProps {
@@ -28,6 +29,7 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isMilestoneFormOpen, setIsMilestoneFormOpen] = useState(false)
   const [editingRoadmap, setEditingRoadmap] = useState<RoadmapPublic | null>(null)
 
   const { data: roadmap, isLoading, error } = useQuery({
@@ -61,6 +63,13 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
     setEditingRoadmap(null)
     queryClient.invalidateQueries({ queryKey: ["roadmap", roadmapId] })
     showSuccessToast("Roadmap updated successfully!")
+  }
+
+  const handleMilestoneFormSuccess = () => {
+    setIsMilestoneFormOpen(false)
+    queryClient.invalidateQueries({ queryKey: ["milestones", roadmapId] })
+    queryClient.invalidateQueries({ queryKey: ["roadmap", roadmapId] })
+    showSuccessToast("Milestone created successfully!")
   }
 
   if (isLoading) return <div>Loading...</div>
@@ -190,6 +199,7 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
           <Button
             colorScheme="blue"
             size="sm"
+            onClick={() => setIsMilestoneFormOpen(true)}
           >
             <FiPlus />
             Add Milestone
@@ -204,6 +214,14 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
         onClose={() => setIsFormOpen(false)}
         onSuccess={handleFormSuccess}
         roadmap={editingRoadmap || undefined}
+      />
+
+      {/* Milestone Form Modal */}
+      <MilestoneForm
+        isOpen={isMilestoneFormOpen}
+        onClose={() => setIsMilestoneFormOpen(false)}
+        onSuccess={handleMilestoneFormSuccess}
+        roadmapId={roadmapId}
       />
     </Box>
   )

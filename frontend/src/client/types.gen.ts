@@ -230,7 +230,10 @@ export type MilestoneCreate = {
     status?: MilestoneStatus;
     target_date?: (string | null);
     completed_date?: (string | null);
-    order_index?: number;
+};
+
+export type MilestoneReorderRequest = {
+    milestone_ids: Array<(string)>;
 };
 
 export type MilestoneStatus = 'pending' | 'in_progress' | 'completed' | 'blocked';
@@ -241,7 +244,6 @@ export type MilestoneUpdate = {
     status?: (MilestoneStatus | null);
     target_date?: (string | null);
     completed_date?: (string | null);
-    order_index?: (number | null);
 };
 
 export type MonthlyFinancialReport = {
@@ -293,7 +295,6 @@ export type RoadmapCreate = {
     start_date?: (string | null);
     target_date?: (string | null);
     completed_date?: (string | null);
-    progress_percentage?: number;
 };
 
 export type RoadmapMilestonePublic = {
@@ -302,7 +303,6 @@ export type RoadmapMilestonePublic = {
     status?: MilestoneStatus;
     target_date?: (string | null);
     completed_date?: (string | null);
-    order_index?: number;
     id: string;
     roadmap_id: string;
     created_at: string;
@@ -324,12 +324,12 @@ export type RoadmapPublic = {
     start_date?: (string | null);
     target_date?: (string | null);
     completed_date?: (string | null);
-    progress_percentage?: number;
     id: string;
     user_id: string;
     created_at: string;
     updated_at: string;
     milestones?: Array<RoadmapMilestonePublic>;
+    progress_percentage?: number;
 };
 
 export type RoadmapsPublic = {
@@ -347,7 +347,6 @@ export type RoadmapUpdate = {
     start_date?: (string | null);
     target_date?: (string | null);
     completed_date?: (string | null);
-    progress_percentage?: (number | null);
 };
 
 export type TodoCreate = {
@@ -921,6 +920,13 @@ export type RoadmapCreateMilestoneData = {
 };
 
 export type RoadmapCreateMilestoneResponse = (RoadmapMilestonePublic);
+
+export type RoadmapReorderMilestonesData = {
+    requestBody: MilestoneReorderRequest;
+    roadmapId: string;
+};
+
+export type RoadmapReorderMilestonesResponse = (RoadmapMilestonesPublic);
 
 export type RoadmapUpdateMilestoneData = {
     milestoneId: string;

@@ -82,6 +82,7 @@ from .roadmap import (
     get_milestone,
     get_milestones_by_roadmap,
     update_milestone,
+    reorder_milestones,
 )
 
 __all__ = [
@@ -169,4 +170,5 @@ __all__ = [
     "get_milestone",
     "get_milestones_by_roadmap",
     "update_milestone",
+    "reorder_milestones",
 ]

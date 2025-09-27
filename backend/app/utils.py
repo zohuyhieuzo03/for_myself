@@ -252,3 +252,17 @@ def is_token_expired(expires_at: datetime | None) -> bool:
 
     now_utc = datetime.now(timezone.utc)
     return now_utc >= expires_utc
+
+
+def calculate_roadmap_progress(milestones: list) -> int:
+    """Calculate progress percentage based on completed milestones."""
+    if not milestones:
+        return 0
+    
+    completed_milestones = sum(1 for milestone in milestones if milestone.status.value == "completed")
+    total_milestones = len(milestones)
+    
+    if total_milestones == 0:
+        return 0
+        
+    return round((completed_milestones / total_milestones) * 100)

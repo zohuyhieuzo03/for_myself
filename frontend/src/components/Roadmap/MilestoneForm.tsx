@@ -32,7 +32,6 @@ export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone
     description: milestone?.description || "",
     status: milestone?.status || "pending",
     target_date: milestone?.target_date || "",
-    order_index: milestone?.order_index || 0,
   })
 
   const createMutation = useMutation({
@@ -128,14 +127,6 @@ export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone
                 />
               </Field>
 
-              <Field label="Order Index">
-                <Input
-                  type="number"
-                  min="0"
-                  value={formData.order_index}
-                  onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value) || 0 })}
-                />
-              </Field>
             </VStack>
           </DialogBody>
 

@@ -1178,16 +1178,27 @@ export const MilestoneCreateSchema = {
                 }
             ],
             title: 'Completed Date'
-        },
-        order_index: {
-            type: 'integer',
-            title: 'Order Index',
-            default: 0
         }
     },
     type: 'object',
     required: ['title'],
     title: 'MilestoneCreate'
+} as const;
+
+export const MilestoneReorderRequestSchema = {
+    properties: {
+        milestone_ids: {
+            items: {
+                type: 'string',
+                format: 'uuid'
+            },
+            type: 'array',
+            title: 'Milestone Ids'
+        }
+    },
+    type: 'object',
+    required: ['milestone_ids'],
+    title: 'MilestoneReorderRequest'
 } as const;
 
 export const MilestoneStatusSchema = {
@@ -1256,17 +1267,6 @@ export const MilestoneUpdateSchema = {
                 }
             ],
             title: 'Completed Date'
-        },
-        order_index: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Order Index'
         }
     },
     type: 'object',
@@ -1492,13 +1492,6 @@ export const RoadmapCreateSchema = {
                 }
             ],
             title: 'Completed Date'
-        },
-        progress_percentage: {
-            type: 'integer',
-            maximum: 100,
-            minimum: 0,
-            title: 'Progress Percentage',
-            default: 0
         }
     },
     type: 'object',
@@ -1553,11 +1546,6 @@ export const RoadmapMilestonePublicSchema = {
                 }
             ],
             title: 'Completed Date'
-        },
-        order_index: {
-            type: 'integer',
-            title: 'Order Index',
-            default: 0
         },
         id: {
             type: 'string',
@@ -1674,13 +1662,6 @@ export const RoadmapPublicSchema = {
             ],
             title: 'Completed Date'
         },
-        progress_percentage: {
-            type: 'integer',
-            maximum: 100,
-            minimum: 0,
-            title: 'Progress Percentage',
-            default: 0
-        },
         id: {
             type: 'string',
             format: 'uuid',
@@ -1708,6 +1689,11 @@ export const RoadmapPublicSchema = {
             type: 'array',
             title: 'Milestones',
             default: []
+        },
+        progress_percentage: {
+            type: 'integer',
+            title: 'Progress Percentage',
+            default: 0
         }
     },
     type: 'object',
@@ -1803,19 +1789,6 @@ export const RoadmapUpdateSchema = {
                 }
             ],
             title: 'Completed Date'
-        },
-        progress_percentage: {
-            anyOf: [
-                {
-                    type: 'integer',
-                    maximum: 100,
-                    minimum: 0
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Progress Percentage'
         }
     },
     type: 'object',
