@@ -30,4 +30,6 @@ export default defineConfig({
       type: "json",
     },
   ],
+  // Bảo vệ file options.ts khỏi bị xóa khi generate
+  preserve: ["options.ts"],
 })

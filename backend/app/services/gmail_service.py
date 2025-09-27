@@ -45,12 +45,21 @@ class EmailPatterns:
         '(from:notifications@remitano.com '
         '(subject:"You have swapped" OR subject:"Bạn đã hoán đổi"))'
     )
+    TIMO_SENDER = 'from:support@timo.vn'
+    
+    # Timo-specific patterns
+    TIMO_BALANCE_CHANGE_VI = r"giảm\s+([\d,\.]+)\s*VND|tăng\s+([\d,\.]+)\s*VND"
+    TIMO_BALANCE_VI = r"Số dư hiện tại:\s*([\d,]+)\s*VND"
+    TIMO_ACCOUNT_VI = r"Tài khoản\s+([^v]+?)\s+vừa"
+    TIMO_DESCRIPTION_VI = r"Mô tả:\s*([^\n\r]+)"
 
 
 def parse_vnf_amount(amount_str: str) -> Optional[float]:
-    """Parse VNF/VND/VNDR amount string to float, removing commas."""
+    """Parse VNF/VND/VNDR amount string to float, removing commas and dots."""
     try:
-        return float(amount_str.replace(',', ''))
+        # Remove both commas and dots as thousands separators
+        cleaned = amount_str.replace(',', '').replace('.', '')
+        return float(cleaned)
     except ValueError:
         return None
 
@@ -346,11 +355,11 @@ class GmailService:
         access_token: str,
         batch_size: int = 500,
     ) -> List[Dict[str, Any]]:
-        """Search ALL transaction-related emails from supported senders (VCB, Remitano) without time limits.
+        """Search ALL transaction-related emails from supported senders (VCB, Remitano, Timo) without time limits.
 
         This method uses pagination to fetch ALL emails, bypassing the 500 email limit.
         """
-        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER}"
+        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER} OR {EmailPatterns.TIMO_SENDER}"
         query = f"({sender_filter}) label:inbox -in:chats"
 
         return self.list_all_emails_with_pagination(access_token, query, batch_size)
@@ -362,7 +371,7 @@ class GmailService:
         month: int,
         max_results: int = 1000,
     ) -> List[Dict[str, Any]]:
-        """Search emails from supported senders (VCB, Remitano) for a specific month.
+        """Search emails from supported senders (VCB, Remitano, Timo) for a specific month.
 
         Args:
             access_token: Gmail API access token
@@ -373,7 +382,7 @@ class GmailService:
         Returns:
             List of email dictionaries
         """
-        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER}"
+        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER} OR {EmailPatterns.TIMO_SENDER}"
         
         # Create date range for the month
         from datetime import datetime, timezone
@@ -400,7 +409,7 @@ class GmailService:
         days: int = 7,
         max_results: int = 500,
     ) -> List[Dict[str, Any]]:
-        """Search for recent transaction emails from supported senders (VCB, Remitano).
+        """Search for recent transaction emails from supported senders (VCB, Remitano, Timo).
         
         Args:
             access_token: Gmail API access token
@@ -410,7 +419,7 @@ class GmailService:
         Returns:
             List of email dictionaries
         """
-        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER}"
+        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER} OR {EmailPatterns.TIMO_SENDER}"
         query = f"({sender_filter}) label:inbox newer_than:{days}d -in:chats"
         
         return self.list_emails(access_token, query, max_results)
@@ -576,6 +585,18 @@ class EmailTransactionProcessor:
                 'confidence': self._calculate_confidence(remitano_result.get('amount'), 'Remitano', 'credit' if remitano_result.get('amount') is not None else None)
             }
 
+        # Special handling for Timo emails: parse balance change notifications
+        if 'timo.vn' in lower_sender or 'timo' in lower_subject:
+            timo_result = self._extract_timo_transaction_info(subject, body)
+            return {
+                'amount': timo_result.get('amount'),
+                'currency': 'VND',
+                'merchant': 'Timo Digital Bank',
+                'transaction_type': timo_result.get('transaction_type'),
+                'account_number': timo_result.get('account_number'),
+                'confidence': self._calculate_confidence(timo_result.get('amount'), 'Timo Digital Bank', timo_result.get('transaction_type'))
+            }
+
         # Extract amount
         amount = self._extract_amount(body + ' ' + subject)
         
@@ -683,6 +704,46 @@ class EmailTransactionProcessor:
                     }
         
         return {'amount': None, 'currency': 'VND'}
+    
+    def _extract_timo_transaction_info(self, subject: str, body: str) -> Dict[str, Any]:
+        """Extract transaction information from Timo balance change notification emails.
+        
+        Example email content:
+        - Subject: "Thông báo thay đổi số dư tài khoản"
+        - Body: "Tài khoản Spend Account vừa giảm 104.300 VND vào 27/09/2025 15:51.
+                 Số dư hiện tại: 2.795.998 VND.
+                 Mô tả: ShopeePay 84388522680 - VCCB APAY25092700nft3."
+        """
+        import re
+        
+        # Extract amount from balance change (giảm/tăng)
+        balance_change_match = re.search(EmailPatterns.TIMO_BALANCE_CHANGE_VI, body, re.IGNORECASE)
+        amount = None
+        transaction_type = None
+        
+        if balance_change_match:
+            # Check if it's a decrease (giảm) or increase (tăng)
+            if balance_change_match.group(1):  # giảm (decrease)
+                amount = parse_vnf_amount(balance_change_match.group(1))
+                transaction_type = 'debit'
+            elif balance_change_match.group(2):  # tăng (increase)
+                amount = parse_vnf_amount(balance_change_match.group(2))
+                transaction_type = 'credit'
+        
+        # Extract account type
+        account_match = re.search(EmailPatterns.TIMO_ACCOUNT_VI, body, re.IGNORECASE)
+        account_number = account_match.group(1).strip() if account_match else None
+        
+        # Extract description/merchant info
+        description_match = re.search(EmailPatterns.TIMO_DESCRIPTION_VI, body, re.IGNORECASE)
+        description = description_match.group(1).strip() if description_match else None
+        
+        return {
+            'amount': amount,
+            'transaction_type': transaction_type,
+            'account_number': account_number,
+            'description': description
+        }
     
     def _determine_transaction_type(self, subject: str, body: str) -> Optional[str]:
         """Determine transaction type (debit/credit)."""

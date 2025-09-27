@@ -93,20 +93,37 @@ def get_valid_gmail_connection_with_token(
         logger.error(f"Access token is missing for connection {connection.id}")
         refresh_token = decrypt_token(connection.refresh_token)
         if refresh_token:
-            gmail_service = GmailService()
-            new_tokens = gmail_service.refresh_access_token(refresh_token)
-            # Persist refreshed token
-            connection.access_token = encrypt_token(new_tokens['access_token'])
-            connection.expires_at = (
-                normalize_to_utc(datetime.fromisoformat(new_tokens['expires_at']))
-                if new_tokens['expires_at'] else None
-            )
-            connection.last_sync_at = datetime.now(timezone.utc)
+            try:
+                gmail_service = GmailService()
+                new_tokens = gmail_service.refresh_access_token(refresh_token)
+                # Persist refreshed token
+                connection.access_token = encrypt_token(new_tokens['access_token'])
+                connection.expires_at = (
+                    normalize_to_utc(datetime.fromisoformat(new_tokens['expires_at']))
+                    if new_tokens['expires_at'] else None
+                )
+                connection.last_sync_at = datetime.now(timezone.utc)
+                session.add(connection)
+                session.commit()
+                access_token = new_tokens['access_token']
+            except Exception as e:
+                # Mark connection as inactive since refresh failed
+                connection.is_active = False
+                session.add(connection)
+                session.commit()
+                raise HTTPException(
+                    status_code=401, 
+                    detail="Gmail connection expired. Please reconnect your Gmail account."
+                )
+        else:
+            # Mark connection as inactive since refresh token is invalid
+            connection.is_active = False
             session.add(connection)
             session.commit()
-            access_token = new_tokens['access_token']
-        else:
-            raise HTTPException(status_code=400, detail="Invalid tokens: cannot decrypt or refresh access token")
+            raise HTTPException(
+                status_code=401, 
+                detail="Gmail connection expired. Please reconnect your Gmail account."
+            )
     
     # Check if token is expired
     if is_token_expired(connection.expires_at):
@@ -114,23 +131,40 @@ def get_valid_gmail_connection_with_token(
         logger.error(f"Access token is expired for connection {connection.id}")
         refresh_token = decrypt_token(connection.refresh_token)
         if refresh_token:
-            gmail_service = GmailService()
-            new_tokens = gmail_service.refresh_access_token(refresh_token)
-            
-            # Update connection with new tokens
-            connection.access_token = encrypt_token(new_tokens['access_token'])
-            connection.expires_at = (
-                normalize_to_utc(datetime.fromisoformat(new_tokens['expires_at']))
-                if new_tokens['expires_at'] else None
-            )
-            connection.last_sync_at = datetime.now(timezone.utc)
-            
+            try:
+                gmail_service = GmailService()
+                new_tokens = gmail_service.refresh_access_token(refresh_token)
+                
+                # Update connection with new tokens
+                connection.access_token = encrypt_token(new_tokens['access_token'])
+                connection.expires_at = (
+                    normalize_to_utc(datetime.fromisoformat(new_tokens['expires_at']))
+                    if new_tokens['expires_at'] else None
+                )
+                connection.last_sync_at = datetime.now(timezone.utc)
+                
+                session.add(connection)
+                session.commit()
+                
+                access_token = new_tokens['access_token']
+            except Exception as e:
+                # Mark connection as inactive since refresh failed
+                connection.is_active = False
+                session.add(connection)
+                session.commit()
+                raise HTTPException(
+                    status_code=401, 
+                    detail="Gmail connection expired. Please reconnect your Gmail account."
+                )
+        else:
+            # Mark connection as inactive since refresh token is invalid
+            connection.is_active = False
             session.add(connection)
             session.commit()
-            
-            access_token = new_tokens['access_token']
-        else:
-            raise HTTPException(status_code=400, detail="Token expired and cannot be refreshed")
+            raise HTTPException(
+                status_code=401, 
+                detail="Gmail connection expired. Please reconnect your Gmail account."
+            )
     
     return connection, access_token
 

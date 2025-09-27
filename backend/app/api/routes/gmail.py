@@ -93,9 +93,10 @@ def handle_gmail_callback(
         # Decode state to identify user (no Authorization header on Google redirect)
         try:
             payload = jwt.decode(state, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
-            if payload.get("type") != "gmail_state":
+            if payload.get("type") not in ["gmail_state", "gmail_reconnect"]:
                 raise HTTPException(status_code=400, detail="Invalid state parameter")
             user_id = payload.get("sub")
+            connection_id = payload.get("connection_id")  # For reconnect flow
         except Exception:
             raise HTTPException(status_code=401, detail="Not authenticated")
         
@@ -116,6 +117,28 @@ def handle_gmail_callback(
         gmail_email = gmail_service.get_user_email(tokens['access_token'])
         if not gmail_email:
             raise HTTPException(status_code=400, detail="Could not retrieve Gmail profile")
+        
+        # Handle reconnect flow
+        if connection_id:
+            # Reconnect existing connection
+            existing_connection = crud.get_gmail_connection(session=session, connection_id=connection_id)
+            if not existing_connection or existing_connection.user_id != current_user.id:
+                raise HTTPException(status_code=404, detail="Gmail connection not found")
+            
+            # Update tokens for existing connection
+            existing_connection.access_token = encrypt_token(tokens['access_token'])
+            existing_connection.refresh_token = encrypt_token(tokens['refresh_token'])
+            existing_connection.expires_at = (
+                normalize_to_utc(datetime.fromisoformat(tokens['expires_at']))
+                if tokens['expires_at'] else None
+            )
+            existing_connection.is_active = True
+            existing_connection.last_sync_at = datetime.now(timezone.utc)
+
+            updated_connection = crud.update_gmail_connection(
+                session=session, db_connection=existing_connection, connection_in=GmailConnectionUpdate()
+            )
+            return GmailConnectionPublic.model_validate(updated_connection)
         
         # Check if connection for this gmail_email already exists for the user
         existing_same_email = crud.get_gmail_connection_by_user_and_email(
@@ -162,6 +185,39 @@ def handle_gmail_callback(
             
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to connect Gmail: {str(e)}")
+
+
+@router.post("/connections/{connection_id}/reconnect", response_model=dict)
+def reconnect_gmail_connection(
+    connection_id: uuid.UUID,
+    current_user: CurrentUser,
+) -> Any:
+    """Reconnect an existing Gmail connection by initiating OAuth flow."""
+    # Verify connection belongs to user
+    from app.core.db import engine
+    connection = crud.get_gmail_connection(session=Session(engine), connection_id=connection_id)
+    if not connection or connection.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Gmail connection not found")
+    
+    gmail_service = GmailService()
+    
+    # Generate state parameter for security (embed signed user id and connection id, 10 min expiry)
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+    state_payload = {
+        "sub": str(current_user.id),
+        "connection_id": str(connection_id),
+        "type": "gmail_reconnect",
+        "exp": expires_at
+    }
+    state = jwt.encode(state_payload, settings.SECRET_KEY, algorithm=security.ALGORITHM)
+    
+    # Get authorization URL
+    auth_url = gmail_service.get_authorization_url(state=state)
+    
+    return {
+        "authorization_url": auth_url,
+        "state": state,
+    }
 
 
 @router.patch("/connections/{connection_id}", response_model=GmailConnectionPublic)
@@ -352,7 +408,7 @@ def sync_emails_batch(
         service = gmail_service.get_gmail_service(access_token)
         
         # Build query for transaction emails
-        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER}"
+        sender_filter = f"{EmailPatterns.VCB_SENDER} OR {EmailPatterns.REMITANO_SWAP_FILTER} OR {EmailPatterns.TIMO_SENDER}"
         query = f"({sender_filter}) label:inbox -in:chats"
         
         # Get list of messages with pagination

@@ -615,6 +615,14 @@ export type GmailHandleGmailCallbackData = {
 
 export type GmailHandleGmailCallbackResponse = (GmailConnectionPublic);
 
+export type GmailReconnectGmailConnectionData = {
+    connectionId: string;
+};
+
+export type GmailReconnectGmailConnectionResponse = ({
+    [key: string]: unknown;
+});
+
 export type GmailUpdateGmailConnectionData = {
     connectionId: string;
     requestBody: GmailConnectionUpdate;

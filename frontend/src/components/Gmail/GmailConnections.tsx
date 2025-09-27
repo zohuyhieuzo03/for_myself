@@ -23,6 +23,7 @@ import {
   FiMail,
   FiRefreshCw,
   FiTrash2,
+  FiRotateCcw,
 } from "react-icons/fi"
 import type { GmailConnectionPublic } from "@/client"
 
@@ -164,6 +165,25 @@ function GmailConnectionCard({
     },
   })
 
+  const reconnectConnectionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await GmailService.reconnectGmailConnection({
+        connectionId: connection.id,
+      })
+      return response
+    },
+    onSuccess: (data) => {
+      // Open authorization URL in new tab
+      window.open((data as any).authorization_url, "_blank")
+      showSuccessToast(
+        "Gmail reconnection opened. Complete it in the new tab.",
+      )
+    },
+    onError: (error) => {
+      showErrorToast(`Failed to reconnect Gmail: ${error.message}`)
+    },
+  })
+
   const formatLastSync = (lastSync: string | null) => {
     if (!lastSync) return "Never"
     const date = new Date(lastSync)
@@ -239,6 +259,20 @@ function GmailConnectionCard({
                 <span>Delete</span>
               </HStack>
             </Button>
+            {!connection.is_active && (
+              <Button
+                size="sm"
+                colorPalette="orange"
+                variant="outline"
+                onClick={() => reconnectConnectionMutation.mutate()}
+                loading={reconnectConnectionMutation.isPending}
+              >
+                <HStack>
+                  <FiRotateCcw />
+                  <span>Reconnect</span>
+                </HStack>
+              </Button>
+            )}
           </HStack>
         </HStack>
       </Card.Header>
