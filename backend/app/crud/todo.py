@@ -85,6 +85,25 @@ def get_todo_parent(*, session: Session, todo_id: uuid.UUID) -> Todo | None:
     return parent
 
 
+# ========= MILESTONE QUERIES =========
+def get_todos_by_milestone(*, session: Session, milestone_id: uuid.UUID) -> list[Todo]:
+    statement = select(Todo).where(Todo.milestone_id == milestone_id).order_by(Todo.created_at)
+    todos = list(session.exec(statement).all())
+    return todos
+
+
+def get_todo_milestone(*, session: Session, todo_id: uuid.UUID) -> Any | None:
+    statement = select(Todo).where(Todo.id == todo_id)
+    todo = session.exec(statement).first()
+    if not todo:
+        return None
+    if todo.milestone_id is None:
+        return None
+    from app.models import RoadmapMilestone
+    milestone = session.get(RoadmapMilestone, todo.milestone_id)
+    return milestone
+
+
 # ========= CHECKLIST ITEM CRUD =========
 def create_checklist_item(*, session: Session, checklist_item_in: ChecklistItemCreate, todo_id: uuid.UUID) -> ChecklistItem:
     db_checklist_item = ChecklistItem.model_validate(checklist_item_in, update={"todo_id": todo_id})

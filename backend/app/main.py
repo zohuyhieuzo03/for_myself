@@ -20,7 +20,6 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     # Startup
-    # Temporarily disabled auto-start of Gmail sync scheduler
     # logger.info("Starting Gmail sync scheduler...")
     # try:
     #     start_gmail_sync_scheduler()

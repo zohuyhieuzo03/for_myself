@@ -307,6 +307,7 @@ export type RoadmapMilestonePublic = {
     roadmap_id: string;
     created_at: string;
     updated_at: string;
+    todos_count?: (number | null);
 };
 
 export type RoadmapMilestonesPublic = {
@@ -357,6 +358,7 @@ export type TodoCreate = {
     priority?: TodoPriority;
     type?: TodoType;
     parent_id?: (string | null);
+    milestone_id?: (string | null);
 };
 
 export type TodoPriority = 'low' | 'medium' | 'high' | 'urgent';
@@ -393,6 +395,7 @@ export type TodoUpdate = {
     priority?: (TodoPriority | null);
     type?: (TodoType | null);
     parent_id?: (string | null);
+    milestone_id?: (string | null);
 };
 
 export type Token = {
@@ -943,6 +946,23 @@ export type RoadmapDeleteMilestoneData = {
 
 export type RoadmapDeleteMilestoneResponse = (Message);
 
+export type RoadmapReadMilestoneTodosData = {
+    limit?: number;
+    milestoneId: string;
+    roadmapId: string;
+    skip?: number;
+};
+
+export type RoadmapReadMilestoneTodosResponse = (TodosPublic);
+
+export type RoadmapCreateMilestoneTodoData = {
+    milestoneId: string;
+    requestBody: TodoCreate;
+    roadmapId: string;
+};
+
+export type RoadmapCreateMilestoneTodoResponse = (TodoPublic);
+
 export type TodosReadTodosData = {
     limit?: number;
     search?: (string | null);
@@ -987,6 +1007,12 @@ export type TodosReadTodoParentData = {
 };
 
 export type TodosReadTodoParentResponse = ((TodoPublic | null));
+
+export type TodosReadTodoMilestoneData = {
+    id: string;
+};
+
+export type TodosReadTodoMilestoneResponse = (unknown);
 
 export type TodosReadChecklistItemsData = {
     todoId: string;

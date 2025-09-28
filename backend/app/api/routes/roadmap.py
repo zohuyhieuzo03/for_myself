@@ -17,6 +17,9 @@ from app.models import (
     RoadmapMilestonePublic,
     RoadmapMilestonesPublic,
     Message,
+    TodoCreate,
+    TodoPublic,
+    TodosPublic,
 )
 
 router = APIRouter(prefix="/roadmap", tags=["roadmap"])
@@ -221,3 +224,67 @@ def delete_milestone(
     
     crud.delete_milestone(session=session, milestone_id=milestone_id)
     return Message(message="Milestone deleted successfully")
+
+
+# ========= MILESTONE TODO ENDPOINTS =========
+@router.get("/{roadmap_id}/milestones/{milestone_id}/todos", response_model=TodosPublic)
+def read_milestone_todos(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    roadmap_id: uuid.UUID,
+    milestone_id: uuid.UUID,
+    skip: int = 0,
+    limit: int = 100,
+) -> Any:
+    """
+    Get todos for a milestone.
+    """
+    # Verify roadmap ownership
+    roadmap = crud.get_roadmap(session=session, roadmap_id=roadmap_id)
+    if not roadmap or roadmap.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Roadmap not found")
+    
+    # Verify milestone exists and belongs to roadmap
+    milestone = crud.get_milestone(session=session, milestone_id=milestone_id)
+    if not milestone or milestone.roadmap_id != roadmap_id:
+        raise HTTPException(status_code=404, detail="Milestone not found")
+    
+    todos = crud.get_todos_by_milestone(session=session, milestone_id=milestone_id)
+    # Filter by user ownership
+    user_todos = [todo for todo in todos if todo.owner_id == current_user.id]
+    
+    return TodosPublic(data=user_todos[skip:skip+limit], count=len(user_todos))
+
+
+@router.post("/{roadmap_id}/milestones/{milestone_id}/todos", response_model=TodoPublic)
+def create_milestone_todo(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    roadmap_id: uuid.UUID,
+    milestone_id: uuid.UUID,
+    todo_in: TodoCreate,
+) -> Any:
+    """
+    Create a new todo for a milestone.
+    """
+    # Verify roadmap ownership
+    roadmap = crud.get_roadmap(session=session, roadmap_id=roadmap_id)
+    if not roadmap or roadmap.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Roadmap not found")
+    
+    # Verify milestone exists and belongs to roadmap
+    milestone = crud.get_milestone(session=session, milestone_id=milestone_id)
+    if not milestone or milestone.roadmap_id != roadmap_id:
+        raise HTTPException(status_code=404, detail="Milestone not found")
+    
+    # Set milestone_id in todo data
+    todo_data = todo_in.model_dump()
+    todo_data["milestone_id"] = milestone_id
+    
+    from app.models import TodoCreate
+    todo_create = TodoCreate(**todo_data)
+    
+    todo = crud.create_todo(session=session, todo_in=todo_create, owner_id=current_user.id)
+    return todo

@@ -9,8 +9,9 @@ import {
   VStack,
   HStack,
   IconButton,
+  Button,
 } from "@chakra-ui/react"
-import { FiEdit, FiTrash2, FiCalendar, FiMenu } from "react-icons/fi"
+import { FiEdit, FiTrash2, FiCalendar, FiMenu, FiPlus, FiChevronDown, FiChevronRight } from "react-icons/fi"
 import {
   DndContext,
   closestCenter,
@@ -32,8 +33,11 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 
 import { RoadmapService } from "@/client"
-import type { RoadmapMilestonePublic, MilestoneReorderRequest } from "@/client"
+import type { RoadmapMilestonePublic, MilestoneReorderRequest, TodoPublic, TodoCreate } from "@/client"
 import { MilestoneForm } from "./MilestoneForm"
+import { TodoForm } from "../Todos/TodoForm"
+import TodoDetailDialog from "../Todos/TodoDetailDialog"
+import TodoCard from "../Todos/TodoCard"
 import useCustomToast from "@/hooks/useCustomToast"
 
 interface MilestoneListProps {
@@ -45,9 +49,51 @@ interface SortableMilestoneItemProps {
   onEdit: (milestone: RoadmapMilestonePublic) => void
   onDelete: (milestoneId: string) => void
   isDeleting: boolean
+  roadmapId: string
 }
 
-function SortableMilestoneItem({ milestone, onEdit, onDelete, isDeleting }: SortableMilestoneItemProps) {
+function SortableMilestoneItem({ milestone, onEdit, onDelete, isDeleting, roadmapId }: SortableMilestoneItemProps) {
+  const [showTodos, setShowTodos] = useState(false)
+  const [isTodoFormOpen, setIsTodoFormOpen] = useState(false)
+  const [selectedTodo, setSelectedTodo] = useState<TodoPublic | null>(null)
+  const { showSuccessToast, showErrorToast } = useCustomToast()
+  const queryClient = useQueryClient()
+
+  // Query todos for this milestone
+  const { data: todosResponse, isLoading: todosLoading } = useQuery({
+    queryKey: ["milestone-todos", milestone.id],
+    queryFn: () => {
+      console.log("Fetching todos for milestone:", milestone.id)
+      return RoadmapService.readMilestoneTodos({
+        roadmapId,
+        milestoneId: milestone.id,
+      })
+    },
+    enabled: showTodos || isTodoFormOpen,
+  })
+  
+  const todos = todosResponse?.data || []
+  console.log("Todos for milestone:", milestone.id, "count:", todos.length, "data:", todos)
+
+  // Create todo mutation
+  const createTodoMutation = useMutation({
+    mutationFn: (todoData: TodoCreate) => RoadmapService.createMilestoneTodo({
+      roadmapId,
+      milestoneId: milestone.id,
+      requestBody: todoData,
+    }),
+    onSuccess: (data) => {
+      console.log("Todo created successfully:", data)
+      queryClient.invalidateQueries({ queryKey: ["milestone-todos", milestone.id] })
+      setIsTodoFormOpen(false)
+      setShowTodos(true) // Auto-expand todos section after creating
+      showSuccessToast("Todo created successfully!")
+    },
+    onError: (error: any) => {
+      console.error("Failed to create todo:", error)
+      showErrorToast("Failed to create todo")
+    },
+  })
   const {
     attributes,
     listeners,
@@ -134,6 +180,67 @@ function SortableMilestoneItem({ milestone, onEdit, onDelete, isDeleting }: Sort
           <Text>Target: {new Date(milestone.target_date).toLocaleDateString()}</Text>
         </Flex>
       )}
+
+      {/* Todo section */}
+      <Box mt={3} pt={3} borderTop="1px" borderColor="gray.200">
+        <Flex justify="space-between" align="center" mb={2}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowTodos(!showTodos)}
+          >
+            {showTodos ? <FiChevronDown /> : <FiChevronRight />}
+            Todos ({todos.length})
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setIsTodoFormOpen(true)}
+          >
+            <FiPlus />
+            Add Todo
+          </Button>
+        </Flex>
+
+        {showTodos && (
+          <VStack align="stretch" gap={2}>
+            {todosLoading ? (
+              <Text fontSize="sm" color="gray.500">Loading todos...</Text>
+            ) : todos.length === 0 ? (
+              <Text fontSize="sm" color="gray.500">No todos yet</Text>
+            ) : (
+              todos.map((todo: TodoPublic) => (
+                <TodoCard
+                  key={todo.id}
+                  todo={todo}
+                  compact={true}
+                  onClick={() => setSelectedTodo(todo)}
+                />
+              ))
+            )}
+          </VStack>
+        )}
+
+        {/* Todo Form Modal */}
+        <TodoForm
+          isOpen={isTodoFormOpen}
+          onClose={() => setIsTodoFormOpen(false)}
+          onSubmit={createTodoMutation.mutate}
+          isLoading={createTodoMutation.isPending}
+          initialData={{ milestone_id: milestone.id }}
+          title={`Add Todo to ${milestone.title}`}
+        />
+
+        {/* Todo Detail Dialog */}
+        {selectedTodo && (
+          <TodoDetailDialog
+            open={!!selectedTodo}
+            onOpenChange={(open) => {
+              if (!open) setSelectedTodo(null)
+            }}
+            todo={selectedTodo}
+          />
+        )}
+      </Box>
     </Box>
   )
 }
@@ -264,6 +371,7 @@ export function MilestoneList({ roadmapId }: MilestoneListProps) {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   isDeleting={deleteMutation.isPending}
+                  roadmapId={roadmapId}
                 />
               ))}
             </VStack>

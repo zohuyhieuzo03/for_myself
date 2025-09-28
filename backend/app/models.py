@@ -198,10 +198,16 @@ class TodoBase(SQLModel):
 # Properties to receive on todo creation
 class TodoCreate(TodoBase):
     parent_id: uuid.UUID | None = None
+    milestone_id: uuid.UUID | None = None
 
     @field_validator('parent_id', mode='before')
     @classmethod
     def validate_parent_id(cls, v):
+        return convert_empty_string_to_none(v)
+
+    @field_validator('milestone_id', mode='before')
+    @classmethod
+    def validate_milestone_id(cls, v):
         return convert_empty_string_to_none(v)
 
 
@@ -214,10 +220,16 @@ class TodoUpdate(BaseModel):
     priority: TodoPriority | None = None
     type: TodoType | None = None
     parent_id: uuid.UUID | None = None
+    milestone_id: uuid.UUID | None = None
 
     @field_validator('parent_id', mode='before')
     @classmethod
     def validate_parent_id(cls, v):
+        return convert_empty_string_to_none(v)
+
+    @field_validator('milestone_id', mode='before')
+    @classmethod
+    def validate_milestone_id(cls, v):
         return convert_empty_string_to_none(v)
 
 
@@ -230,6 +242,9 @@ class Todo(TodoBase, table=True):
     parent_id: uuid.UUID | None = Field(
         default=None, foreign_key="todo.id", ondelete="SET NULL"
     )
+    milestone_id: uuid.UUID | None = Field(
+        default=None, foreign_key="roadmapmilestone.id", ondelete="SET NULL"
+    )
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     owner: User | None = Relationship(back_populates="todos")
@@ -240,6 +255,7 @@ class Todo(TodoBase, table=True):
     checklist_items: list["ChecklistItem"] = Relationship(
         back_populates="todo", cascade_delete=True
     )
+    milestone: Optional["RoadmapMilestone"] = Relationship(back_populates="todos")
 
 
 # Properties to return via API, id is always required
@@ -744,6 +760,7 @@ class RoadmapMilestone(MilestoneBase, table=True):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     roadmap: Roadmap | None = Relationship(back_populates="milestones")
+    todos: list["Todo"] = Relationship(back_populates="milestone")
 
 
 class RoadmapMilestonePublic(MilestoneBase):
@@ -751,6 +768,7 @@ class RoadmapMilestonePublic(MilestoneBase):
     roadmap_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    todos_count: int | None = None
 
 
 class RoadmapMilestonesPublic(SQLModel):

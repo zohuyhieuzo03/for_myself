@@ -1566,6 +1566,17 @@ export const RoadmapMilestonePublicSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Updated At'
+        },
+        todos_count: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Todos Count'
         }
     },
     type: 'object',
@@ -1869,6 +1880,18 @@ export const TodoCreateSchema = {
                 }
             ],
             title: 'Parent Id'
+        },
+        milestone_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Milestone Id'
         }
     },
     type: 'object',
@@ -2064,6 +2087,18 @@ export const TodoUpdateSchema = {
                 }
             ],
             title: 'Parent Id'
+        },
+        milestone_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Milestone Id'
         }
     },
     type: 'object',

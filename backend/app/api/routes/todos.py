@@ -14,6 +14,8 @@ from app.crud import (
     get_checklist_items_by_todo,
     get_todo_children,
     get_todo_parent,
+    get_todos_by_milestone,
+    get_todo_milestone,
     update_checklist_item,
     update_todo,
 )
@@ -161,6 +163,20 @@ def read_todo_parent(session: SessionDep, current_user: CurrentUser, id: uuid.UU
         raise HTTPException(status_code=400, detail="Not enough permissions")
     parent = get_todo_parent(session=session, todo_id=id)
     return parent
+
+
+@router.get("/{id}/milestone")
+def read_todo_milestone(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
+    """
+    Get milestone of a todo, if any.
+    """
+    todo = session.get(Todo, id)
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    if not current_user.is_superuser and (todo.owner_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    milestone = get_todo_milestone(session=session, todo_id=id)
+    return milestone
 
 
 # ========= CHECKLIST ITEM ENDPOINTS =========
