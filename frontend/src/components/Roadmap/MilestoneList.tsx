@@ -169,12 +169,39 @@ export function MilestoneList({ roadmapId }: MilestoneListProps) {
   const reorderMutation = useMutation({
     mutationFn: (reorderRequest: MilestoneReorderRequest) =>
       RoadmapService.reorderMilestones({ roadmapId, requestBody: reorderRequest }),
-    onSuccess: () => {
+    onMutate: async (reorderRequest) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["milestones", roadmapId] })
+      
+      // Snapshot the previous value
+      const previousMilestones = queryClient.getQueryData(["milestones", roadmapId])
+      
+      // Optimistically update the query data
+      if (previousMilestones && typeof previousMilestones === 'object' && previousMilestones !== null && 'data' in previousMilestones) {
+        const currentData = (previousMilestones as any).data as RoadmapMilestonePublic[]
+        const newOrder = reorderRequest.milestone_ids.map(id => 
+          currentData.find(m => m.id === id)
+        ).filter(Boolean) as RoadmapMilestonePublic[]
+        
+        queryClient.setQueryData(["milestones", roadmapId], {
+          ...previousMilestones,
+          data: newOrder
+        })
+      }
+      
+      return { previousMilestones }
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousMilestones) {
+        queryClient.setQueryData(["milestones", roadmapId], context.previousMilestones)
+      }
+      showErrorToast("Failed to reorder milestones")
+    },
+    onSettled: () => {
+      // Always refetch after error or success
       queryClient.invalidateQueries({ queryKey: ["milestones", roadmapId] })
       queryClient.invalidateQueries({ queryKey: ["roadmap", roadmapId] })
-    },
-    onError: () => {
-      showErrorToast("Failed to reorder milestones")
     },
   })
 
@@ -209,6 +236,7 @@ export function MilestoneList({ roadmapId }: MilestoneListProps) {
       const newOrder = arrayMove(milestones.data, oldIndex, newIndex)
       const milestoneIds = newOrder.map((milestone) => milestone.id)
       
+      // This will trigger onMutate for optimistic update
       reorderMutation.mutate({ milestone_ids: milestoneIds })
     }
   }

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button, Input, VStack } from "@chakra-ui/react"
 
@@ -33,6 +33,38 @@ export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone
     status: milestone?.status || "pending",
     target_date: milestone?.target_date || "",
   })
+
+  // Update form data when milestone prop changes
+  useEffect(() => {
+    if (milestone) {
+      setFormData({
+        title: milestone.title || "",
+        description: milestone.description || "",
+        status: milestone.status || "pending",
+        target_date: milestone.target_date || "",
+      })
+    } else {
+      // Reset form when creating new milestone
+      setFormData({
+        title: "",
+        description: "",
+        status: "pending",
+        target_date: "",
+      })
+    }
+  }, [milestone])
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setFormData({
+        title: "",
+        description: "",
+        status: "pending",
+        target_date: "",
+      })
+    }
+  }, [isOpen])
 
   const createMutation = useMutation({
     mutationFn: (data: MilestoneCreate) => 
