@@ -67,6 +67,9 @@ class User(UserBase, table=True):
     roadmaps: list["Roadmap"] = Relationship(
         back_populates="user", cascade_delete=True
     )
+    resources: list["Resource"] = Relationship(
+        back_populates="user", cascade_delete=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -761,6 +764,9 @@ class RoadmapMilestone(MilestoneBase, table=True):
 
     roadmap: Roadmap | None = Relationship(back_populates="milestones")
     todos: list["Todo"] = Relationship(back_populates="milestone")
+    resources: list["Resource"] = Relationship(
+        back_populates="milestone", cascade_delete=True
+    )
 
 
 class RoadmapMilestonePublic(MilestoneBase):
@@ -773,4 +779,93 @@ class RoadmapMilestonePublic(MilestoneBase):
 
 class RoadmapMilestonesPublic(SQLModel):
     data: list[RoadmapMilestonePublic]
+    count: int
+
+
+# ========= RESOURCE =========
+class ResourceBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=1000)
+    url: str | None = Field(default=None, max_length=2000)  # For links
+
+
+class ResourceCreate(ResourceBase):
+    milestone_id: uuid.UUID | None = None
+
+
+class ResourceUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=1000)
+    url: str | None = Field(default=None, max_length=2000)
+
+
+class Resource(ResourceBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
+    milestone_id: uuid.UUID | None = Field(foreign_key="roadmapmilestone.id", nullable=True)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    user: User | None = Relationship(back_populates="resources")
+    milestone: RoadmapMilestone | None = Relationship(back_populates="resources")
+    subjects: list["ResourceSubject"] = Relationship(
+        back_populates="resource", cascade_delete=True
+    )
+
+
+class ResourcePublic(ResourceBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    milestone_id: uuid.UUID | None
+    created_at: datetime
+    updated_at: datetime
+    subjects: list["ResourceSubjectPublic"] = []
+
+
+class ResourcesPublic(SQLModel):
+    data: list[ResourcePublic]
+    count: int
+
+
+# ========= RESOURCE SUBJECT =========
+class ResourceSubjectBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=500)
+    is_completed: bool = Field(default=False)
+    order_index: int = Field(default=0)
+
+
+class ResourceSubjectCreate(ResourceSubjectBase):
+    pass
+
+
+class ResourceSubjectUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=500)
+    is_completed: bool | None = None
+    order_index: int | None = None
+
+
+class ResourceSubjectReorderRequest(SQLModel):
+    subject_ids: list[uuid.UUID] = Field(min_items=1)
+
+
+class ResourceSubject(ResourceSubjectBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    resource_id: uuid.UUID = Field(foreign_key="resource.id", nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    resource: Resource | None = Relationship(back_populates="subjects")
+
+
+class ResourceSubjectPublic(ResourceSubjectBase):
+    id: uuid.UUID
+    resource_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+
+class ResourceSubjectsPublic(SQLModel):
+    data: list[ResourceSubjectPublic]
     count: int

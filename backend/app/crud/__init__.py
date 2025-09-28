@@ -86,6 +86,19 @@ from .roadmap import (
     update_milestone,
     reorder_milestones,
 )
+from .resource import (
+    create_resource,
+    delete_resource,
+    get_resource,
+    get_resources,
+    update_resource,
+    create_resource_subject,
+    delete_resource_subject,
+    get_resource_subject,
+    get_resource_subjects,
+    update_resource_subject,
+    reorder_resource_subjects,
+)
 
 __all__ = [
     # User functions
@@ -175,4 +188,17 @@ __all__ = [
     "get_milestones_by_roadmap",
     "update_milestone",
     "reorder_milestones",
+    # Resource functions
+    "create_resource",
+    "delete_resource",
+    "get_resource",
+    "get_resources",
+    "update_resource",
+    # Resource subject functions
+    "create_resource_subject",
+    "delete_resource_subject",
+    "get_resource_subject",
+    "get_resource_subjects",
+    "update_resource_subject",
+    "reorder_resource_subjects",
 ]
