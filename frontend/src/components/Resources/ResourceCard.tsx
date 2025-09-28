@@ -43,12 +43,6 @@ export function ResourceCard({
       p={6}
       bg="white"
       shadow="sm"
-      _hover={{
-        shadow: "md",
-        borderColor: "blue.300",
-        transform: "translateY(-1px)",
-        transition: "all 0.2s ease"
-      }}
       transition="all 0.2s ease"
       _before={{
         content: '""',
@@ -59,7 +53,17 @@ export function ResourceCard({
         height: "4px",
         bg: "blue.400",
         borderRadius: "lg lg 0 0",
-        opacity: 0.7
+        opacity: 0,
+        transition: "opacity 0.2s ease"
+      }}
+      _hover={{
+        shadow: "md",
+        borderColor: "blue.300",
+        transform: "translateY(-1px)",
+        transition: "all 0.2s ease",
+        _before: {
+          opacity: 0.7
+        }
       }}
     >
       <Flex justify="space-between" align="start" mb={4}>

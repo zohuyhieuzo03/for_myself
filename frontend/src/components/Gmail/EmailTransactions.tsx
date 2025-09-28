@@ -18,7 +18,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import React, { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import { FiCheck, FiEdit, FiEye, FiTrash2 } from "react-icons/fi"
+import { FiCheck, FiEdit, FiEye, FiTrash2, FiRefreshCw } from "react-icons/fi"
 import {
   AccountsService,
   CategoriesService,
@@ -812,6 +812,21 @@ export function EmailTransactionsTable({
   const { open, onOpen, onClose } = useDisclosure()
   const navigate = useNavigate({ from: "/email/transactions" })
 
+  // Sync recent emails mutation
+  const syncRecentEmailsMutation = useMutation({
+    mutationFn: async (connectionId: string) => {
+      return await GmailService.triggerAutoSync({ connectionId })
+    },
+    onSuccess: (data) => {
+      showSuccessToast(data.message || "Recent emails synced successfully")
+      // Invalidate and refetch email transactions
+      queryClient.invalidateQueries({ queryKey: ["email-transactions"] })
+    },
+    onError: (error: any) => {
+      showErrorToast(error.message || "Failed to sync recent emails")
+    },
+  })
+
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
   const [createTransactionModalOpen, setCreateTransactionModalOpen] =
     useState(false)
@@ -914,6 +929,14 @@ export function EmailTransactionsTable({
     assignCategoryMutation.mutate({ transactionId, categoryId })
   }
 
+  const handleSyncRecentEmails = () => {
+    if (connectionId === "all") {
+      showErrorToast("Please select a specific connection to sync")
+      return
+    }
+    syncRecentEmailsMutation.mutate(connectionId)
+  }
+
   const setPage = (newPage: number) => {
     navigate({
       to: "/email/transactions",
@@ -962,6 +985,16 @@ export function EmailTransactionsTable({
           <Flex justify="space-between" align="center">
             <Heading size="md">Email Transactions</Heading>
             <HStack gap={2}>
+              <Button
+                size="sm"
+                colorScheme="blue"
+                onClick={handleSyncRecentEmails}
+                loading={syncRecentEmailsMutation.isPending}
+                disabled={connectionId === "all"}
+              >
+                <FiRefreshCw style={{ marginRight: 8 }} />
+                {syncRecentEmailsMutation.isPending ? "Syncing..." : "Sync Recent"}
+              </Button>
               <select
                 value={connectionId}
                 onChange={(e) =>
