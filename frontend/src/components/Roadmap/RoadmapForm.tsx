@@ -1,9 +1,8 @@
-import { useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button, Input, VStack } from "@chakra-ui/react"
-
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import type { RoadmapCreate, RoadmapPublic, RoadmapUpdate } from "@/client"
 import { RoadmapService } from "@/client"
-import type { RoadmapCreate, RoadmapUpdate, RoadmapPublic } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
 import {
   DialogBody,
@@ -23,7 +22,12 @@ interface RoadmapFormProps {
   roadmap?: RoadmapPublic
 }
 
-function RoadmapForm({ isOpen, onClose, onSuccess, roadmap }: RoadmapFormProps) {
+function RoadmapForm({
+  isOpen,
+  onClose,
+  onSuccess,
+  roadmap,
+}: RoadmapFormProps) {
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
   const [formData, setFormData] = useState({
@@ -37,7 +41,8 @@ function RoadmapForm({ isOpen, onClose, onSuccess, roadmap }: RoadmapFormProps) 
   })
 
   const createMutation = useMutation({
-    mutationFn: (data: RoadmapCreate) => RoadmapService.createRoadmap({ requestBody: data }),
+    mutationFn: (data: RoadmapCreate) =>
+      RoadmapService.createRoadmap({ requestBody: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["roadmaps"] })
       showSuccessToast("Roadmap created successfully!")
@@ -57,7 +62,7 @@ function RoadmapForm({ isOpen, onClose, onSuccess, roadmap }: RoadmapFormProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const submitData = {
       ...formData,
       start_date: formData.start_date || undefined,
@@ -77,17 +82,21 @@ function RoadmapForm({ isOpen, onClose, onSuccess, roadmap }: RoadmapFormProps) 
     <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{roadmap ? "Edit Roadmap" : "Create New Roadmap"}</DialogTitle>
+          <DialogTitle>
+            {roadmap ? "Edit Roadmap" : "Create New Roadmap"}
+          </DialogTitle>
           <DialogCloseTrigger />
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit}>
           <DialogBody>
             <VStack gap={4}>
               <Field label="Title" required>
                 <Input
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   placeholder="Enter roadmap title"
                 />
               </Field>
@@ -95,7 +104,9 @@ function RoadmapForm({ isOpen, onClose, onSuccess, roadmap }: RoadmapFormProps) 
               <Field label="Description">
                 <Input
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   placeholder="Enter roadmap description"
                 />
               </Field>
@@ -103,7 +114,9 @@ function RoadmapForm({ isOpen, onClose, onSuccess, roadmap }: RoadmapFormProps) 
               <Field label="Status">
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, status: e.target.value as any })
+                  }
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -123,7 +136,12 @@ function RoadmapForm({ isOpen, onClose, onSuccess, roadmap }: RoadmapFormProps) 
               <Field label="Priority">
                 <select
                   value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      priority: e.target.value as any,
+                    })
+                  }
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -143,7 +161,9 @@ function RoadmapForm({ isOpen, onClose, onSuccess, roadmap }: RoadmapFormProps) 
                 <Input
                   type="date"
                   value={formData.start_date}
-                  onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, start_date: e.target.value })
+                  }
                 />
               </Field>
 
@@ -151,7 +171,9 @@ function RoadmapForm({ isOpen, onClose, onSuccess, roadmap }: RoadmapFormProps) 
                 <Input
                   type="date"
                   value={formData.target_date}
-                  onChange={(e) => setFormData({ ...formData, target_date: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, target_date: e.target.value })
+                  }
                 />
               </Field>
 
@@ -161,7 +183,12 @@ function RoadmapForm({ isOpen, onClose, onSuccess, roadmap }: RoadmapFormProps) 
                   min="0"
                   max="100"
                   value={formData.progress_percentage}
-                  onChange={(e) => setFormData({ ...formData, progress_percentage: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      progress_percentage: parseInt(e.target.value, 10) || 0,
+                    })
+                  }
                 />
               </Field>
             </VStack>

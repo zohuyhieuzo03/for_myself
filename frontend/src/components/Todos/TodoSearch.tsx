@@ -74,12 +74,12 @@ export default function TodoSearch({
         0,
       )
       const totalCount = (lastPage as any).count
-      
+
       // If we've loaded all items or the last page was empty, stop loading
       if (totalLoaded >= totalCount || (lastPage as any).data.length === 0) {
         return undefined
       }
-      
+
       return allPages.length
     },
     initialPageParam: 0,
@@ -99,8 +99,8 @@ export default function TodoSearch({
       observerRef.current = new IntersectionObserver(
         (entries) => {
           if (
-            entries[0].isIntersecting && 
-            hasNextPage && 
+            entries[0].isIntersecting &&
+            hasNextPage &&
             !isFetchingNextPage &&
             allTodos.length > 0 // Only trigger if we have items
           ) {
@@ -110,12 +110,18 @@ export default function TodoSearch({
         {
           threshold: 0.1,
           rootMargin: "100px", // Load more when 100px before reaching the end
-        }
+        },
       )
 
       if (node) observerRef.current.observe(node)
     },
-    [isLoading, hasNextPage, isFetchingNextPage, fetchNextPage, allTodos.length],
+    [
+      isLoading,
+      hasNextPage,
+      isFetchingNextPage,
+      fetchNextPage,
+      allTodos.length,
+    ],
   )
 
   // Cleanup observer on unmount
@@ -220,9 +226,9 @@ export default function TodoSearch({
                   p={2}
                   transition="background-color 0.2s ease"
                 >
-                  <TodoCard 
-                    todo={todo} 
-                    compact 
+                  <TodoCard
+                    todo={todo}
+                    compact
                     onClick={() => onSelectTodo(todo)}
                   />
                 </Box>
@@ -230,7 +236,12 @@ export default function TodoSearch({
             })}
 
             {/* Loading indicator for next page - fixed height to prevent layout shift */}
-            <Box minH="40px" display="flex" alignItems="center" justifyContent="center">
+            <Box
+              minH="40px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
               {isFetchingNextPage && hasNextPage && <Spinner size="sm" />}
               {!hasNextPage && allTodos.length > 0 && (
                 <Text fontSize="xs" color="gray.500">

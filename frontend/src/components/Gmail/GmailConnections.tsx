@@ -22,8 +22,8 @@ import {
   FiExternalLink,
   FiMail,
   FiRefreshCw,
-  FiTrash2,
   FiRotateCcw,
+  FiTrash2,
 } from "react-icons/fi"
 import type { GmailConnectionPublic } from "@/client"
 
@@ -175,9 +175,7 @@ function GmailConnectionCard({
     onSuccess: (data) => {
       // Open authorization URL in new tab
       window.open((data as any).authorization_url, "_blank")
-      showSuccessToast(
-        "Gmail reconnection opened. Complete it in the new tab.",
-      )
+      showSuccessToast("Gmail reconnection opened. Complete it in the new tab.")
     },
     onError: (error) => {
       showErrorToast(`Failed to reconnect Gmail: ${error.message}`)

@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button, Input, VStack } from "@chakra-ui/react"
-
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
+import type {
+  MilestoneCreate,
+  MilestoneUpdate,
+  RoadmapMilestonePublic,
+} from "@/client"
 import { RoadmapService } from "@/client"
-import type { MilestoneCreate, MilestoneUpdate, RoadmapMilestonePublic } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
 import {
   DialogBody,
@@ -24,7 +27,13 @@ interface MilestoneFormProps {
   milestone?: RoadmapMilestonePublic
 }
 
-export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone }: MilestoneFormProps) {
+export function MilestoneForm({
+  isOpen,
+  onClose,
+  onSuccess,
+  roadmapId,
+  milestone,
+}: MilestoneFormProps) {
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
   const [formData, setFormData] = useState({
@@ -67,7 +76,7 @@ export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone
   }, [isOpen])
 
   const createMutation = useMutation({
-    mutationFn: (data: MilestoneCreate) => 
+    mutationFn: (data: MilestoneCreate) =>
       RoadmapService.createMilestone({ roadmapId, requestBody: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["milestones", roadmapId] })
@@ -78,8 +87,18 @@ export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ milestoneId, data }: { milestoneId: string; data: MilestoneUpdate }) =>
-      RoadmapService.updateMilestone({ roadmapId, milestoneId, requestBody: data }),
+    mutationFn: ({
+      milestoneId,
+      data,
+    }: {
+      milestoneId: string
+      data: MilestoneUpdate
+    }) =>
+      RoadmapService.updateMilestone({
+        roadmapId,
+        milestoneId,
+        requestBody: data,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["milestones", roadmapId] })
       queryClient.invalidateQueries({ queryKey: ["roadmap", roadmapId] })
@@ -90,7 +109,7 @@ export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const submitData = {
       ...formData,
       target_date: formData.target_date || undefined,
@@ -109,17 +128,21 @@ export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone
     <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{milestone ? "Edit Milestone" : "Create New Milestone"}</DialogTitle>
+          <DialogTitle>
+            {milestone ? "Edit Milestone" : "Create New Milestone"}
+          </DialogTitle>
           <DialogCloseTrigger />
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit}>
           <DialogBody>
             <VStack gap={4}>
               <Field label="Title" required>
                 <Input
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   placeholder="Enter milestone title"
                 />
               </Field>
@@ -127,7 +150,9 @@ export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone
               <Field label="Description">
                 <Input
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   placeholder="Enter milestone description"
                 />
               </Field>
@@ -135,7 +160,9 @@ export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone
               <Field label="Status">
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, status: e.target.value as any })
+                  }
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -155,10 +182,11 @@ export function MilestoneForm({ isOpen, onClose, onSuccess, roadmapId, milestone
                 <Input
                   type="date"
                   value={formData.target_date}
-                  onChange={(e) => setFormData({ ...formData, target_date: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, target_date: e.target.value })
+                  }
                 />
               </Field>
-
             </VStack>
           </DialogBody>
 

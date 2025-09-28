@@ -1,12 +1,12 @@
-import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
 import { Box, Button, Flex, Heading, Input, VStack } from "@chakra-ui/react"
+import { useQuery } from "@tanstack/react-query"
+import { useState } from "react"
 import { FiPlus } from "react-icons/fi"
 
 import { RoadmapService } from "@/client"
+import useCustomToast from "@/hooks/useCustomToast"
 import { RoadmapCard } from "./RoadmapCard"
 import RoadmapForm from "./RoadmapForm"
-import useCustomToast from "@/hooks/useCustomToast"
 
 export function RoadmapList() {
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -15,20 +15,28 @@ export function RoadmapList() {
   const [searchTerm, setSearchTerm] = useState("")
   const { showSuccessToast } = useCustomToast()
 
-  const { data: roadmaps, isLoading, error } = useQuery({
+  const {
+    data: roadmaps,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["roadmaps"],
     queryFn: () => RoadmapService.readRoadmaps(),
   })
 
-  const filteredRoadmaps = roadmaps?.data?.filter((roadmap) => {
-    const matchesStatus = statusFilter === "all" || roadmap.status === statusFilter
-    const matchesPriority = priorityFilter === "all" || roadmap.priority === priorityFilter
-    const matchesSearch = searchTerm === "" || 
-      roadmap.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      roadmap.description?.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    return matchesStatus && matchesPriority && matchesSearch
-  }) || []
+  const filteredRoadmaps =
+    roadmaps?.data?.filter((roadmap) => {
+      const matchesStatus =
+        statusFilter === "all" || roadmap.status === statusFilter
+      const matchesPriority =
+        priorityFilter === "all" || roadmap.priority === priorityFilter
+      const matchesSearch =
+        searchTerm === "" ||
+        roadmap.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        roadmap.description?.toLowerCase().includes(searchTerm.toLowerCase())
+
+      return matchesStatus && matchesPriority && matchesSearch
+    }) || []
 
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error loading roadmaps</div>
@@ -37,10 +45,7 @@ export function RoadmapList() {
     <Box p={6}>
       <Flex justify="space-between" align="center" mb={6}>
         <Heading size="lg">Roadmap</Heading>
-        <Button
-          onClick={() => setIsFormOpen(true)}
-          colorScheme="blue"
-        >
+        <Button onClick={() => setIsFormOpen(true)} colorScheme="blue">
           <FiPlus />
           New Roadmap
         </Button>

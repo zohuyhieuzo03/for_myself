@@ -320,9 +320,9 @@ export default function TodoDetailDialog({
                     </Text>
                   ) : (
                     (childrenData?.data ?? []).map((child) => (
-                      <TodoCard 
-                        key={child.id} 
-                        todo={child} 
+                      <TodoCard
+                        key={child.id}
+                        todo={child}
                         showUnlinkButton={true}
                         onUnlink={handleChildUnlinked}
                       />

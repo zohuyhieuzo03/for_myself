@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { RoadmapList } from "@/components/Roadmap/RoadmapList"
 import { RoadmapDetail } from "@/components/Roadmap/RoadmapDetail"
+import { RoadmapList } from "@/components/Roadmap/RoadmapList"
 
 export const Route = createFileRoute("/_layout/roadmap")({
   component: () => {

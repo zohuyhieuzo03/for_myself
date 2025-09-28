@@ -1429,6 +1429,378 @@ export const PrivateUserCreateSchema = {
     title: 'PrivateUserCreate'
 } as const;
 
+export const ResourceCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Url'
+        },
+        milestone_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Milestone Id'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'ResourceCreate'
+} as const;
+
+export const ResourcePublicSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Url'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        user_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'User Id'
+        },
+        milestone_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Milestone Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        },
+        subjects: {
+            items: {
+                '$ref': '#/components/schemas/ResourceSubjectPublic'
+            },
+            type: 'array',
+            title: 'Subjects',
+            default: []
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'user_id', 'milestone_id', 'created_at', 'updated_at'],
+    title: 'ResourcePublic'
+} as const;
+
+export const ResourceSubjectCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        is_completed: {
+            type: 'boolean',
+            title: 'Is Completed',
+            default: false
+        },
+        order_index: {
+            type: 'integer',
+            title: 'Order Index',
+            default: 0
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'ResourceSubjectCreate'
+} as const;
+
+export const ResourceSubjectPublicSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        is_completed: {
+            type: 'boolean',
+            title: 'Is Completed',
+            default: false
+        },
+        order_index: {
+            type: 'integer',
+            title: 'Order Index',
+            default: 0
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        resource_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Resource Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'resource_id', 'created_at', 'updated_at'],
+    title: 'ResourceSubjectPublic'
+} as const;
+
+export const ResourceSubjectReorderRequestSchema = {
+    properties: {
+        subject_ids: {
+            items: {
+                type: 'string',
+                format: 'uuid'
+            },
+            type: 'array',
+            title: 'Subject Ids'
+        }
+    },
+    type: 'object',
+    required: ['subject_ids'],
+    title: 'ResourceSubjectReorderRequest'
+} as const;
+
+export const ResourceSubjectUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        is_completed: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Completed'
+        },
+        order_index: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Order Index'
+        }
+    },
+    type: 'object',
+    title: 'ResourceSubjectUpdate'
+} as const;
+
+export const ResourceSubjectsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/ResourceSubjectPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'ResourceSubjectsPublic'
+} as const;
+
+export const ResourceUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Url'
+        }
+    },
+    type: 'object',
+    title: 'ResourceUpdate'
+} as const;
+
+export const ResourcesPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/ResourcePublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'ResourcesPublic'
+} as const;
+
 export const RoadmapCreateSchema = {
     properties: {
         title: {

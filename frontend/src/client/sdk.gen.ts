@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailReconnectGmailConnectionData, GmailReconnectGmailConnectionResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsBatchData, GmailSyncEmailsBatchResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, GmailGetEmailTransactionsDashboardData, GmailGetEmailTransactionsDashboardResponse, GmailTriggerAutoSyncData, GmailTriggerAutoSyncResponse, GmailGetSchedulerStatusResponse, GmailStartSchedulerResponse, GmailStopSchedulerResponse, GmailTriggerSyncAllConnectionsData, GmailTriggerSyncAllConnectionsResponse, GmailCreateTransactionFromEmailData, GmailCreateTransactionFromEmailResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, RoadmapReadRoadmapsData, RoadmapReadRoadmapsResponse, RoadmapCreateRoadmapData, RoadmapCreateRoadmapResponse, RoadmapReadRoadmapData, RoadmapReadRoadmapResponse, RoadmapUpdateRoadmapData, RoadmapUpdateRoadmapResponse, RoadmapDeleteRoadmapData, RoadmapDeleteRoadmapResponse, RoadmapReadMilestonesData, RoadmapReadMilestonesResponse, RoadmapCreateMilestoneData, RoadmapCreateMilestoneResponse, RoadmapReorderMilestonesData, RoadmapReorderMilestonesResponse, RoadmapUpdateMilestoneData, RoadmapUpdateMilestoneResponse, RoadmapDeleteMilestoneData, RoadmapDeleteMilestoneResponse, RoadmapReadMilestoneTodosData, RoadmapReadMilestoneTodosResponse, RoadmapCreateMilestoneTodoData, RoadmapCreateMilestoneTodoResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TodosReadTodoChildrenData, TodosReadTodoChildrenResponse, TodosReadTodoParentData, TodosReadTodoParentResponse, TodosReadTodoMilestoneData, TodosReadTodoMilestoneResponse, TodosReadChecklistItemsData, TodosReadChecklistItemsResponse, TodosCreateChecklistItemEndpointData, TodosCreateChecklistItemEndpointResponse, TodosUpdateChecklistItemEndpointData, TodosUpdateChecklistItemEndpointResponse, TodosDeleteChecklistItemEndpointData, TodosDeleteChecklistItemEndpointResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailReconnectGmailConnectionData, GmailReconnectGmailConnectionResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsBatchData, GmailSyncEmailsBatchResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, GmailGetEmailTransactionsDashboardData, GmailGetEmailTransactionsDashboardResponse, GmailTriggerAutoSyncData, GmailTriggerAutoSyncResponse, GmailGetSchedulerStatusResponse, GmailStartSchedulerResponse, GmailStopSchedulerResponse, GmailTriggerSyncAllConnectionsData, GmailTriggerSyncAllConnectionsResponse, GmailCreateTransactionFromEmailData, GmailCreateTransactionFromEmailResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, ResourcesCreateResourceData, ResourcesCreateResourceResponse, ResourcesReadResourcesData, ResourcesReadResourcesResponse, ResourcesReadResourceData, ResourcesReadResourceResponse, ResourcesUpdateResourceData, ResourcesUpdateResourceResponse, ResourcesDeleteResourceData, ResourcesDeleteResourceResponse, ResourcesCreateResourceSubjectData, ResourcesCreateResourceSubjectResponse, ResourcesReadResourceSubjectsData, ResourcesReadResourceSubjectsResponse, ResourcesReadResourceSubjectData, ResourcesReadResourceSubjectResponse, ResourcesUpdateResourceSubjectData, ResourcesUpdateResourceSubjectResponse, ResourcesDeleteResourceSubjectData, ResourcesDeleteResourceSubjectResponse, ResourcesReorderResourceSubjectsData, ResourcesReorderResourceSubjectsResponse, RoadmapReadRoadmapsData, RoadmapReadRoadmapsResponse, RoadmapCreateRoadmapData, RoadmapCreateRoadmapResponse, RoadmapReadRoadmapData, RoadmapReadRoadmapResponse, RoadmapUpdateRoadmapData, RoadmapUpdateRoadmapResponse, RoadmapDeleteRoadmapData, RoadmapDeleteRoadmapResponse, RoadmapReadMilestonesData, RoadmapReadMilestonesResponse, RoadmapCreateMilestoneData, RoadmapCreateMilestoneResponse, RoadmapReorderMilestonesData, RoadmapReorderMilestonesResponse, RoadmapUpdateMilestoneData, RoadmapUpdateMilestoneResponse, RoadmapDeleteMilestoneData, RoadmapDeleteMilestoneResponse, RoadmapReadMilestoneTodosData, RoadmapReadMilestoneTodosResponse, RoadmapCreateMilestoneTodoData, RoadmapCreateMilestoneTodoResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TodosReadTodoChildrenData, TodosReadTodoChildrenResponse, TodosReadTodoParentData, TodosReadTodoParentResponse, TodosReadTodoMilestoneData, TodosReadTodoMilestoneResponse, TodosReadChecklistItemsData, TodosReadChecklistItemsResponse, TodosCreateChecklistItemEndpointData, TodosCreateChecklistItemEndpointResponse, TodosUpdateChecklistItemEndpointData, TodosUpdateChecklistItemEndpointResponse, TodosDeleteChecklistItemEndpointData, TodosDeleteChecklistItemEndpointResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class AccountsService {
     /**
@@ -1057,6 +1057,260 @@ export class PrivateService {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/v1/private/users/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class ResourcesService {
+    /**
+     * Create Resource
+     * Create new resource.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns ResourcePublic Successful Response
+     * @throws ApiError
+     */
+    public static createResource(data: ResourcesCreateResourceData): CancelablePromise<ResourcesCreateResourceResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/resources/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Resources
+     * Retrieve resources.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @param data.milestoneId
+     * @returns ResourcesPublic Successful Response
+     * @throws ApiError
+     */
+    public static readResources(data: ResourcesReadResourcesData = {}): CancelablePromise<ResourcesReadResourcesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/resources/',
+            query: {
+                skip: data.skip,
+                limit: data.limit,
+                milestone_id: data.milestoneId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Resource
+     * Get resource by ID.
+     * @param data The data for the request.
+     * @param data.resourceId
+     * @returns ResourcePublic Successful Response
+     * @throws ApiError
+     */
+    public static readResource(data: ResourcesReadResourceData): CancelablePromise<ResourcesReadResourceResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/resources/{resource_id}',
+            path: {
+                resource_id: data.resourceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Resource
+     * Update a resource.
+     * @param data The data for the request.
+     * @param data.resourceId
+     * @param data.requestBody
+     * @returns ResourcePublic Successful Response
+     * @throws ApiError
+     */
+    public static updateResource(data: ResourcesUpdateResourceData): CancelablePromise<ResourcesUpdateResourceResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/resources/{resource_id}',
+            path: {
+                resource_id: data.resourceId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Resource
+     * Delete a resource.
+     * @param data The data for the request.
+     * @param data.resourceId
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static deleteResource(data: ResourcesDeleteResourceData): CancelablePromise<ResourcesDeleteResourceResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/resources/{resource_id}',
+            path: {
+                resource_id: data.resourceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Resource Subject
+     * Create new resource subject.
+     * @param data The data for the request.
+     * @param data.resourceId
+     * @param data.requestBody
+     * @returns ResourceSubjectPublic Successful Response
+     * @throws ApiError
+     */
+    public static createResourceSubject(data: ResourcesCreateResourceSubjectData): CancelablePromise<ResourcesCreateResourceSubjectResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/resources/{resource_id}/subjects',
+            path: {
+                resource_id: data.resourceId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Resource Subjects
+     * Retrieve resource subjects.
+     * @param data The data for the request.
+     * @param data.resourceId
+     * @param data.skip
+     * @param data.limit
+     * @returns ResourceSubjectsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readResourceSubjects(data: ResourcesReadResourceSubjectsData): CancelablePromise<ResourcesReadResourceSubjectsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/resources/{resource_id}/subjects',
+            path: {
+                resource_id: data.resourceId
+            },
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Resource Subject
+     * Get resource subject by ID.
+     * @param data The data for the request.
+     * @param data.subjectId
+     * @returns ResourceSubjectPublic Successful Response
+     * @throws ApiError
+     */
+    public static readResourceSubject(data: ResourcesReadResourceSubjectData): CancelablePromise<ResourcesReadResourceSubjectResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/resources/subjects/{subject_id}',
+            path: {
+                subject_id: data.subjectId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Resource Subject
+     * Update a resource subject.
+     * @param data The data for the request.
+     * @param data.subjectId
+     * @param data.requestBody
+     * @returns ResourceSubjectPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateResourceSubject(data: ResourcesUpdateResourceSubjectData): CancelablePromise<ResourcesUpdateResourceSubjectResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/resources/subjects/{subject_id}',
+            path: {
+                subject_id: data.subjectId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Resource Subject
+     * Delete a resource subject.
+     * @param data The data for the request.
+     * @param data.subjectId
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static deleteResourceSubject(data: ResourcesDeleteResourceSubjectData): CancelablePromise<ResourcesDeleteResourceSubjectResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/resources/subjects/{subject_id}',
+            path: {
+                subject_id: data.subjectId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Reorder Resource Subjects
+     * Reorder resource subjects.
+     * @param data The data for the request.
+     * @param data.resourceId
+     * @param data.requestBody
+     * @returns ResourceSubjectsPublic Successful Response
+     * @throws ApiError
+     */
+    public static reorderResourceSubjects(data: ResourcesReorderResourceSubjectsData): CancelablePromise<ResourcesReorderResourceSubjectsResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/resources/{resource_id}/subjects/reorder',
+            path: {
+                resource_id: data.resourceId
+            },
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {

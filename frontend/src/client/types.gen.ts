@@ -287,6 +287,70 @@ export type PrivateUserCreate = {
     is_verified?: boolean;
 };
 
+export type ResourceCreate = {
+    title: string;
+    description?: (string | null);
+    url?: (string | null);
+    milestone_id?: (string | null);
+};
+
+export type ResourcePublic = {
+    title: string;
+    description?: (string | null);
+    url?: (string | null);
+    id: string;
+    user_id: string;
+    milestone_id: (string | null);
+    created_at: string;
+    updated_at: string;
+    subjects?: Array<ResourceSubjectPublic>;
+};
+
+export type ResourcesPublic = {
+    data: Array<ResourcePublic>;
+    count: number;
+};
+
+export type ResourceSubjectCreate = {
+    title: string;
+    description?: (string | null);
+    is_completed?: boolean;
+    order_index?: number;
+};
+
+export type ResourceSubjectPublic = {
+    title: string;
+    description?: (string | null);
+    is_completed?: boolean;
+    order_index?: number;
+    id: string;
+    resource_id: string;
+    created_at: string;
+    updated_at: string;
+};
+
+export type ResourceSubjectReorderRequest = {
+    subject_ids: Array<(string)>;
+};
+
+export type ResourceSubjectsPublic = {
+    data: Array<ResourceSubjectPublic>;
+    count: number;
+};
+
+export type ResourceSubjectUpdate = {
+    title?: (string | null);
+    description?: (string | null);
+    is_completed?: (boolean | null);
+    order_index?: (number | null);
+};
+
+export type ResourceUpdate = {
+    title?: (string | null);
+    description?: (string | null);
+    url?: (string | null);
+};
+
 export type RoadmapCreate = {
     title: string;
     description?: (string | null);
@@ -876,6 +940,80 @@ export type PrivateCreateUserData = {
 };
 
 export type PrivateCreateUserResponse = (UserPublic);
+
+export type ResourcesCreateResourceData = {
+    requestBody: ResourceCreate;
+};
+
+export type ResourcesCreateResourceResponse = (ResourcePublic);
+
+export type ResourcesReadResourcesData = {
+    limit?: number;
+    milestoneId?: (string | null);
+    skip?: number;
+};
+
+export type ResourcesReadResourcesResponse = (ResourcesPublic);
+
+export type ResourcesReadResourceData = {
+    resourceId: string;
+};
+
+export type ResourcesReadResourceResponse = (ResourcePublic);
+
+export type ResourcesUpdateResourceData = {
+    requestBody: ResourceUpdate;
+    resourceId: string;
+};
+
+export type ResourcesUpdateResourceResponse = (ResourcePublic);
+
+export type ResourcesDeleteResourceData = {
+    resourceId: string;
+};
+
+export type ResourcesDeleteResourceResponse = (unknown);
+
+export type ResourcesCreateResourceSubjectData = {
+    requestBody: ResourceSubjectCreate;
+    resourceId: string;
+};
+
+export type ResourcesCreateResourceSubjectResponse = (ResourceSubjectPublic);
+
+export type ResourcesReadResourceSubjectsData = {
+    limit?: number;
+    resourceId: string;
+    skip?: number;
+};
+
+export type ResourcesReadResourceSubjectsResponse = (ResourceSubjectsPublic);
+
+export type ResourcesReadResourceSubjectData = {
+    subjectId: string;
+};
+
+export type ResourcesReadResourceSubjectResponse = (ResourceSubjectPublic);
+
+export type ResourcesUpdateResourceSubjectData = {
+    requestBody: ResourceSubjectUpdate;
+    subjectId: string;
+};
+
+export type ResourcesUpdateResourceSubjectResponse = (ResourceSubjectPublic);
+
+export type ResourcesDeleteResourceSubjectData = {
+    subjectId: string;
+};
+
+export type ResourcesDeleteResourceSubjectResponse = (unknown);
+
+export type ResourcesReorderResourceSubjectsData = {
+    requestBody: ResourceSubjectReorderRequest;
+    resourceId: string;
+};
+
+export type ResourcesReorderResourceSubjectsResponse = (ResourceSubjectsPublic);
 
 export type RoadmapReadRoadmapsData = {
     limit?: number;

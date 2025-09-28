@@ -1,5 +1,5 @@
 import { Box, Text, VStack } from "@chakra-ui/react"
-import { type TodoPublic } from "@/client"
+import type { TodoPublic } from "@/client"
 import TodoSearch from "@/components/Todos/TodoSearch"
 
 // Demo component to test TodoSearch functionality
@@ -16,10 +16,10 @@ export default function TodoSearchDemo() {
           Todo Search Demo
         </Text>
         <Text fontSize="sm" color="gray.600">
-          This component demonstrates the TodoSearch functionality with infinite scroll.
-          Try searching for todos and scrolling to load more results.
+          This component demonstrates the TodoSearch functionality with infinite
+          scroll. Try searching for todos and scrolling to load more results.
         </Text>
-        
+
         <TodoSearch
           onSelectTodo={handleSelectTodo}
           placeholder="Search todos..."

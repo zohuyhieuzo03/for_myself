@@ -18,6 +18,7 @@ import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutTodosRouteImport } from './routes/_layout/todos'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutRoadmapRouteImport } from './routes/_layout/roadmap'
+import { Route as LayoutResourcesRouteImport } from './routes/_layout/resources'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutFinanceRouteImport } from './routes/_layout/finance'
 import { Route as LayoutEmailRouteImport } from './routes/_layout/email'
@@ -73,6 +74,11 @@ const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
 const LayoutRoadmapRoute = LayoutRoadmapRouteImport.update({
   id: '/roadmap',
   path: '/roadmap',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutResourcesRoute = LayoutResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutItemsRoute = LayoutItemsRouteImport.update({
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/email': typeof LayoutEmailRouteWithChildren
   '/finance': typeof LayoutFinanceRouteWithChildren
   '/items': typeof LayoutItemsRoute
+  '/resources': typeof LayoutResourcesRoute
   '/roadmap': typeof LayoutRoadmapRoute
   '/settings': typeof LayoutSettingsRoute
   '/todos': typeof LayoutTodosRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/admin': typeof LayoutAdminRoute
   '/finance': typeof LayoutFinanceRouteWithChildren
   '/items': typeof LayoutItemsRoute
+  '/resources': typeof LayoutResourcesRoute
   '/roadmap': typeof LayoutRoadmapRoute
   '/settings': typeof LayoutSettingsRoute
   '/todos': typeof LayoutTodosRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/_layout/email': typeof LayoutEmailRouteWithChildren
   '/_layout/finance': typeof LayoutFinanceRouteWithChildren
   '/_layout/items': typeof LayoutItemsRoute
+  '/_layout/resources': typeof LayoutResourcesRoute
   '/_layout/roadmap': typeof LayoutRoadmapRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/todos': typeof LayoutTodosRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/email'
     | '/finance'
     | '/items'
+    | '/resources'
     | '/roadmap'
     | '/settings'
     | '/todos'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/finance'
     | '/items'
+    | '/resources'
     | '/roadmap'
     | '/settings'
     | '/todos'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/_layout/email'
     | '/_layout/finance'
     | '/_layout/items'
+    | '/_layout/resources'
     | '/_layout/roadmap'
     | '/_layout/settings'
     | '/_layout/todos'
@@ -346,6 +358,13 @@ declare module '@tanstack/react-router' {
       path: '/roadmap'
       fullPath: '/roadmap'
       preLoaderRoute: typeof LayoutRoadmapRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/resources': {
+      id: '/_layout/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof LayoutResourcesRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/items': {
@@ -477,6 +496,7 @@ interface LayoutRouteChildren {
   LayoutEmailRoute: typeof LayoutEmailRouteWithChildren
   LayoutFinanceRoute: typeof LayoutFinanceRouteWithChildren
   LayoutItemsRoute: typeof LayoutItemsRoute
+  LayoutResourcesRoute: typeof LayoutResourcesRoute
   LayoutRoadmapRoute: typeof LayoutRoadmapRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutTodosRoute: typeof LayoutTodosRoute
@@ -488,6 +508,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutEmailRoute: LayoutEmailRouteWithChildren,
   LayoutFinanceRoute: LayoutFinanceRouteWithChildren,
   LayoutItemsRoute: LayoutItemsRoute,
+  LayoutResourcesRoute: LayoutResourcesRoute,
   LayoutRoadmapRoute: LayoutRoadmapRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutTodosRoute: LayoutTodosRoute,

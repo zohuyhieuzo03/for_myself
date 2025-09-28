@@ -1,25 +1,31 @@
-import { useState } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
 import {
+  Badge,
   Box,
   Button,
   Flex,
   Heading,
-  Text,
-  Badge,
-  VStack,
   HStack,
   IconButton,
+  Text,
+  VStack,
 } from "@chakra-ui/react"
-import { FiArrowLeft, FiEdit, FiTrash2, FiPlus, FiCalendar, FiTarget } from "react-icons/fi"
-
-import { RoadmapService } from "@/client"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
+import { useState } from "react"
+import {
+  FiArrowLeft,
+  FiCalendar,
+  FiEdit,
+  FiPlus,
+  FiTarget,
+  FiTrash2,
+} from "react-icons/fi"
 import type { RoadmapPublic } from "@/client"
-import RoadmapForm from "./RoadmapForm"
-import { MilestoneList } from "./MilestoneList"
-import { MilestoneForm } from "./MilestoneForm"
+import { RoadmapService } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
+import { MilestoneForm } from "./MilestoneForm"
+import { MilestoneList } from "./MilestoneList"
+import RoadmapForm from "./RoadmapForm"
 
 interface RoadmapDetailProps {
   roadmapId: string
@@ -30,9 +36,15 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
   const { showSuccessToast } = useCustomToast()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isMilestoneFormOpen, setIsMilestoneFormOpen] = useState(false)
-  const [editingRoadmap, setEditingRoadmap] = useState<RoadmapPublic | null>(null)
+  const [editingRoadmap, setEditingRoadmap] = useState<RoadmapPublic | null>(
+    null,
+  )
 
-  const { data: roadmap, isLoading, error } = useQuery({
+  const {
+    data: roadmap,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["roadmap", roadmapId],
     queryFn: () => RoadmapService.readRoadmap({ roadmapId }),
   })
@@ -77,22 +89,33 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "planning": return "gray"
-      case "in_progress": return "blue"
-      case "completed": return "green"
-      case "on_hold": return "yellow"
-      case "cancelled": return "red"
-      default: return "gray"
+      case "planning":
+        return "gray"
+      case "in_progress":
+        return "blue"
+      case "completed":
+        return "green"
+      case "on_hold":
+        return "yellow"
+      case "cancelled":
+        return "red"
+      default:
+        return "gray"
     }
   }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "low": return "green"
-      case "medium": return "blue"
-      case "high": return "orange"
-      case "critical": return "red"
-      default: return "gray"
+      case "low":
+        return "green"
+      case "medium":
+        return "blue"
+      case "high":
+        return "orange"
+      case "critical":
+        return "red"
+      default:
+        return "gray"
     }
   }
 
@@ -102,20 +125,14 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
       <Flex justify="space-between" align="center" mb={6}>
         <HStack gap={4}>
           <Link to="/roadmap" search={{ id: undefined }}>
-            <IconButton
-              aria-label="Back to roadmaps"
-              variant="ghost"
-            >
+            <IconButton aria-label="Back to roadmaps" variant="ghost">
               <FiArrowLeft />
             </IconButton>
           </Link>
           <Heading size="lg">{roadmap.title}</Heading>
         </HStack>
         <HStack gap={2}>
-          <Button
-            onClick={handleEdit}
-            variant="outline"
-          >
+          <Button onClick={handleEdit} variant="outline">
             <FiEdit />
             Edit
           </Button>
@@ -133,10 +150,16 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
 
       {/* Status and Priority */}
       <Flex gap={2} mb={4}>
-        <Badge colorScheme={getStatusColor(roadmap.status || "planning")} size="lg">
+        <Badge
+          colorScheme={getStatusColor(roadmap.status || "planning")}
+          size="lg"
+        >
           {(roadmap.status || "planning").replace("_", " ")}
         </Badge>
-        <Badge colorScheme={getPriorityColor(roadmap.priority || "medium")} size="lg">
+        <Badge
+          colorScheme={getPriorityColor(roadmap.priority || "medium")}
+          size="lg"
+        >
           {roadmap.priority || "medium"}
         </Badge>
       </Flex>
@@ -151,8 +174,12 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
       {/* Progress */}
       <Box mb={6}>
         <Flex justify="space-between" mb={2}>
-          <Text fontSize="lg" fontWeight="medium">Progress</Text>
-          <Text fontSize="lg" fontWeight="bold">{roadmap.progress_percentage || 0}%</Text>
+          <Text fontSize="lg" fontWeight="medium">
+            Progress
+          </Text>
+          <Text fontSize="lg" fontWeight="bold">
+            {roadmap.progress_percentage || 0}%
+          </Text>
         </Flex>
         <Box
           w="100%"
@@ -175,25 +202,32 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
         {roadmap.start_date && (
           <Flex align="center" gap={2}>
             <FiCalendar />
-            <Text>Start Date: {new Date(roadmap.start_date).toLocaleDateString()}</Text>
+            <Text>
+              Start Date: {new Date(roadmap.start_date).toLocaleDateString()}
+            </Text>
           </Flex>
         )}
         {roadmap.target_date && (
           <Flex align="center" gap={2}>
             <FiTarget />
-            <Text>Target Date: {new Date(roadmap.target_date).toLocaleDateString()}</Text>
+            <Text>
+              Target Date: {new Date(roadmap.target_date).toLocaleDateString()}
+            </Text>
           </Flex>
         )}
         {roadmap.completed_date && (
           <Flex align="center" gap={2}>
             <FiCalendar />
-            <Text>Completed Date: {new Date(roadmap.completed_date).toLocaleDateString()}</Text>
+            <Text>
+              Completed Date:{" "}
+              {new Date(roadmap.completed_date).toLocaleDateString()}
+            </Text>
           </Flex>
         )}
       </VStack>
 
       {/* Milestones */}
-      <Box>
+      <Box mb={8}>
         <Flex justify="space-between" align="center" mb={4}>
           <Heading size="md">Milestones</Heading>
           <Button
@@ -207,6 +241,7 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
         </Flex>
         <MilestoneList roadmapId={roadmapId} />
       </Box>
+
 
       {/* Edit Form Modal */}
       <RoadmapForm

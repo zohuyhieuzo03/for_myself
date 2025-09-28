@@ -9,7 +9,7 @@ import {
 import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import { type TodoCreate, type TodoStatus } from "@/client"
+import type { TodoCreate, TodoStatus } from "@/client"
 import {
   DialogBody,
   DialogCloseTrigger,

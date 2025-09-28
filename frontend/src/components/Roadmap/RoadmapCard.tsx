@@ -1,6 +1,6 @@
-import { Box, Button, Flex, Heading, Text, Badge } from "@chakra-ui/react"
-import { FiCalendar, FiTarget, FiEdit, FiTrash2 } from "react-icons/fi"
+import { Badge, Box, Button, Flex, Heading, Text } from "@chakra-ui/react"
 import { Link } from "@tanstack/react-router"
+import { FiCalendar, FiEdit, FiTarget, FiTrash2 } from "react-icons/fi"
 
 import type { RoadmapPublic } from "@/client"
 
@@ -13,22 +13,33 @@ interface RoadmapCardProps {
 export function RoadmapCard({ roadmap, onEdit, onDelete }: RoadmapCardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "planning": return "gray"
-      case "in_progress": return "blue"
-      case "completed": return "green"
-      case "on_hold": return "yellow"
-      case "cancelled": return "red"
-      default: return "gray"
+      case "planning":
+        return "gray"
+      case "in_progress":
+        return "blue"
+      case "completed":
+        return "green"
+      case "on_hold":
+        return "yellow"
+      case "cancelled":
+        return "red"
+      default:
+        return "gray"
     }
   }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "low": return "green"
-      case "medium": return "blue"
-      case "high": return "orange"
-      case "critical": return "red"
-      default: return "gray"
+      case "low":
+        return "green"
+      case "medium":
+        return "blue"
+      case "high":
+        return "orange"
+      case "critical":
+        return "red"
+      default:
+        return "gray"
     }
   }
 
@@ -66,8 +77,12 @@ export function RoadmapCard({ roadmap, onEdit, onDelete }: RoadmapCardProps) {
       {/* Progress */}
       <Box mb={4}>
         <Flex justify="space-between" mb={1}>
-          <Text fontSize="sm" color="gray.600">Progress</Text>
-          <Text fontSize="sm" fontWeight="medium">{roadmap.progress_percentage || 0}%</Text>
+          <Text fontSize="sm" color="gray.600">
+            Progress
+          </Text>
+          <Text fontSize="sm" fontWeight="medium">
+            {roadmap.progress_percentage || 0}%
+          </Text>
         </Flex>
         <Box
           w="100%"
@@ -90,13 +105,17 @@ export function RoadmapCard({ roadmap, onEdit, onDelete }: RoadmapCardProps) {
         {roadmap.start_date && (
           <Flex align="center" gap={1}>
             <FiCalendar />
-            <Text>Start: {new Date(roadmap.start_date).toLocaleDateString()}</Text>
+            <Text>
+              Start: {new Date(roadmap.start_date).toLocaleDateString()}
+            </Text>
           </Flex>
         )}
         {roadmap.target_date && (
           <Flex align="center" gap={1}>
             <FiTarget />
-            <Text>Target: {new Date(roadmap.target_date).toLocaleDateString()}</Text>
+            <Text>
+              Target: {new Date(roadmap.target_date).toLocaleDateString()}
+            </Text>
           </Flex>
         )}
       </Flex>
@@ -108,11 +127,7 @@ export function RoadmapCard({ roadmap, onEdit, onDelete }: RoadmapCardProps) {
         </Text>
         <Flex gap={2}>
           {onEdit && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onEdit(roadmap)}
-            >
+            <Button size="sm" variant="ghost" onClick={() => onEdit(roadmap)}>
               <FiEdit />
               Edit
             </Button>
