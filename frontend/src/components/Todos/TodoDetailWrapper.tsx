@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import { type TodoPublic } from "@/client"
+import { useEffect, useState } from "react"
+import type { TodoPublic } from "@/client"
 import TodoDetailDialog from "./TodoDetailDialog"
 
 interface TodoDetailWrapperProps {
@@ -21,7 +21,7 @@ export default function TodoDetailWrapper({
     setOpen(!!selectedId)
   }, [selectedId])
 
-  const selectedTodo = todos.find(t => t.id === selectedId)
+  const selectedTodo = todos.find((t) => t.id === selectedId)
 
   if (!selectedTodo || !open) return null
 

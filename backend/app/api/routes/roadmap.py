@@ -250,11 +250,8 @@ def read_milestone_todos(
     if not milestone or milestone.roadmap_id != roadmap_id:
         raise HTTPException(status_code=404, detail="Milestone not found")
     
-    todos = crud.get_todos_by_milestone(session=session, milestone_id=milestone_id)
-    # Filter by user ownership
-    user_todos = [todo for todo in todos if todo.owner_id == current_user.id]
-    
-    return TodosPublic(data=user_todos[skip:skip+limit], count=len(user_todos))
+    todos = crud.get_todos_by_milestone(session=session, milestone_id=milestone_id, owner_id=current_user.id)
+    return TodosPublic(data=todos[skip:skip+limit], count=len(todos))
 
 
 @router.post("/{roadmap_id}/milestones/{milestone_id}/todos", response_model=TodoPublic)

@@ -1,23 +1,23 @@
-import { useState } from "react";
 import {
+  Badge,
   Box,
   Button,
   Flex,
   Heading,
+  HStack,
   Text,
   VStack,
-  HStack,
-  Badge,
-} from "@chakra-ui/react";
-import { ResourcePublic } from "@/client";
+} from "@chakra-ui/react"
+import { useState } from "react"
+import type { ResourcePublic } from "@/client"
 
 interface ResourceCardProps {
-  resource: ResourcePublic;
-  onEdit: (resource: ResourcePublic) => void;
-  onDelete: (resource: ResourcePublic) => void;
-  onSubjectToggle: (subjectId: string, isCompleted: boolean) => void;
-  onSubjectEdit: (subjectId: string) => void;
-  onSubjectDelete: (subjectId: string) => void;
+  resource: ResourcePublic
+  onEdit: (resource: ResourcePublic) => void
+  onDelete: (resource: ResourcePublic) => void
+  onSubjectToggle: (subjectId: string, isCompleted: boolean) => void
+  onSubjectEdit: (subjectId: string) => void
+  onSubjectDelete: (subjectId: string) => void
 }
 
 export function ResourceCard({
@@ -28,18 +28,22 @@ export function ResourceCard({
   onSubjectEdit,
   onSubjectDelete,
 }: ResourceCardProps) {
-  const [showSubjects, setShowSubjects] = useState(false);
+  const [showSubjects, setShowSubjects] = useState(false)
 
-  const completedSubjects = resource.subjects?.filter(s => s.is_completed).length || 0;
-  const totalSubjects = resource.subjects?.length || 0;
-  const progressPercentage = totalSubjects > 0 ? Math.round((completedSubjects / totalSubjects) * 100) : 0;
+  const completedSubjects =
+    resource.subjects?.filter((s) => s.is_completed).length || 0
+  const totalSubjects = resource.subjects?.length || 0
+  const progressPercentage =
+    totalSubjects > 0
+      ? Math.round((completedSubjects / totalSubjects) * 100)
+      : 0
 
   return (
-    <Box 
+    <Box
       position="relative"
-      border="1px" 
-      borderColor="gray.300" 
-      borderRadius="lg" 
+      border="1px"
+      borderColor="gray.300"
+      borderRadius="lg"
       p={6}
       bg="white"
       shadow="sm"
@@ -54,7 +58,7 @@ export function ResourceCard({
         bg: "blue.400",
         borderRadius: "lg lg 0 0",
         opacity: 0,
-        transition: "opacity 0.2s ease"
+        transition: "opacity 0.2s ease",
       }}
       _hover={{
         shadow: "md",
@@ -62,8 +66,8 @@ export function ResourceCard({
         transform: "translateY(-1px)",
         transition: "all 0.2s ease",
         _before: {
-          opacity: 0.7
-        }
+          opacity: 0.7,
+        },
       }}
     >
       <Flex justify="space-between" align="start" mb={4}>
@@ -77,14 +81,10 @@ export function ResourceCard({
             </Text>
           )}
           <HStack gap={2}>
-            <Badge colorScheme="blue">
-              Link
-            </Badge>
+            <Badge colorScheme="blue">Link</Badge>
             {resource.url && (
               <a href={resource.url} target="_blank" rel="noopener noreferrer">
-                <Button size="xs">
-                  Open Link
-                </Button>
+                <Button size="xs">Open Link</Button>
               </a>
             )}
           </HStack>
@@ -93,7 +93,12 @@ export function ResourceCard({
           <Button size="sm" variant="ghost" onClick={() => onEdit(resource)}>
             Edit
           </Button>
-          <Button size="sm" variant="ghost" colorScheme="red" onClick={() => onDelete(resource)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            colorScheme="red"
+            onClick={() => onDelete(resource)}
+          >
             Delete
           </Button>
         </HStack>
@@ -114,14 +119,8 @@ export function ResourceCard({
                 {showSubjects ? "Hide" : "Show"}
               </Button>
             </Flex>
-            
-            <Box
-              w="100%"
-              bg="gray.200"
-              rounded="full"
-              h="8px"
-              mb={2}
-            >
+
+            <Box w="100%" bg="gray.200" rounded="full" h="8px" mb={2}>
               <Box
                 bg="green.500"
                 h="8px"
@@ -143,26 +142,34 @@ export function ResourceCard({
                       bg={subject.is_completed ? "green.50" : "white"}
                       rounded="lg"
                       border="1px"
-                      borderColor={subject.is_completed ? "green.300" : "gray.300"}
+                      borderColor={
+                        subject.is_completed ? "green.300" : "gray.300"
+                      }
                       shadow="xs"
                       _hover={{
                         shadow: "sm",
-                        borderColor: subject.is_completed ? "green.400" : "blue.300",
+                        borderColor: subject.is_completed
+                          ? "green.400"
+                          : "blue.300",
                         transform: "translateY(-1px)",
-                        transition: "all 0.15s ease"
+                        transition: "all 0.15s ease",
                       }}
                       transition="all 0.15s ease"
                     >
                       <input
                         type="checkbox"
                         checked={subject.is_completed}
-                        onChange={(e) => onSubjectToggle(subject.id, e.target.checked)}
+                        onChange={(e) =>
+                          onSubjectToggle(subject.id, e.target.checked)
+                        }
                         style={{ marginRight: "12px" }}
                       />
                       <Box flex="1">
                         <Text
                           fontSize="sm"
-                          textDecoration={subject.is_completed ? "line-through" : "none"}
+                          textDecoration={
+                            subject.is_completed ? "line-through" : "none"
+                          }
                           color={subject.is_completed ? "gray.500" : "inherit"}
                         >
                           {subject.title}
@@ -174,10 +181,19 @@ export function ResourceCard({
                         )}
                       </Box>
                       <HStack>
-                        <Button size="xs" variant="ghost" onClick={() => onSubjectEdit(subject.id)}>
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          onClick={() => onSubjectEdit(subject.id)}
+                        >
                           Edit
                         </Button>
-                        <Button size="xs" variant="ghost" colorScheme="red" onClick={() => onSubjectDelete(subject.id)}>
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="red"
+                          onClick={() => onSubjectDelete(subject.id)}
+                        >
                           Delete
                         </Button>
                       </HStack>
@@ -195,5 +211,5 @@ export function ResourceCard({
         )}
       </VStack>
     </Box>
-  );
+  )
 }

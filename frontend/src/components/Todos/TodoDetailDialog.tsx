@@ -60,7 +60,9 @@ export default function TodoDetailDialog({
       estimate_minutes: todo.estimate_minutes || undefined,
       priority: todo.priority || "medium",
       type: todo.type || "task",
-      scheduled_date: todo.scheduled_date ? new Date(todo.scheduled_date).toISOString().split('T')[0] : undefined,
+      scheduled_date: todo.scheduled_date
+        ? new Date(todo.scheduled_date).toISOString().split("T")[0]
+        : undefined,
     },
   })
 
@@ -74,7 +76,9 @@ export default function TodoDetailDialog({
       estimate_minutes: todo.estimate_minutes || undefined,
       priority: todo.priority || "medium",
       type: todo.type || "task",
-      scheduled_date: todo.scheduled_date ? new Date(todo.scheduled_date).toISOString().split('T')[0] : undefined,
+      scheduled_date: todo.scheduled_date
+        ? new Date(todo.scheduled_date).toISOString().split("T")[0]
+        : undefined,
     })
   }, [open, reset, todo])
 
@@ -102,7 +106,10 @@ export default function TodoDetailDialog({
           estimate_minutes: data.estimate_minutes,
           priority: data.priority,
           type: data.type,
-          scheduled_date: data.scheduled_date && data.scheduled_date.trim() !== "" ? data.scheduled_date : null,
+          scheduled_date:
+            data.scheduled_date && data.scheduled_date.trim() !== ""
+              ? data.scheduled_date
+              : null,
         },
       })
       // Checklist CRUD is handled inline by ChecklistManager
@@ -147,7 +154,6 @@ export default function TodoDetailDialog({
   const handleChildUnlinked = () => {
     queryClient.invalidateQueries({ queryKey: ["todos", todo.id, "children"] })
   }
-
 
   return (
     <DialogRoot
@@ -312,15 +318,15 @@ export default function TodoDetailDialog({
                 label="Scheduled Date"
               >
                 <div style={{ position: "relative", width: "100%" }}>
-                  <FiCalendar 
-                    style={{ 
-                      position: "absolute", 
-                      left: "8px", 
-                      top: "50%", 
-                      transform: "translateY(-50%)", 
+                  <FiCalendar
+                    style={{
+                      position: "absolute",
+                      left: "8px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
                       color: "#718096",
-                      pointerEvents: "none" 
-                    }} 
+                      pointerEvents: "none",
+                    }}
                     size={16}
                   />
                   <Input

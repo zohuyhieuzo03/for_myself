@@ -49,12 +49,12 @@ def get_todo(*, session: Session, todo_id: uuid.UUID) -> Todo | None:
 
 
 def get_todos(
-    *, session: Session, skip: int = 0, limit: int = 100
+    *, session: Session, owner_id: uuid.UUID, skip: int = 0, limit: int = 100
 ) -> tuple[list[Todo], int]:
-    statement = select(Todo).offset(skip).limit(limit)
+    statement = select(Todo).where(Todo.owner_id == owner_id).offset(skip).limit(limit)
     todos = list(session.exec(statement).all())
-    count_statement = select(Todo)
-    count = len(session.exec(count_statement).all())
+    count_statement = select(func.count()).select_from(Todo).where(Todo.owner_id == owner_id)
+    count = session.exec(count_statement).one()
     return todos, count
 
 
@@ -68,26 +68,36 @@ def delete_todo(*, session: Session, todo_id: uuid.UUID) -> Todo | None:
 
 
 # ========= PARENT / CHILD QUERIES =========
-def get_todo_children(*, session: Session, todo_id: uuid.UUID) -> list[Todo]:
-    statement = select(Todo).where(Todo.parent_id == todo_id).order_by(Todo.created_at)
+def get_todo_children(*, session: Session, todo_id: uuid.UUID, owner_id: uuid.UUID) -> list[Todo]:
+    statement = select(Todo).where(
+        Todo.parent_id == todo_id,
+        Todo.owner_id == owner_id
+    ).order_by(Todo.created_at)
     children = list(session.exec(statement).all())
     return children
 
 
-def get_todo_parent(*, session: Session, todo_id: uuid.UUID) -> Todo | None:
+def get_todo_parent(*, session: Session, todo_id: uuid.UUID, owner_id: uuid.UUID) -> Todo | None:
     statement = select(Todo).where(Todo.id == todo_id)
     todo = session.exec(statement).first()
     if not todo:
         return None
     if todo.parent_id is None:
         return None
-    parent = session.get(Todo, todo.parent_id)
+    parent_statement = select(Todo).where(
+        Todo.id == todo.parent_id,
+        Todo.owner_id == owner_id
+    )
+    parent = session.exec(parent_statement).first()
     return parent
 
 
 # ========= MILESTONE QUERIES =========
-def get_todos_by_milestone(*, session: Session, milestone_id: uuid.UUID) -> list[Todo]:
-    statement = select(Todo).where(Todo.milestone_id == milestone_id).order_by(Todo.created_at)
+def get_todos_by_milestone(*, session: Session, milestone_id: uuid.UUID, owner_id: uuid.UUID) -> list[Todo]:
+    statement = select(Todo).where(
+        Todo.milestone_id == milestone_id,
+        Todo.owner_id == owner_id
+    ).order_by(Todo.created_at)
     todos = list(session.exec(statement).all())
     return todos
 

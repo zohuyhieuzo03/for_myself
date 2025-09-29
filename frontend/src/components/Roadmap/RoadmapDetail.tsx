@@ -242,7 +242,6 @@ export function RoadmapDetail({ roadmapId }: RoadmapDetailProps) {
         <MilestoneList roadmapId={roadmapId} />
       </Box>
 
-
       {/* Edit Form Modal */}
       <RoadmapForm
         isOpen={isFormOpen}

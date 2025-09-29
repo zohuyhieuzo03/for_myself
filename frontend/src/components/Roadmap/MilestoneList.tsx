@@ -39,22 +39,22 @@ import {
 } from "react-icons/fi"
 import type {
   MilestoneReorderRequest,
-  RoadmapMilestonePublic,
-  TodoCreate,
-  TodoPublic,
   ResourceCreate,
-  ResourceUpdate,
   ResourcePublic,
   ResourceSubjectCreate,
   ResourceSubjectUpdate,
+  ResourceUpdate,
+  RoadmapMilestonePublic,
+  TodoCreate,
+  TodoPublic,
 } from "@/client"
-import { RoadmapService, ResourcesService } from "@/client"
+import { ResourcesService, RoadmapService } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
+import { ResourceForm } from "../Resources/ResourceForm"
+import { ResourceSubjectForm } from "../Resources/ResourceSubjectForm"
 import TodoCard from "../Todos/TodoCard"
 import TodoDetailDialog from "../Todos/TodoDetailDialog"
 import { TodoForm } from "../Todos/TodoForm"
-import { ResourceForm } from "../Resources/ResourceForm"
-import { ResourceSubjectForm } from "../Resources/ResourceSubjectForm"
 import { MilestoneForm } from "./MilestoneForm"
 
 interface MilestoneListProps {
@@ -81,10 +81,14 @@ function SortableMilestoneItem({
   const [selectedTodo, setSelectedTodo] = useState<TodoPublic | null>(null)
   const [showResources, setShowResources] = useState(false)
   const [isResourceFormOpen, setIsResourceFormOpen] = useState(false)
-  const [editingResource, setEditingResource] = useState<ResourcePublic | null>(null)
+  const [editingResource, setEditingResource] = useState<ResourcePublic | null>(
+    null,
+  )
   const [isSubjectFormOpen, setIsSubjectFormOpen] = useState(false)
   const [editingSubject, setEditingSubject] = useState<string | null>(null)
-  const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null)
+  const [selectedResourceId, setSelectedResourceId] = useState<string | null>(
+    null,
+  )
   const { showSuccessToast, showErrorToast } = useCustomToast()
   const queryClient = useQueryClient()
 
@@ -158,11 +162,14 @@ function SortableMilestoneItem({
 
   // Create resource mutation
   const createResourceMutation = useMutation({
-    mutationFn: (data: ResourceCreate) => ResourcesService.createResource({ 
-      requestBody: { ...data, milestone_id: milestone.id }
-    }),
+    mutationFn: (data: ResourceCreate) =>
+      ResourcesService.createResource({
+        requestBody: { ...data, milestone_id: milestone.id },
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["milestone-resources", milestone.id] })
+      queryClient.invalidateQueries({
+        queryKey: ["milestone-resources", milestone.id],
+      })
       setIsResourceFormOpen(false)
       setShowResources(true) // Auto-expand resources section after creating
       showSuccessToast("Resource created successfully!")
@@ -177,7 +184,9 @@ function SortableMilestoneItem({
     mutationFn: ({ id, data }: { id: string; data: ResourceUpdate }) =>
       ResourcesService.updateResource({ resourceId: id, requestBody: data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["milestone-resources", milestone.id] })
+      queryClient.invalidateQueries({
+        queryKey: ["milestone-resources", milestone.id],
+      })
       setIsResourceFormOpen(false)
       setEditingResource(null)
       showSuccessToast("Resource updated successfully!")
@@ -189,9 +198,12 @@ function SortableMilestoneItem({
 
   // Delete resource mutation
   const deleteResourceMutation = useMutation({
-    mutationFn: (id: string) => ResourcesService.deleteResource({ resourceId: id }),
+    mutationFn: (id: string) =>
+      ResourcesService.deleteResource({ resourceId: id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["milestone-resources", milestone.id] })
+      queryClient.invalidateQueries({
+        queryKey: ["milestone-resources", milestone.id],
+      })
       showSuccessToast("Resource deleted successfully!")
     },
     onError: () => {
@@ -201,10 +213,18 @@ function SortableMilestoneItem({
 
   // Create subject mutation
   const createSubjectMutation = useMutation({
-    mutationFn: ({ resourceId, data }: { resourceId: string; data: ResourceSubjectCreate }) =>
+    mutationFn: ({
+      resourceId,
+      data,
+    }: {
+      resourceId: string
+      data: ResourceSubjectCreate
+    }) =>
       ResourcesService.createResourceSubject({ resourceId, requestBody: data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["milestone-resources", milestone.id] })
+      queryClient.invalidateQueries({
+        queryKey: ["milestone-resources", milestone.id],
+      })
       setIsSubjectFormOpen(false)
       showSuccessToast("Subject created successfully!")
     },
@@ -215,10 +235,18 @@ function SortableMilestoneItem({
 
   // Update subject mutation
   const updateSubjectMutation = useMutation({
-    mutationFn: ({ subjectId, data }: { subjectId: string; data: ResourceSubjectUpdate }) =>
+    mutationFn: ({
+      subjectId,
+      data,
+    }: {
+      subjectId: string
+      data: ResourceSubjectUpdate
+    }) =>
       ResourcesService.updateResourceSubject({ subjectId, requestBody: data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["milestone-resources", milestone.id] })
+      queryClient.invalidateQueries({
+        queryKey: ["milestone-resources", milestone.id],
+      })
       setIsSubjectFormOpen(false)
       setEditingSubject(null)
       showSuccessToast("Subject updated successfully!")
@@ -230,9 +258,12 @@ function SortableMilestoneItem({
 
   // Delete subject mutation
   const deleteSubjectMutation = useMutation({
-    mutationFn: (subjectId: string) => ResourcesService.deleteResourceSubject({ subjectId }),
+    mutationFn: (subjectId: string) =>
+      ResourcesService.deleteResourceSubject({ subjectId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["milestone-resources", milestone.id] })
+      queryClient.invalidateQueries({
+        queryKey: ["milestone-resources", milestone.id],
+      })
       showSuccessToast("Subject deleted successfully!")
     },
     onError: () => {
@@ -242,13 +273,21 @@ function SortableMilestoneItem({
 
   // Toggle subject completion mutation
   const toggleSubjectMutation = useMutation({
-    mutationFn: ({ subjectId, isCompleted }: { subjectId: string; isCompleted: boolean }) =>
+    mutationFn: ({
+      subjectId,
+      isCompleted,
+    }: {
+      subjectId: string
+      isCompleted: boolean
+    }) =>
       ResourcesService.updateResourceSubject({
         subjectId,
         requestBody: { is_completed: isCompleted },
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["milestone-resources", milestone.id] })
+      queryClient.invalidateQueries({
+        queryKey: ["milestone-resources", milestone.id],
+      })
     },
     onError: () => {
       showErrorToast("Failed to update subject")
@@ -459,7 +498,11 @@ function SortableMilestoneItem({
                         </Text>
                       )}
                       {resource.url && (
-                        <a href={resource.url} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={resource.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <Button size="xs" mt={2}>
                             Open Link
                           </Button>
@@ -482,7 +525,11 @@ function SortableMilestoneItem({
                         variant="ghost"
                         colorScheme="red"
                         onClick={() => {
-                          if (window.confirm("Are you sure you want to delete this resource?")) {
+                          if (
+                            window.confirm(
+                              "Are you sure you want to delete this resource?",
+                            )
+                          ) {
                             deleteResourceMutation.mutate(resource.id)
                           }
                         }}
@@ -496,26 +543,37 @@ function SortableMilestoneItem({
                   {resource.subjects && resource.subjects.length > 0 && (
                     <Box mt={2} pt={2} borderTop="1px" borderColor="gray.100">
                       <Text fontSize="xs" fontWeight="medium" mb={1}>
-                        Subjects ({resource.subjects.filter(s => s.is_completed).length}/{resource.subjects.length})
+                        Subjects (
+                        {resource.subjects.filter((s) => s.is_completed).length}
+                        /{resource.subjects.length})
                       </Text>
                       <VStack align="stretch" gap={1}>
                         {resource.subjects
-                          .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+                          .sort(
+                            (a, b) =>
+                              (a.order_index || 0) - (b.order_index || 0),
+                          )
                           .map((subject) => (
                             <Flex key={subject.id} align="center" gap={2}>
                               <input
                                 type="checkbox"
                                 checked={subject.is_completed}
-                                onChange={(e) => toggleSubjectMutation.mutate({ 
-                                  subjectId: subject.id, 
-                                  isCompleted: e.target.checked 
-                                })}
+                                onChange={(e) =>
+                                  toggleSubjectMutation.mutate({
+                                    subjectId: subject.id,
+                                    isCompleted: e.target.checked,
+                                  })
+                                }
                                 style={{ marginRight: "8px" }}
                               />
                               <Text
                                 fontSize="xs"
-                                textDecoration={subject.is_completed ? "line-through" : "none"}
-                                color={subject.is_completed ? "gray.500" : "inherit"}
+                                textDecoration={
+                                  subject.is_completed ? "line-through" : "none"
+                                }
+                                color={
+                                  subject.is_completed ? "gray.500" : "inherit"
+                                }
                                 flex="1"
                               >
                                 {subject.title}
@@ -535,7 +593,11 @@ function SortableMilestoneItem({
                                 variant="ghost"
                                 colorScheme="red"
                                 onClick={() => {
-                                  if (window.confirm("Are you sure you want to delete this subject?")) {
+                                  if (
+                                    window.confirm(
+                                      "Are you sure you want to delete this subject?",
+                                    )
+                                  ) {
                                     deleteSubjectMutation.mutate(subject.id)
                                   }
                                 }}
@@ -562,7 +624,10 @@ function SortableMilestoneItem({
           }}
           onSubmit={(data) => {
             if (editingResource) {
-              updateResourceMutation.mutate({ id: editingResource.id, data: data as ResourceUpdate })
+              updateResourceMutation.mutate({
+                id: editingResource.id,
+                data: data as ResourceUpdate,
+              })
             } else {
               createResourceMutation.mutate(data as ResourceCreate)
             }
@@ -582,9 +647,15 @@ function SortableMilestoneItem({
           }}
           onSubmit={(data) => {
             if (editingSubject) {
-              updateSubjectMutation.mutate({ subjectId: editingSubject, data: data as ResourceSubjectUpdate })
+              updateSubjectMutation.mutate({
+                subjectId: editingSubject,
+                data: data as ResourceSubjectUpdate,
+              })
             } else if (selectedResourceId) {
-              createSubjectMutation.mutate({ resourceId: selectedResourceId, data: data as ResourceSubjectCreate })
+              createSubjectMutation.mutate({
+                resourceId: selectedResourceId,
+                data: data as ResourceSubjectCreate,
+              })
             }
           }}
           isEditing={!!editingSubject}

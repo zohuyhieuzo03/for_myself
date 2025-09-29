@@ -1,11 +1,6 @@
-import { useState } from "react";
-import {
-  Button,
-  Input,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
-import { ResourceCreate, ResourceUpdate } from "@/client";
+import { Button, Input, Text, VStack } from "@chakra-ui/react"
+import { useState } from "react"
+import type { ResourceCreate, ResourceUpdate } from "@/client"
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -13,16 +8,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogRoot,
-} from "../ui/dialog";
-import { Field } from "../ui/field";
+} from "../ui/dialog"
+import { Field } from "../ui/field"
 
 interface ResourceFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: ResourceCreate | ResourceUpdate) => void;
-  initialData?: Partial<ResourceCreate>;
-  isEditing?: boolean;
-  milestoneId?: string;
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: (data: ResourceCreate | ResourceUpdate) => void
+  initialData?: Partial<ResourceCreate>
+  isEditing?: boolean
+  milestoneId?: string
 }
 
 export function ResourceForm({
@@ -37,19 +32,19 @@ export function ResourceForm({
     title: initialData?.title || "",
     description: initialData?.description || "",
     url: initialData?.url || "",
-  });
+  })
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
+    e.preventDefault()
+    onSubmit(formData)
+  }
 
   const handleInputChange = (field: keyof ResourceCreate, value: any) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
-    }));
-  };
+    }))
+  }
 
   return (
     <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
@@ -60,7 +55,7 @@ export function ResourceForm({
           </Text>
         </DialogHeader>
         <DialogCloseTrigger />
-        
+
         <form onSubmit={handleSubmit}>
           <DialogBody>
             <VStack gap={4}>
@@ -75,7 +70,9 @@ export function ResourceForm({
               <Field label="Description">
                 <Input
                   value={formData.description || ""}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   placeholder="Resource description"
                 />
               </Field>
@@ -102,5 +99,5 @@ export function ResourceForm({
         </form>
       </DialogContent>
     </DialogRoot>
-  );
+  )
 }

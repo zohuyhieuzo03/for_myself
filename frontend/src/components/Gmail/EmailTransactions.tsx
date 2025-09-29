@@ -18,7 +18,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import React, { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import { FiCheck, FiEdit, FiEye, FiTrash2, FiRefreshCw } from "react-icons/fi"
+import { FiCheck, FiEdit, FiEye, FiRefreshCw, FiTrash2 } from "react-icons/fi"
 import {
   AccountsService,
   CategoriesService,
@@ -993,7 +993,9 @@ export function EmailTransactionsTable({
                 disabled={connectionId === "all"}
               >
                 <FiRefreshCw style={{ marginRight: 8 }} />
-                {syncRecentEmailsMutation.isPending ? "Syncing..." : "Sync Recent"}
+                {syncRecentEmailsMutation.isPending
+                  ? "Syncing..."
+                  : "Sync Recent"}
               </Button>
               <select
                 value={connectionId}

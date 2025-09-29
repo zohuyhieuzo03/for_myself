@@ -1,11 +1,11 @@
-import { 
-  FiCheckCircle, 
-  FiPlay, 
-  FiArchive, 
-  FiClock,
-  FiAlertTriangle,
+import {
   FiAlertCircle,
-  FiInfo
+  FiAlertTriangle,
+  FiArchive,
+  FiCheckCircle,
+  FiClock,
+  FiInfo,
+  FiPlay,
 } from "react-icons/fi"
 
 export interface StatusConfig {

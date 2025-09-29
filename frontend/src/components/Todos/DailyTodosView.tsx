@@ -7,21 +7,25 @@ import {
   Heading,
   HStack,
   Text,
-  VStack,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
-import { FiCalendar, FiPlus, FiRefreshCw, FiClock } from "react-icons/fi"
+import { FiCalendar, FiClock, FiPlus, FiRefreshCw } from "react-icons/fi"
 
 import { type TodoPublic, TodosService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
-import { DialogRoot, DialogTrigger, DialogContent } from "@/components/ui/dialog"
 import TodoDetailWrapper from "@/components/Todos/TodoDetailWrapper"
 import TodoSchedulePicker from "@/components/Todos/TodoSchedulePicker"
+import {
+  DialogContent,
+  DialogRoot,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import useCustomToast from "@/hooks/useCustomToast"
 import { formatDate, handleError } from "@/utils"
-import { getStatusConfig, getPriorityConfig } from "@/utils/todoHelpers"
+import { getPriorityConfig, getStatusConfig } from "@/utils/todoHelpers"
 
 interface DailyTodosViewProps {
   selectedId: string | null
@@ -29,22 +33,27 @@ interface DailyTodosViewProps {
   pickerMode?: boolean
 }
 
-export default function DailyTodosView({ 
-  selectedId, 
+export default function DailyTodosView({
+  selectedId,
   onSelectedIdChange,
-  pickerMode = false 
+  pickerMode = false,
 }: DailyTodosViewProps) {
   const [displayDate, setDisplayDate] = useState(new Date())
   const [pickerDate, setPickerDate] = useState(new Date())
   const [showOverdue] = useState(true)
-  const { open: isPickerOpen, onOpen: onPickerOpen, onClose: onPickerClose } = useDisclosure()
+  const {
+    open: isPickerOpen,
+    onOpen: onPickerOpen,
+    onClose: onPickerClose,
+  } = useDisclosure()
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
   // Query để lấy todos cho ngày được chọn
   const { data: dailyTodos } = useQuery({
     queryKey: ["todos", "daily", formatDate(displayDate)],
-    queryFn: () => TodosService.readDailyTodos({ date: formatDate(displayDate) }),
+    queryFn: () =>
+      TodosService.readDailyTodos({ date: formatDate(displayDate) }),
     enabled: !pickerMode,
   })
 
@@ -89,7 +98,9 @@ export default function DailyTodosView({
 
   const handleTodoClick = (todo: TodoPublic) => {
     if (pickerMode) {
-      selectedId !== todo.id ? onSelectedIdChange(todo.id) : onSelectedIdChange(null)
+      selectedId !== todo.id
+        ? onSelectedIdChange(todo.id)
+        : onSelectedIdChange(null)
     } else {
       onSelectedIdChange(todo.id)
     }
@@ -101,10 +112,14 @@ export default function DailyTodosView({
 
   const isSelected = (todo: TodoPublic) => selectedId === todo.id
 
-  const TodoCardComponent = ({ todo, onClick, isSelected }: { 
-    todo: TodoPublic, 
-    onClick: () => void, 
-    isSelected: boolean 
+  const TodoCardComponent = ({
+    todo,
+    onClick,
+    isSelected,
+  }: {
+    todo: TodoPublic
+    onClick: () => void
+    isSelected: boolean
   }) => {
     const statusConfig = getStatusConfig(todo.status || "todo")
     const priorityConfig = getPriorityConfig(todo.priority || "medium")
@@ -118,9 +133,9 @@ export default function DailyTodosView({
         bg={isSelected ? "blue.50" : "white"}
         borderColor={isSelected ? "blue.200" : "gray.200"}
         borderWidth={isSelected ? "2px" : "1px"}
-        _hover={{ 
+        _hover={{
           bg: isSelected ? "blue.50" : "gray.50",
-          borderColor: "blue.300"
+          borderColor: "blue.300",
         }}
         p={4}
         borderRadius="md"
@@ -128,14 +143,19 @@ export default function DailyTodosView({
       >
         <Flex justify="space-between" align="center">
           <VStack align="start" gap={1} flex={1}>
-            <Text fontWeight="bold" color={overdueTodosList.includes(todo) ? "red.600" : "inherit"}>
+            <Text
+              fontWeight="bold"
+              color={overdueTodosList.includes(todo) ? "red.600" : "inherit"}
+            >
               {todo.title}
             </Text>
             <HStack gap={4} fontSize="sm" color="gray.600">
               <HStack gap={1}>
                 <FiCalendar />
                 <Text>
-                  {overdueTodosList.includes(todo) ? "Overdue" : formatDate(displayDate)}
+                  {overdueTodosList.includes(todo)
+                    ? "Overdue"
+                    : formatDate(displayDate)}
                 </Text>
               </HStack>
               {todo.estimate_minutes && (
@@ -146,7 +166,7 @@ export default function DailyTodosView({
               )}
             </HStack>
           </VStack>
-          
+
           <HStack gap={2}>
             <Badge
               colorPalette={statusConfig.color}
@@ -188,13 +208,10 @@ export default function DailyTodosView({
               Manage your scheduled todos for each day
             </Text>
           </Box>
-          
+
           {!pickerMode && (
             <HStack gap={2}>
-              <Button
-                variant="outline"
-                onClick={onPickerOpen}
-              >
+              <Button variant="outline" onClick={onPickerOpen}>
                 <FiCalendar style={{ marginRight: "8px" }} />
                 Schedule Todo
               </Button>
@@ -217,14 +234,20 @@ export default function DailyTodosView({
         {showOverdue && overdueTodosList.length > 0 && (
           <Box>
             <Flex align="center" mb={4}>
-              <Badge colorScheme="red" variant="subtle" px={2} py={1} borderRadius="md">
+              <Badge
+                colorScheme="red"
+                variant="subtle"
+                px={2}
+                py={1}
+                borderRadius="md"
+              >
                 Overdue ({overdueTodosList.length})
               </Badge>
               <Text ml={2} fontSize="sm" color="gray.600">
                 Todos from previous days that need attention
               </Text>
             </Flex>
-            
+
             <VStack gap={2}>
               {overdueTodosList.map((todo) => (
                 <TodoCardComponent
@@ -241,24 +264,43 @@ export default function DailyTodosView({
         {/* Daily Todos Section */}
         <Box>
           <Flex align="center" gap={2} mb={4}>
-            <Button size="sm" variant="outline" onClick={() => {
-              const prev = new Date(displayDate)
-              prev.setDate(prev.getDate() - 1)
-              setDisplayDate(prev)
-            }}>←</Button>
-            
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const prev = new Date(displayDate)
+                prev.setDate(prev.getDate() - 1)
+                setDisplayDate(prev)
+              }}
+            >
+              ←
+            </Button>
+
             <Text fontWeight="bold" fontSize="lg">
               {formatDate(displayDate)}
             </Text>
-            
-            <Button size="sm" variant="outline" onClick={() => {
-              const next = new Date(displayDate)
-              next.setDate(next.getDate() + 1)
-              setDisplayDate(next)
-            }}>→</Button>
-            
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const next = new Date(displayDate)
+                next.setDate(next.getDate() + 1)
+                setDisplayDate(next)
+              }}
+            >
+              →
+            </Button>
+
             {dailyTodosList.length > 0 && (
-              <Badge colorScheme="blue" variant="subtle" ml={2} px={2} py={1} borderRadius="md">
+              <Badge
+                colorScheme="blue"
+                variant="subtle"
+                ml={2}
+                px={2}
+                py={1}
+                borderRadius="md"
+              >
                 {dailyTodosList.length} todos
               </Badge>
             )}
@@ -289,16 +331,19 @@ export default function DailyTodosView({
         </Box>
 
         {/* Schedule Todo Dialog */}
-        <DialogRoot open={isPickerOpen} onOpenChange={(e) => e.open ? onPickerOpen() : onPickerClose()}>
+        <DialogRoot
+          open={isPickerOpen}
+          onOpenChange={(e) => (e.open ? onPickerOpen() : onPickerClose())}
+        >
           <DialogTrigger asChild />
           <DialogContent>
-              <TodoSchedulePicker
-                open={isPickerOpen}
-                onClose={onPickerClose}
-                selectedDate={pickerDate}
-                onDateChange={setPickerDate}
-                mode="schedule_existing"
-              />
+            <TodoSchedulePicker
+              open={isPickerOpen}
+              onClose={onPickerClose}
+              selectedDate={pickerDate}
+              onDateChange={setPickerDate}
+              mode="schedule_existing"
+            />
           </DialogContent>
         </DialogRoot>
 

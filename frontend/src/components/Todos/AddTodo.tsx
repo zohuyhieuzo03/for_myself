@@ -14,7 +14,7 @@ import { FaPlus } from "react-icons/fa"
 import { type TodoCreate, type TodoStatus, TodosService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError, formatDate } from "@/utils"
+import { formatDate, handleError } from "@/utils"
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -68,7 +68,9 @@ const AddTodo = (props: AddTodoProps = {}) => {
           estimate_minutes: data.estimate_minutes,
           priority: data.priority,
           type: data.type,
-          scheduled_date: defaultScheduledDate ? formatDate(defaultScheduledDate) : undefined,
+          scheduled_date: defaultScheduledDate
+            ? formatDate(defaultScheduledDate)
+            : undefined,
         },
       })
       return todo

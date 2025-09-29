@@ -167,7 +167,7 @@ def read_todo_children(session: SessionDep, current_user: CurrentUser, id: uuid.
         raise HTTPException(status_code=404, detail="Todo not found")
     if not current_user.is_superuser and (todo.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    children = get_todo_children(session=session, todo_id=id)
+    children = get_todo_children(session=session, todo_id=id, owner_id=current_user.id)
     return TodosPublic(data=children, count=len(children))
 
 
@@ -181,7 +181,7 @@ def read_todo_parent(session: SessionDep, current_user: CurrentUser, id: uuid.UU
         raise HTTPException(status_code=404, detail="Todo not found")
     if not current_user.is_superuser and (todo.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    parent = get_todo_parent(session=session, todo_id=id)
+    parent = get_todo_parent(session=session, todo_id=id, owner_id=current_user.id)
     return parent
 
 

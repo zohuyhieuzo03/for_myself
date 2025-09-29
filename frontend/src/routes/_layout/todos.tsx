@@ -116,19 +116,41 @@ function TodosTable() {
 
   if (allTodos.length === 0) {
     return (
-      <EmptyState.Root>
-        <EmptyState.Content>
-          <EmptyState.Indicator>
-            <FiCheckSquare />
-          </EmptyState.Indicator>
-          <VStack textAlign="center">
-            <EmptyState.Title>You don't have any todos yet</EmptyState.Title>
-            <EmptyState.Description>
-              Add a new todo to get started
-            </EmptyState.Description>
-          </VStack>
-        </EmptyState.Content>
-      </EmptyState.Root>
+      <>
+        <Flex justify="space-between" align="center" mb={4}>
+          <Heading size="lg">Todo Management</Heading>
+          <HStack gap={2}>
+            <Button
+              variant={view === "table" ? "solid" : "outline"}
+              onClick={() => setView("table")}
+            >
+              Table View
+            </Button>
+            <Button
+              variant={view === "kanban" ? "solid" : "outline"}
+              onClick={() => setView("kanban")}
+            >
+              Kanban View
+            </Button>
+          </HStack>
+        </Flex>
+
+        <AddTodo />
+
+        <EmptyState.Root>
+          <EmptyState.Content>
+            <EmptyState.Indicator>
+              <FiCheckSquare />
+            </EmptyState.Indicator>
+            <VStack textAlign="center">
+              <EmptyState.Title>You don't have any todos yet</EmptyState.Title>
+              <EmptyState.Description>
+                Add a new todo to get started
+              </EmptyState.Description>
+            </VStack>
+          </EmptyState.Content>
+        </EmptyState.Root>
+      </>
     )
   }
 

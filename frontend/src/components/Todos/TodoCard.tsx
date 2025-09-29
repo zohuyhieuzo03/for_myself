@@ -1,13 +1,13 @@
 import { Badge, Box, Button, HStack, Text, VStack } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { FiX, FiCalendar } from "react-icons/fi"
+import { FiCalendar, FiX } from "react-icons/fi"
 
 import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
-import { formatDateTimeShort, formatDate, handleError } from "@/utils"
-import { getStatusConfig, getPriorityConfig } from "@/utils/todoHelpers"
+import { formatDate, formatDateTimeShort, handleError } from "@/utils"
+import { getPriorityConfig, getStatusConfig } from "@/utils/todoHelpers"
 
 interface TodoCardProps {
   todo: TodoPublic
@@ -63,7 +63,6 @@ export default function TodoCard({
     unlinkMutation.mutate()
   }
 
-
   if (compact) {
     return (
       <Box
@@ -113,7 +112,9 @@ export default function TodoCard({
                   )
                 })()}
                 {(() => {
-                  const priorityConfig = getPriorityConfig(todo.priority || "medium")
+                  const priorityConfig = getPriorityConfig(
+                    todo.priority || "medium",
+                  )
                   const PriorityIcon = priorityConfig.icon
                   return (
                     <Badge
@@ -226,7 +227,9 @@ export default function TodoCard({
                 )
               })()}
               {(() => {
-                const priorityConfig = getPriorityConfig(todo.priority || "medium")
+                const priorityConfig = getPriorityConfig(
+                  todo.priority || "medium",
+                )
                 const PriorityIcon = priorityConfig.icon
                 return (
                   <Badge

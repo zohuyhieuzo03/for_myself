@@ -11,8 +11,8 @@ function DailyTodosPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   return (
-    <DailyTodosView 
-      selectedId={selectedId} 
+    <DailyTodosView
+      selectedId={selectedId}
       onSelectedIdChange={setSelectedId}
     />
   )

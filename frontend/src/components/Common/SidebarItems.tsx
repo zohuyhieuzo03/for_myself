@@ -7,6 +7,7 @@ import {
   FiCalendar,
   FiCheckSquare,
   FiCreditCard,
+  FiDatabase,
   FiHome,
   FiInbox,
   FiMail,
@@ -17,7 +18,6 @@ import {
   FiTarget,
   FiTrendingUp,
   FiUsers,
-  FiDatabase,
 } from "react-icons/fi"
 import type { IconType } from "react-icons/lib"
 
