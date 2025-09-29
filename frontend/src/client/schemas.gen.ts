@@ -2241,6 +2241,18 @@ export const TodoCreateSchema = {
             '$ref': '#/components/schemas/TodoType',
             default: 'task'
         },
+        scheduled_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Scheduled Date'
+        },
         parent_id: {
             anyOf: [
                 {
@@ -2320,6 +2332,18 @@ export const TodoPublicSchema = {
         type: {
             '$ref': '#/components/schemas/TodoType',
             default: 'task'
+        },
+        scheduled_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Scheduled Date'
         },
         id: {
             type: 'string',
@@ -2471,6 +2495,18 @@ export const TodoUpdateSchema = {
                 }
             ],
             title: 'Milestone Id'
+        },
+        scheduled_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Scheduled Date'
         }
     },
     type: 'object',

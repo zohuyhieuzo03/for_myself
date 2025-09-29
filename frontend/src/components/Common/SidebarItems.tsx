@@ -4,6 +4,7 @@ import { Link as RouterLink } from "@tanstack/react-router"
 import {
   FiBarChart,
   FiBriefcase,
+  FiCalendar,
   FiCheckSquare,
   FiCreditCard,
   FiHome,
@@ -26,6 +27,7 @@ const items = [
   { icon: FiHome, title: "Dashboard", path: "/" },
   { icon: FiBriefcase, title: "Items", path: "/items" },
   { icon: FiCheckSquare, title: "Todos", path: "/todos" },
+  { icon: FiCalendar, title: "Daily Todos", path: "/daily-todos" },
   { icon: FiMap, title: "Roadmap", path: "/roadmap" },
   { icon: FiDatabase, title: "Resources", path: "/resources" },
   { icon: FiMail, title: "Gmail Integration", path: "/email" },

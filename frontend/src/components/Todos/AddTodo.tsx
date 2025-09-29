@@ -14,7 +14,7 @@ import { FaPlus } from "react-icons/fa"
 import { type TodoCreate, type TodoStatus, TodosService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError, formatDate } from "@/utils"
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -30,7 +30,13 @@ import { Field } from "../ui/field"
 
 // Using simple create; checklist items will be added after creation
 
-const AddTodo = () => {
+interface AddTodoProps {
+  defaultScheduledDate?: Date
+  onClose?: () => void
+}
+
+const AddTodo = (props: AddTodoProps = {}) => {
+  const { defaultScheduledDate, onClose } = props
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -62,6 +68,7 @@ const AddTodo = () => {
           estimate_minutes: data.estimate_minutes,
           priority: data.priority,
           type: data.type,
+          scheduled_date: defaultScheduledDate ? formatDate(defaultScheduledDate) : undefined,
         },
       })
       return todo
@@ -70,6 +77,7 @@ const AddTodo = () => {
       showSuccessToast("Todo created successfully.")
       reset()
       setIsOpen(false)
+      if (onClose) onClose()
     },
     onError: (err: ApiError) => {
       handleError(err)

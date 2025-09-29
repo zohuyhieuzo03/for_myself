@@ -421,6 +421,7 @@ export type TodoCreate = {
     estimate_minutes?: (number | null);
     priority?: TodoPriority;
     type?: TodoType;
+    scheduled_date?: (string | null);
     parent_id?: (string | null);
     milestone_id?: (string | null);
 };
@@ -434,6 +435,7 @@ export type TodoPublic = {
     estimate_minutes?: (number | null);
     priority?: TodoPriority;
     type?: TodoType;
+    scheduled_date?: (string | null);
     id: string;
     owner_id: string;
     parent_id?: (string | null);
@@ -460,6 +462,7 @@ export type TodoUpdate = {
     type?: (TodoType | null);
     parent_id?: (string | null);
     milestone_id?: (string | null);
+    scheduled_date?: (string | null);
 };
 
 export type Token = {
@@ -1177,6 +1180,29 @@ export type TodosDeleteChecklistItemEndpointData = {
 };
 
 export type TodosDeleteChecklistItemEndpointResponse = (Message);
+
+export type TodosReadDailyTodosData = {
+    date: string;
+};
+
+export type TodosReadDailyTodosResponse = (TodosPublic);
+
+export type TodosReadOverdueTodosResponse = (TodosPublic);
+
+export type TodosScheduleTodoEndpointData = {
+    date: string;
+    id: string;
+};
+
+export type TodosScheduleTodoEndpointResponse = (TodoPublic);
+
+export type TodosRolloverTodosEndpointResponse = (TodosPublic);
+
+export type TodosGetScheduleSummaryData = {
+    days?: number;
+};
+
+export type TodosGetScheduleSummaryResponse = (unknown);
 
 export type TransactionsReadTransactionsData = {
     limit?: number;

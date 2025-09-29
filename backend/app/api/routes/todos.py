@@ -1,4 +1,5 @@
 import uuid
+from datetime import date
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -18,6 +19,11 @@ from app.crud import (
     get_todo_milestone,
     update_checklist_item,
     update_todo,
+    get_todos_for_date,
+    get_overdue_todos,
+    schedule_todo_for_date,
+    rollover_overdue_todos,
+    get_daily_schedule_summary,
 )
 from app.models import (
     ChecklistItemCreate,
@@ -75,6 +81,20 @@ def read_todos(
     todos = session.exec(statement).all()
 
     return TodosPublic(data=todos, count=count)
+
+
+@router.get("/overdue", response_model=TodosPublic) 
+def read_overdue_todos(
+    session: SessionDep, current_user: CurrentUser
+) -> Any:
+    """
+    Get todos that are overdue (scheduled for previous dates).
+    """
+    todos = get_overdue_todos(
+        session=session, 
+        owner_id=current_user.id
+    )
+    return TodosPublic(data=todos, count=len(todos))
 
 
 @router.get("/{id}", response_model=TodoPublic)
@@ -258,3 +278,82 @@ def delete_checklist_item_endpoint(
     
     delete_checklist_item(session=session, checklist_item_id=checklist_item_id)
     return Message(message="Checklist item deleted successfully")
+
+
+# ========= DAILY SCHEDULING ENDPOINTS =========
+@router.get("/daily/{date}", response_model=TodosPublic)
+def read_daily_todos(
+    session: SessionDep, 
+    current_user: CurrentUser, 
+    date: date
+) -> Any:
+    """
+    Get todos scheduled for a specific date.
+    """
+    todos = get_todos_for_date(
+        session=session, 
+        owner_id=current_user.id, 
+        target_date=date
+    )
+    return TodosPublic(data=todos, count=len(todos))
+
+
+@router.post("/{id}/schedule/{date}", response_model=TodoPublic)
+def schedule_todo_endpoint(
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID,
+    date: date
+) -> Any:
+    """
+    Schedule a todo for a specific date.
+    """
+    todo = session.get(Todo, id)
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    if not current_user.is_superuser and (todo.owner_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    
+    scheduled_todo = schedule_todo_for_date(
+        session=session, 
+        todo_id=id, 
+        target_date=date
+    )
+    if not scheduled_todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    return scheduled_todo
+
+
+@router.post("/rollover", response_model=TodosPublic)
+def rollover_todos_endpoint(
+    session: SessionDep, current_user: CurrentUser
+) -> Any:
+    """
+    Roll over overdue todos to today.
+    """
+    rolled_over = rollover_overdue_todos(
+        session=session, 
+        owner_id=current_user.id
+    )
+    return TodosPublic(data=rolled_over, count=len(rolled_over))
+
+
+@router.get("/schedule/summary")
+def get_schedule_summary(
+    session: SessionDep, 
+    current_user: CurrentUser,
+    days: int = 7
+) -> Any:
+    """
+    Get summary of scheduled todos for the next N days.
+    """
+    summary = get_daily_schedule_summary(
+        session=session, 
+        owner_id=current_user.id, 
+        days=days
+    )
+    
+    # Convert date keys to string for JSON serialization
+    return {
+        str(k): v for k, v in summary.items()
+    }

@@ -55,7 +55,7 @@ export const handleError = (err: ApiError) => {
 }
 
 // Re-export datetime utilities for convenience
-export { formatDateTime, formatDateTimeShort } from "./utils/dateTime"
+export { formatDateTime, formatDateTimeShort, formatDate, formatDateLocal } from "./utils/dateTime"
 
 // Currency formatting utility
 export const formatCurrency = (amount: number): string => {

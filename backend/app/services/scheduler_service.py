@@ -5,6 +5,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from app.services.gmail_service import sync_all_active_connections
+from app.services.schedule_service import batch_rollover_overdue_todos
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,17 @@ class GmailSyncScheduler:
                 replace_existing=True,
                 max_instances=1,
                 misfire_grace_time=1800  # 30 minutes grace time
+            )
+            
+            # Add daily todo rollover job (every 24 hours at midnight)
+            self.scheduler.add_job(
+                func=self._daily_todo_rollover_task,
+                trigger=IntervalTrigger(hours=24),
+                id='daily_todo_rollover',
+                name='Daily Todo Rollover',
+                replace_existing=True,
+                max_instances=1,
+                misfire_grace_time=3600  # 1 hour grace time
             )
             
             self.scheduler.start()
@@ -97,6 +109,15 @@ class GmailSyncScheduler:
             
         except Exception as e:
             logger.error(f"Error in daily full sync task: {e}")
+    
+    def _daily_todo_rollover_task(self):
+        """Daily task to rollover overdue todos."""
+        logger.info("Starting daily todo rollover task...")
+        try:
+            count = batch_rollover_overdue_todos()
+            logger.info(f"Daily todo rollover completed: {count} todos rolled over")
+        except Exception as e:
+            logger.error(f"Error in daily todo rollover task: {e}")
     
     def get_job_status(self):
         """Get status of scheduled jobs."""

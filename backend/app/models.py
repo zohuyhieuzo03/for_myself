@@ -196,12 +196,14 @@ class TodoBase(SQLModel):
     estimate_minutes: int | None = Field(default=None, ge=0)  # Estimate in minutes
     priority: TodoPriority = Field(default=TodoPriority.medium)
     type: TodoType = Field(default=TodoType.task)
+    scheduled_date: date | None = Field(default=None)  # Date when todo is scheduled for
 
 
 # Properties to receive on todo creation
 class TodoCreate(TodoBase):
     parent_id: uuid.UUID | None = None
     milestone_id: uuid.UUID | None = None
+    scheduled_date: date | None = None
 
     @field_validator('parent_id', mode='before')
     @classmethod
@@ -224,6 +226,7 @@ class TodoUpdate(BaseModel):
     type: TodoType | None = None
     parent_id: uuid.UUID | None = None
     milestone_id: uuid.UUID | None = None
+    scheduled_date: date | None = None
 
     @field_validator('parent_id', mode='before')
     @classmethod

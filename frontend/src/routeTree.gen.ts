@@ -22,6 +22,7 @@ import { Route as LayoutResourcesRouteImport } from './routes/_layout/resources'
 import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
 import { Route as LayoutFinanceRouteImport } from './routes/_layout/finance'
 import { Route as LayoutEmailRouteImport } from './routes/_layout/email'
+import { Route as LayoutDailyTodosRouteImport } from './routes/_layout/daily-todos'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 import { Route as LayoutEmailIndexRouteImport } from './routes/_layout/email/index'
 import { Route as LayoutFinanceTransactionsDashboardRouteImport } from './routes/_layout/finance/transactions-dashboard'
@@ -96,6 +97,11 @@ const LayoutEmailRoute = LayoutEmailRouteImport.update({
   path: '/email',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutDailyTodosRoute = LayoutDailyTodosRouteImport.update({
+  id: '/daily-todos',
+  path: '/daily-todos',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutAdminRoute = LayoutAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/daily-todos': typeof LayoutDailyTodosRoute
   '/email': typeof LayoutEmailRouteWithChildren
   '/finance': typeof LayoutFinanceRouteWithChildren
   '/items': typeof LayoutItemsRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
+  '/daily-todos': typeof LayoutDailyTodosRoute
   '/finance': typeof LayoutFinanceRouteWithChildren
   '/items': typeof LayoutItemsRoute
   '/resources': typeof LayoutResourcesRoute
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
+  '/_layout/daily-todos': typeof LayoutDailyTodosRoute
   '/_layout/email': typeof LayoutEmailRouteWithChildren
   '/_layout/finance': typeof LayoutFinanceRouteWithChildren
   '/_layout/items': typeof LayoutItemsRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/daily-todos'
     | '/email'
     | '/finance'
     | '/items'
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/admin'
+    | '/daily-todos'
     | '/finance'
     | '/items'
     | '/resources'
@@ -269,6 +280,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_layout/admin'
+    | '/_layout/daily-todos'
     | '/_layout/email'
     | '/_layout/finance'
     | '/_layout/items'
@@ -388,6 +400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutEmailRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/daily-todos': {
+      id: '/_layout/daily-todos'
+      path: '/daily-todos'
+      fullPath: '/daily-todos'
+      preLoaderRoute: typeof LayoutDailyTodosRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/admin': {
       id: '/_layout/admin'
       path: '/admin'
@@ -493,6 +512,7 @@ const LayoutFinanceRouteWithChildren = LayoutFinanceRoute._addFileChildren(
 
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
+  LayoutDailyTodosRoute: typeof LayoutDailyTodosRoute
   LayoutEmailRoute: typeof LayoutEmailRouteWithChildren
   LayoutFinanceRoute: typeof LayoutFinanceRouteWithChildren
   LayoutItemsRoute: typeof LayoutItemsRoute
@@ -505,6 +525,7 @@ interface LayoutRouteChildren {
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
+  LayoutDailyTodosRoute: LayoutDailyTodosRoute,
   LayoutEmailRoute: LayoutEmailRouteWithChildren,
   LayoutFinanceRoute: LayoutFinanceRouteWithChildren,
   LayoutItemsRoute: LayoutItemsRoute,

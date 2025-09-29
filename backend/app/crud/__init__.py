@@ -21,6 +21,11 @@ from .todo import (
     get_todo_milestone,
     update_checklist_item,
     update_todo,
+    get_todos_for_date,
+    get_overdue_todos,
+    schedule_todo_for_date,
+    rollover_overdue_todos,
+    get_daily_schedule_summary,
 )
 from .account import (
     create_account,
@@ -123,6 +128,12 @@ __all__ = [
     "get_checklist_item",
     "get_checklist_items_by_todo",
     "update_checklist_item",
+    # Daily scheduling functions
+    "get_todos_for_date",
+    "get_overdue_todos",
+    "schedule_todo_for_date",
+    "rollover_overdue_todos",
+    "get_daily_schedule_summary",
     # Sprint functions
     "create_sprint",
     "delete_sprint",

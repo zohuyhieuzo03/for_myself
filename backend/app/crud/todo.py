@@ -1,8 +1,8 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Any
 
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 
 from app.models import (
     ChecklistItem,
@@ -144,3 +144,87 @@ def delete_checklist_item(*, session: Session, checklist_item_id: uuid.UUID) -> 
         session.delete(checklist_item)
         session.commit()
     return checklist_item
+
+
+# ========= DAILY SCHEDULING =========
+def get_todos_for_date(
+    *, session: Session, owner_id: uuid.UUID, target_date: date
+) -> list[Todo]:
+    """Get all todos scheduled for a specific date"""
+    statement = (
+        select(Todo)
+        .where(Todo.owner_id == owner_id)
+        .where(Todo.scheduled_date == target_date)
+        .where(Todo.status.in_(["todo", "doing", "planning"]))  # Only active statuses
+        .order_by(Todo.priority.desc(), Todo.created_at.asc())
+    )
+    todos = list(session.exec(statement).all())
+    return todos
+
+
+def get_overdue_todos(*, session: Session, owner_id: uuid.UUID) -> list[Todo]:
+    """Get todos that are overdue (scheduled for previous dates and not done/archived)"""
+    today = date.today()
+    statement = (
+        select(Todo)
+        .where(Todo.owner_id == owner_id)
+        .where(Todo.scheduled_date < today)
+        .where(Todo.status.in_(["todo", "doing", "planning"]))
+        .order_by(Todo.scheduled_date.desc(), Todo.priority.desc())
+    )
+    todos = list(session.exec(statement).all())
+    return todos
+
+
+def schedule_todo_for_date(
+    *, session: Session, todo_id: uuid.UUID, target_date: date
+) -> Todo | None:
+    """Schedule a todo for a specific date"""
+    todo = session.get(Todo, todo_id)
+    if not todo:
+        return None
+    
+    todo.scheduled_date = target_date
+    todo.updated_at = datetime.now(timezone.utc)
+    session.add(todo)
+    session.commit()
+    session.refresh(todo)
+    return todo
+
+
+def rollover_overdue_todos(*, session: Session, owner_id: uuid.UUID) -> list[Todo]:
+    """Roll over overdue todos to today"""
+    overdue_todos = get_overdue_todos(session=session, owner_id=owner_id)
+    today = date.today()
+    
+    for todo in overdue_todos:
+        todo.scheduled_date = today
+        todo.updated_at = datetime.now(timezone.utc)
+        session.add(todo)
+    
+    session.commit()
+    for todo in overdue_todos:
+        session.refresh(todo)
+    return overdue_todos
+
+
+def get_daily_schedule_summary(
+    *, session: Session, owner_id: uuid.UUID, days: int = 7
+) -> dict[date, int]:
+    """Get summary of scheduled todos for the next N days"""
+    from datetime import timedelta
+    
+    today = date.today()
+    end_date = today + timedelta(days=days)
+    
+    statement = (
+        select(Todo.scheduled_date, func.count(Todo.id))
+        .where(Todo.owner_id == owner_id)
+        .where(Todo.scheduled_date >= today)
+        .where(Todo.scheduled_date <= end_date)
+        .where(Todo.status.in_(["todo", "doing", "planning"]))
+        .group_by(Todo.scheduled_date)
+    )
+    
+    result = session.exec(statement).all()
+    return {row[0]: row[1] for row in result}
