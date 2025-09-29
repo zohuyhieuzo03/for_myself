@@ -3,6 +3,10 @@ FROM node:24
 
 WORKDIR /app
 
+# Accept build arguments
+ARG VITE_API_URL
+ARG NODE_ENV=development
+
 # Copy package files
 COPY package*.json /app/
 
@@ -11,6 +15,9 @@ RUN npm install
 
 # Copy source code
 COPY ./ /app/
+
+# Create .env file with the API URL
+RUN echo "VITE_API_URL=${VITE_API_URL}" > /app/.env
 
 # Expose Vite dev server port
 EXPOSE 5173
