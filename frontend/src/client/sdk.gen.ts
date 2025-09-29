@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailReconnectGmailConnectionData, GmailReconnectGmailConnectionResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsBatchData, GmailSyncEmailsBatchResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, GmailGetEmailTransactionsDashboardData, GmailGetEmailTransactionsDashboardResponse, GmailTriggerAutoSyncData, GmailTriggerAutoSyncResponse, GmailGetSchedulerStatusResponse, GmailStartSchedulerResponse, GmailStopSchedulerResponse, GmailTriggerSyncAllConnectionsData, GmailTriggerSyncAllConnectionsResponse, GmailCreateTransactionFromEmailData, GmailCreateTransactionFromEmailResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, ResourcesCreateResourceData, ResourcesCreateResourceResponse, ResourcesReadResourcesData, ResourcesReadResourcesResponse, ResourcesReadResourceData, ResourcesReadResourceResponse, ResourcesUpdateResourceData, ResourcesUpdateResourceResponse, ResourcesDeleteResourceData, ResourcesDeleteResourceResponse, ResourcesCreateResourceSubjectData, ResourcesCreateResourceSubjectResponse, ResourcesReadResourceSubjectsData, ResourcesReadResourceSubjectsResponse, ResourcesReadResourceSubjectData, ResourcesReadResourceSubjectResponse, ResourcesUpdateResourceSubjectData, ResourcesUpdateResourceSubjectResponse, ResourcesDeleteResourceSubjectData, ResourcesDeleteResourceSubjectResponse, ResourcesReorderResourceSubjectsData, ResourcesReorderResourceSubjectsResponse, RoadmapReadRoadmapsData, RoadmapReadRoadmapsResponse, RoadmapCreateRoadmapData, RoadmapCreateRoadmapResponse, RoadmapReadRoadmapData, RoadmapReadRoadmapResponse, RoadmapUpdateRoadmapData, RoadmapUpdateRoadmapResponse, RoadmapDeleteRoadmapData, RoadmapDeleteRoadmapResponse, RoadmapReadMilestonesData, RoadmapReadMilestonesResponse, RoadmapCreateMilestoneData, RoadmapCreateMilestoneResponse, RoadmapReorderMilestonesData, RoadmapReorderMilestonesResponse, RoadmapUpdateMilestoneData, RoadmapUpdateMilestoneResponse, RoadmapDeleteMilestoneData, RoadmapDeleteMilestoneResponse, RoadmapReadMilestoneTodosData, RoadmapReadMilestoneTodosResponse, RoadmapCreateMilestoneTodoData, RoadmapCreateMilestoneTodoResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadOverdueTodosResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TodosReadTodoChildrenData, TodosReadTodoChildrenResponse, TodosReadTodoParentData, TodosReadTodoParentResponse, TodosReadTodoMilestoneData, TodosReadTodoMilestoneResponse, TodosReadChecklistItemsData, TodosReadChecklistItemsResponse, TodosCreateChecklistItemEndpointData, TodosCreateChecklistItemEndpointResponse, TodosUpdateChecklistItemEndpointData, TodosUpdateChecklistItemEndpointResponse, TodosDeleteChecklistItemEndpointData, TodosDeleteChecklistItemEndpointResponse, TodosReadDailyTodosData, TodosReadDailyTodosResponse, TodosScheduleTodoEndpointData, TodosScheduleTodoEndpointResponse, TodosRolloverTodosEndpointResponse, TodosGetScheduleSummaryData, TodosGetScheduleSummaryResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { AccountsReadAccountsData, AccountsReadAccountsResponse, AccountsCreateAccountData, AccountsCreateAccountResponse, AccountsUpdateAccountData, AccountsUpdateAccountResponse, AccountsReadAccountData, AccountsReadAccountResponse, AccountsDeleteAccountData, AccountsDeleteAccountResponse, AllocationRulesReadAllocationRulesData, AllocationRulesReadAllocationRulesResponse, AllocationRulesCreateAllocationRuleData, AllocationRulesCreateAllocationRuleResponse, AllocationRulesUpdateAllocationRuleData, AllocationRulesUpdateAllocationRuleResponse, AllocationRulesReadAllocationRuleData, AllocationRulesReadAllocationRuleResponse, AllocationRulesDeleteAllocationRuleData, AllocationRulesDeleteAllocationRuleResponse, CategoriesReadCategoriesData, CategoriesReadCategoriesResponse, CategoriesCreateCategoryData, CategoriesCreateCategoryResponse, CategoriesUpdateCategoryData, CategoriesUpdateCategoryResponse, CategoriesReadCategoryData, CategoriesReadCategoryResponse, CategoriesDeleteCategoryData, CategoriesDeleteCategoryResponse, FeedbackCreateFeedbackData, FeedbackCreateFeedbackResponse, FeedbackReadFeedbacksData, FeedbackReadFeedbacksResponse, FeedbackReadFeedbackData, FeedbackReadFeedbackResponse, FeedbackUpdateFeedbackData, FeedbackUpdateFeedbackResponse, FeedbackDeleteFeedbackData, FeedbackDeleteFeedbackResponse, GmailGetGmailConnectionsData, GmailGetGmailConnectionsResponse, GmailInitiateGmailConnectionResponse, GmailHandleGmailCallbackData, GmailHandleGmailCallbackResponse, GmailReconnectGmailConnectionData, GmailReconnectGmailConnectionResponse, GmailUpdateGmailConnectionData, GmailUpdateGmailConnectionResponse, GmailDeleteGmailConnectionData, GmailDeleteGmailConnectionResponse, GmailGetEmailTransactionsData, GmailGetEmailTransactionsResponse, GmailSyncEmailsData, GmailSyncEmailsResponse, GmailSyncEmailsBatchData, GmailSyncEmailsBatchResponse, GmailSyncEmailsByMonthData, GmailSyncEmailsByMonthResponse, GmailUpdateEmailTransactionData, GmailUpdateEmailTransactionResponse, GmailDeleteEmailTransactionData, GmailDeleteEmailTransactionResponse, GmailGetEmailTransactionsDashboardData, GmailGetEmailTransactionsDashboardResponse, GmailTriggerAutoSyncData, GmailTriggerAutoSyncResponse, GmailGetSchedulerStatusResponse, GmailStartSchedulerResponse, GmailStopSchedulerResponse, GmailTriggerSyncAllConnectionsData, GmailTriggerSyncAllConnectionsResponse, GmailCreateTransactionFromEmailData, GmailCreateTransactionFromEmailResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, MonthlyReportsGetMonthlyFinancialSummaryData, MonthlyReportsGetMonthlyFinancialSummaryResponse, MonthlyReportsGetMonthlyFinancialReportData, MonthlyReportsGetMonthlyFinancialReportResponse, MonthlyReportsGetMonthlyFinancialReportsRangeData, MonthlyReportsGetMonthlyFinancialReportsRangeResponse, PrivateCreateUserData, PrivateCreateUserResponse, ResourcesCreateResourceData, ResourcesCreateResourceResponse, ResourcesReadResourcesData, ResourcesReadResourcesResponse, ResourcesReadResourceData, ResourcesReadResourceResponse, ResourcesUpdateResourceData, ResourcesUpdateResourceResponse, ResourcesDeleteResourceData, ResourcesDeleteResourceResponse, ResourcesCreateResourceSubjectData, ResourcesCreateResourceSubjectResponse, ResourcesReadResourceSubjectsData, ResourcesReadResourceSubjectsResponse, ResourcesReadResourceSubjectData, ResourcesReadResourceSubjectResponse, ResourcesUpdateResourceSubjectData, ResourcesUpdateResourceSubjectResponse, ResourcesDeleteResourceSubjectData, ResourcesDeleteResourceSubjectResponse, ResourcesReorderResourceSubjectsData, ResourcesReorderResourceSubjectsResponse, RoadmapReadRoadmapsData, RoadmapReadRoadmapsResponse, RoadmapCreateRoadmapData, RoadmapCreateRoadmapResponse, RoadmapReadRoadmapData, RoadmapReadRoadmapResponse, RoadmapUpdateRoadmapData, RoadmapUpdateRoadmapResponse, RoadmapDeleteRoadmapData, RoadmapDeleteRoadmapResponse, RoadmapReadMilestonesData, RoadmapReadMilestonesResponse, RoadmapCreateMilestoneData, RoadmapCreateMilestoneResponse, RoadmapReorderMilestonesData, RoadmapReorderMilestonesResponse, RoadmapUpdateMilestoneData, RoadmapUpdateMilestoneResponse, RoadmapDeleteMilestoneData, RoadmapDeleteMilestoneResponse, RoadmapReadMilestoneTodosData, RoadmapReadMilestoneTodosResponse, RoadmapCreateMilestoneTodoData, RoadmapCreateMilestoneTodoResponse, TodosReadTodosData, TodosReadTodosResponse, TodosCreateTodoEndpointData, TodosCreateTodoEndpointResponse, TodosReadOverdueTodosResponse, TodosReadTodoData, TodosReadTodoResponse, TodosUpdateTodoEndpointData, TodosUpdateTodoEndpointResponse, TodosDeleteTodoEndpointData, TodosDeleteTodoEndpointResponse, TodosReadTodoChildrenData, TodosReadTodoChildrenResponse, TodosReadTodoParentData, TodosReadTodoParentResponse, TodosReadTodoMilestoneData, TodosReadTodoMilestoneResponse, TodosReadChecklistItemsData, TodosReadChecklistItemsResponse, TodosCreateChecklistItemEndpointData, TodosCreateChecklistItemEndpointResponse, TodosUpdateChecklistItemEndpointData, TodosUpdateChecklistItemEndpointResponse, TodosDeleteChecklistItemEndpointData, TodosDeleteChecklistItemEndpointResponse, TodosReadDailyTodosData, TodosReadDailyTodosResponse, TodosScheduleTodoEndpointData, TodosScheduleTodoEndpointResponse, TodosRolloverTodosEndpointResponse, TodosGetScheduleSummaryData, TodosGetScheduleSummaryResponse, TransactionsReadTransactionsData, TransactionsReadTransactionsResponse, TransactionsCreateTransactionData, TransactionsCreateTransactionResponse, TransactionsUpdateTransactionData, TransactionsUpdateTransactionResponse, TransactionsReadTransactionData, TransactionsReadTransactionResponse, TransactionsDeleteTransactionData, TransactionsDeleteTransactionResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class AccountsService {
     /**
@@ -330,6 +330,112 @@ export class CategoriesService {
             url: '/api/v1/categories/{category_id}',
             path: {
                 category_id: data.categoryId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class FeedbackService {
+    /**
+     * Create Feedback
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns FeedbackPublic Successful Response
+     * @throws ApiError
+     */
+    public static createFeedback(data: FeedbackCreateFeedbackData): CancelablePromise<FeedbackCreateFeedbackResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/api/v1/feedback/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Feedbacks
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns FeedbacksPublic Successful Response
+     * @throws ApiError
+     */
+    public static readFeedbacks(data: FeedbackReadFeedbacksData = {}): CancelablePromise<FeedbackReadFeedbacksResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/api/v1/feedback/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Feedback
+     * @param data The data for the request.
+     * @param data.feedbackId
+     * @returns FeedbackPublic Successful Response
+     * @throws ApiError
+     */
+    public static readFeedback(data: FeedbackReadFeedbackData): CancelablePromise<FeedbackReadFeedbackResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/api/v1/feedback/{feedback_id}',
+            path: {
+                feedback_id: data.feedbackId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Feedback
+     * @param data The data for the request.
+     * @param data.feedbackId
+     * @param data.requestBody
+     * @returns FeedbackPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateFeedback(data: FeedbackUpdateFeedbackData): CancelablePromise<FeedbackUpdateFeedbackResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/api/v1/feedback/{feedback_id}',
+            path: {
+                feedback_id: data.feedbackId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Feedback
+     * @param data The data for the request.
+     * @param data.feedbackId
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static deleteFeedback(data: FeedbackDeleteFeedbackData): CancelablePromise<FeedbackDeleteFeedbackResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/api/v1/feedback/{feedback_id}',
+            path: {
+                feedback_id: data.feedbackId
             },
             errors: {
                 422: 'Validation Error'

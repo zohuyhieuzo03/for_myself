@@ -175,6 +175,30 @@ export type EmailTxnMonthlyAmount = {
     total_amount?: number;
 };
 
+export type FeedbackCreate = {
+    title: string;
+    description?: (string | null);
+};
+
+export type FeedbackPublic = {
+    title: string;
+    description?: (string | null);
+    id: string;
+    user_id: string;
+    created_at: string;
+    updated_at: string;
+};
+
+export type FeedbacksPublic = {
+    data: Array<FeedbackPublic>;
+    count: number;
+};
+
+export type FeedbackUpdate = {
+    title?: (string | null);
+    description?: (string | null);
+};
+
 export type GmailConnectionPublic = {
     gmail_email: string;
     is_active?: boolean;
@@ -659,6 +683,38 @@ export type CategoriesDeleteCategoryData = {
 };
 
 export type CategoriesDeleteCategoryResponse = (Message);
+
+export type FeedbackCreateFeedbackData = {
+    requestBody: FeedbackCreate;
+};
+
+export type FeedbackCreateFeedbackResponse = (FeedbackPublic);
+
+export type FeedbackReadFeedbacksData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type FeedbackReadFeedbacksResponse = (FeedbacksPublic);
+
+export type FeedbackReadFeedbackData = {
+    feedbackId: string;
+};
+
+export type FeedbackReadFeedbackResponse = (FeedbackPublic);
+
+export type FeedbackUpdateFeedbackData = {
+    feedbackId: string;
+    requestBody: FeedbackUpdate;
+};
+
+export type FeedbackUpdateFeedbackResponse = (FeedbackPublic);
+
+export type FeedbackDeleteFeedbackData = {
+    feedbackId: string;
+};
+
+export type FeedbackDeleteFeedbackResponse = (unknown);
 
 export type GmailGetGmailConnectionsData = {
     limit?: number;

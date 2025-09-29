@@ -104,6 +104,13 @@ from .resource import (
     update_resource_subject,
     reorder_resource_subjects,
 )
+from .feedback import (
+    create_feedback,
+    delete_feedback,
+    get_feedback,
+    get_feedbacks,
+    update_feedback,
+)
 
 __all__ = [
     # User functions
@@ -212,4 +219,10 @@ __all__ = [
     "get_resource_subjects",
     "update_resource_subject",
     "reorder_resource_subjects",
+    # Feedback functions
+    "create_feedback",
+    "delete_feedback",
+    "get_feedback",
+    "get_feedbacks",
+    "update_feedback",
 ]

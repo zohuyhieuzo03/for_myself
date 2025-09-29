@@ -5,6 +5,7 @@ import { FiLogOut, FiUser } from "react-icons/fi"
 
 import useAuth from "@/hooks/useAuth"
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "../ui/menu"
+import FeedbackButton from "./FeedbackButton"
 
 const UserMenu = () => {
   const { user, logout } = useAuth()
@@ -16,7 +17,8 @@ const UserMenu = () => {
   return (
     <>
       {/* Desktop */}
-      <Flex>
+      <Flex gap={2} alignItems="center">
+        <FeedbackButton />
         <MenuRoot>
           <MenuTrigger asChild p={2}>
             <Button data-testid="user-menu" variant="solid" maxW="sm" truncate>

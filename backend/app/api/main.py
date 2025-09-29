@@ -4,6 +4,7 @@ from app.api.routes import (
     accounts,
     allocation_rules,
     categories,
+    feedback,
     gmail,
     items,
     login,
@@ -32,6 +33,7 @@ api_router.include_router(monthly_reports.router, prefix="/monthly-reports", tag
 api_router.include_router(roadmap.router)
 api_router.include_router(resources.router, prefix="/resources", tags=["resources"])
 api_router.include_router(gmail.router)
+api_router.include_router(feedback.router)
 
 
 if settings.ENVIRONMENT == "local":
