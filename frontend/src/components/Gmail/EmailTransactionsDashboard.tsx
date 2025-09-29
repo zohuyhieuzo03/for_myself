@@ -9,7 +9,7 @@ import TransactionDashboard from "@/components/Common/TransactionDashboard"
 type FilterType = "all" | "month" | "last7" | "last30" | "custom"
 
 export default function EmailTransactionsDashboard() {
-  const [filterType, setFilterType] = useState<FilterType>("all")
+  const [filterType, setFilterType] = useState<FilterType>("last30")
   const [selectedMonth, setSelectedMonth] = useState<string>("")
   const [selectedConnectionId, setSelectedConnectionId] = useState<string>("")
   const [startDate, setStartDate] = useState<string>("")

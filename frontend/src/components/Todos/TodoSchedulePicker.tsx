@@ -1,17 +1,11 @@
+import { Badge, Box, Button, Flex, HStack, Text, VStack } from "@chakra-ui/react"
 import {
-  Badge,
-  Box,
-  Button,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogRoot,
   DialogTitle,
-  Flex,
-  HStack,
-  Text,
-  VStack,
-} from "@chakra-ui/react"
+} from "@/components/ui/dialog"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { Calendar } from "react-date-range"

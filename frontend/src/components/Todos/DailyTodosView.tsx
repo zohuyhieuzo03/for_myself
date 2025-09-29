@@ -18,11 +18,7 @@ import { type TodoPublic, TodosService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import TodoDetailWrapper from "@/components/Todos/TodoDetailWrapper"
 import TodoSchedulePicker from "@/components/Todos/TodoSchedulePicker"
-import {
-  DialogContent,
-  DialogRoot,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+// removed DialogTrigger import since not used after simplifying dialog structure
 import useCustomToast from "@/hooks/useCustomToast"
 import { formatDate, handleError } from "@/utils"
 import { getPriorityConfig, getStatusConfig } from "@/utils/todoHelpers"
@@ -211,7 +207,13 @@ export default function DailyTodosView({
 
           {!pickerMode && (
             <HStack gap={2}>
-              <Button variant="outline" onClick={onPickerOpen}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setPickerDate(displayDate)
+                  onPickerOpen()
+                }}
+              >
                 <FiCalendar style={{ marginRight: "8px" }} />
                 Schedule Todo
               </Button>
@@ -311,7 +313,12 @@ export default function DailyTodosView({
               <Box p={8} textAlign="center" color="gray.500">
                 <Text mb={4}>No todos scheduled for this day</Text>
                 {!pickerMode && (
-                  <Button onClick={onPickerOpen}>
+                  <Button
+                    onClick={() => {
+                      setPickerDate(displayDate)
+                      onPickerOpen()
+                    }}
+                  >
                     <FiPlus style={{ marginRight: "8px" }} />
                     Schedule a Todo
                   </Button>
@@ -331,21 +338,13 @@ export default function DailyTodosView({
         </Box>
 
         {/* Schedule Todo Dialog */}
-        <DialogRoot
+        <TodoSchedulePicker
           open={isPickerOpen}
-          onOpenChange={(e) => (e.open ? onPickerOpen() : onPickerClose())}
-        >
-          <DialogTrigger asChild />
-          <DialogContent>
-            <TodoSchedulePicker
-              open={isPickerOpen}
-              onClose={onPickerClose}
-              selectedDate={pickerDate}
-              onDateChange={setPickerDate}
-              mode="schedule_existing"
-            />
-          </DialogContent>
-        </DialogRoot>
+          onClose={onPickerClose}
+          selectedDate={pickerDate}
+          onDateChange={setPickerDate}
+          mode="schedule_existing"
+        />
 
         {/* Todo Detail Dialog */}
         <TodoDetailWrapper

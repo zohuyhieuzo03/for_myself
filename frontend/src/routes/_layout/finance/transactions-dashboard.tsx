@@ -17,7 +17,7 @@ type FilterType = "all" | "month" | "last7" | "last30" | "custom"
 type TransactionType = "all" | "expense" | "income"
 
 function TransactionsDashboardPage() {
-  const [filterType, setFilterType] = useState<FilterType>("all")
+  const [filterType, setFilterType] = useState<FilterType>("last30")
   const [selectedMonth, setSelectedMonth] = useState<string>("")
   const [selectedAccountId, setSelectedAccountId] = useState<string>("")
   const [transactionType, setTransactionType] = useState<TransactionType>("all")
