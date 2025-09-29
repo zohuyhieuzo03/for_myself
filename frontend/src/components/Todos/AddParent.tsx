@@ -1,4 +1,4 @@
-import { Button, HStack, Input, Text, VStack } from "@chakra-ui/react"
+import { Button, HStack, Input, VStack } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 
@@ -62,7 +62,7 @@ export default function AddParent({ todo, hasParent }: AddParentProps) {
 
   return (
     <VStack gap={2} align="stretch">
-      <HStack gap={2}>
+      <VStack gap={2} align="stretch">
         <Input
           value={newParentTitle}
           onChange={(e) => setNewParentTitle(e.target.value)}
@@ -74,34 +74,30 @@ export default function AddParent({ todo, hasParent }: AddParentProps) {
             }
           }}
         />
-        <Button
-          size="sm"
-          variant="solid"
-          onClick={() =>
-            newParentTitle.trim() &&
-            createParentAndAssignMutation.mutate(newParentTitle.trim())
-          }
-          loading={createParentAndAssignMutation.isPending}
-        >
-          Create & Add
-        </Button>
-      </HStack>
-
-      <HStack gap={2} justify="center">
-        <Text fontSize="sm" color="gray.500">
-          or
-        </Text>
-      </HStack>
-
-      <TodoSearchDialog
-        onSelectTodo={(selectedTodo) =>
-          assignExistingParentMutation.mutate(selectedTodo)
-        }
-        excludeIds={[todo.id]} // Exclude current todo and its children
-        triggerText="Select Existing Parent"
-        title="Select Parent Todo"
-        placeholder="Search for parent todo..."
-      />
+        <HStack gap={2}>
+          <Button
+            size="sm"
+            variant="solid"
+            onClick={() =>
+              newParentTitle.trim() &&
+              createParentAndAssignMutation.mutate(newParentTitle.trim())
+            }
+            loading={createParentAndAssignMutation.isPending}
+            flex={1}
+          >
+            Create & Add
+          </Button>
+          <TodoSearchDialog
+            onSelectTodo={(selectedTodo) =>
+              assignExistingParentMutation.mutate(selectedTodo)
+            }
+            excludeIds={[todo.id]} // Exclude current todo and its children
+            triggerText="Select Existing"
+            title="Select Parent Todo"
+            placeholder="Search for parent todo..."
+          />
+        </HStack>
+      </VStack>
     </VStack>
   )
 }

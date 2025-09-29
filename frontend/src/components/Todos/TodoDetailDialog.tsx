@@ -102,7 +102,7 @@ export default function TodoDetailDialog({
           estimate_minutes: data.estimate_minutes,
           priority: data.priority,
           type: data.type,
-          scheduled_date: data.scheduled_date,
+          scheduled_date: data.scheduled_date && data.scheduled_date.trim() !== "" ? data.scheduled_date : null,
         },
       })
       // Checklist CRUD is handled inline by ChecklistManager
@@ -147,6 +147,7 @@ export default function TodoDetailDialog({
   const handleChildUnlinked = () => {
     queryClient.invalidateQueries({ queryKey: ["todos", todo.id, "children"] })
   }
+
 
   return (
     <DialogRoot

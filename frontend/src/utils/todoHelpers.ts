@@ -1,0 +1,55 @@
+import { 
+  FiCheckCircle, 
+  FiPlay, 
+  FiArchive, 
+  FiClock,
+  FiAlertTriangle,
+  FiAlertCircle,
+  FiInfo
+} from "react-icons/fi"
+
+export interface StatusConfig {
+  color: string
+  icon: React.ComponentType<{ size?: number }>
+  label: string
+}
+
+export interface PriorityConfig {
+  color: string
+  icon: React.ComponentType<{ size?: number }>
+  label: string
+}
+
+export const getStatusConfig = (status: string): StatusConfig => {
+  switch (status) {
+    case "backlog":
+      return { color: "gray", icon: FiArchive, label: "Backlog" }
+    case "todo":
+      return { color: "blue", icon: FiClock, label: "Todo" }
+    case "planning":
+      return { color: "purple", icon: FiInfo, label: "Planning" }
+    case "doing":
+      return { color: "orange", icon: FiPlay, label: "Doing" }
+    case "done":
+      return { color: "green", icon: FiCheckCircle, label: "Done" }
+    case "archived":
+      return { color: "red", icon: FiArchive, label: "Archived" }
+    default:
+      return { color: "gray", icon: FiClock, label: status }
+  }
+}
+
+export const getPriorityConfig = (priority: string): PriorityConfig => {
+  switch (priority) {
+    case "low":
+      return { color: "green", icon: FiInfo, label: "Low" }
+    case "medium":
+      return { color: "yellow", icon: FiAlertCircle, label: "Medium" }
+    case "high":
+      return { color: "orange", icon: FiAlertTriangle, label: "High" }
+    case "urgent":
+      return { color: "red", icon: FiAlertTriangle, label: "Urgent" }
+    default:
+      return { color: "gray", icon: FiInfo, label: priority }
+  }
+}

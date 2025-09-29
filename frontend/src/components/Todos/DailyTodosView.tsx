@@ -21,6 +21,7 @@ import TodoDetailWrapper from "@/components/Todos/TodoDetailWrapper"
 import TodoSchedulePicker from "@/components/Todos/TodoSchedulePicker"
 import useCustomToast from "@/hooks/useCustomToast"
 import { formatDate, handleError } from "@/utils"
+import { getStatusConfig, getPriorityConfig } from "@/utils/todoHelpers"
 
 interface DailyTodosViewProps {
   selectedId: string | null
@@ -104,55 +105,75 @@ export default function DailyTodosView({
     todo: TodoPublic, 
     onClick: () => void, 
     isSelected: boolean 
-  }) => (
-    <Box
-      cursor="pointer"
-      onClick={onClick}
-      bg={isSelected ? "blue.50" : "white"}
-      borderColor={isSelected ? "blue.200" : "gray.200"}
-      borderWidth={isSelected ? "2px" : "1px"}
-      _hover={{ 
-        bg: isSelected ? "blue.50" : "gray.50",
-        borderColor: "blue.300"
-      }}
-      p={4}
-      borderRadius="md"
-      w="full"
-    >
-      <Flex justify="space-between" align="center">
-        <VStack align="start" gap={1} flex={1}>
-          <Text fontWeight="bold" color={overdueTodosList.includes(todo) ? "red.600" : "inherit"}>
-            {todo.title}
-          </Text>
-          <HStack gap={4} fontSize="sm" color="gray.600">
-            <HStack gap={1}>
-              <FiCalendar />
-              <Text>
-                {overdueTodosList.includes(todo) ? "Overdue" : formatDate(displayDate)}
-              </Text>
-            </HStack>
-            {todo.estimate_minutes && (
+  }) => {
+    const statusConfig = getStatusConfig(todo.status || "todo")
+    const priorityConfig = getPriorityConfig(todo.priority || "medium")
+    const StatusIcon = statusConfig.icon
+    const PriorityIcon = priorityConfig.icon
+
+    return (
+      <Box
+        cursor="pointer"
+        onClick={onClick}
+        bg={isSelected ? "blue.50" : "white"}
+        borderColor={isSelected ? "blue.200" : "gray.200"}
+        borderWidth={isSelected ? "2px" : "1px"}
+        _hover={{ 
+          bg: isSelected ? "blue.50" : "gray.50",
+          borderColor: "blue.300"
+        }}
+        p={4}
+        borderRadius="md"
+        w="full"
+      >
+        <Flex justify="space-between" align="center">
+          <VStack align="start" gap={1} flex={1}>
+            <Text fontWeight="bold" color={overdueTodosList.includes(todo) ? "red.600" : "inherit"}>
+              {todo.title}
+            </Text>
+            <HStack gap={4} fontSize="sm" color="gray.600">
               <HStack gap={1}>
-                <FiClock />
-                <Text>{todo.estimate_minutes}m</Text>
+                <FiCalendar />
+                <Text>
+                  {overdueTodosList.includes(todo) ? "Overdue" : formatDate(displayDate)}
+                </Text>
               </HStack>
-            )}
+              {todo.estimate_minutes && (
+                <HStack gap={1}>
+                  <FiClock />
+                  <Text>{todo.estimate_minutes}m</Text>
+                </HStack>
+              )}
+            </HStack>
+          </VStack>
+          
+          <HStack gap={2}>
+            <Badge
+              colorPalette={statusConfig.color}
+              size="sm"
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
+              <StatusIcon size={14} />
+              {statusConfig.label}
+            </Badge>
+            <Badge
+              colorPalette={priorityConfig.color}
+              size="sm"
+              variant="subtle"
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
+              <PriorityIcon size={14} />
+              {priorityConfig.label}
+            </Badge>
           </HStack>
-        </VStack>
-        
-        <Badge 
-          colorScheme={
-            todo.status === "doing" ? "blue" : 
-            todo.status === "done" ? "green" : 
-            todo.status === "archived" ? "gray" : "orange"
-          } 
-          variant="subtle"
-        >
-          {todo.status}
-        </Badge>
-      </Flex>
-    </Box>
-  )
+        </Flex>
+      </Box>
+    )
+  }
 
   return (
     <Container maxW="container.xl" py={6}>

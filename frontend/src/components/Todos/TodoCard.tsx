@@ -7,6 +7,7 @@ import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { formatDateTimeShort, formatDate, handleError } from "@/utils"
+import { getStatusConfig, getPriorityConfig } from "@/utils/todoHelpers"
 
 interface TodoCardProps {
   todo: TodoPublic
@@ -62,39 +63,6 @@ export default function TodoCard({
     unlinkMutation.mutate()
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "backlog":
-        return "gray"
-      case "todo":
-        return "blue"
-      case "planning":
-        return "purple"
-      case "doing":
-        return "orange"
-      case "done":
-        return "green"
-      case "archived":
-        return "red"
-      default:
-        return "gray"
-    }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "low":
-        return "green"
-      case "medium":
-        return "yellow"
-      case "high":
-        return "orange"
-      case "urgent":
-        return "red"
-      default:
-        return "gray"
-    }
-  }
 
   if (compact) {
     return (
@@ -128,19 +96,39 @@ export default function TodoCard({
             </Text>
             <VStack gap={1} align="start">
               <HStack gap={2}>
-                <Badge
-                  colorPalette={getStatusColor(todo.status || "todo")}
-                  size="xs"
-                >
-                  {todo.status || "todo"}
-                </Badge>
-                <Badge
-                  colorPalette={getPriorityColor(todo.priority || "medium")}
-                  size="xs"
-                  variant="subtle"
-                >
-                  {todo.priority || "medium"}
-                </Badge>
+                {(() => {
+                  const statusConfig = getStatusConfig(todo.status || "todo")
+                  const StatusIcon = statusConfig.icon
+                  return (
+                    <Badge
+                      colorPalette={statusConfig.color}
+                      size="xs"
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                    >
+                      <StatusIcon size={12} />
+                      {statusConfig.label}
+                    </Badge>
+                  )
+                })()}
+                {(() => {
+                  const priorityConfig = getPriorityConfig(todo.priority || "medium")
+                  const PriorityIcon = priorityConfig.icon
+                  return (
+                    <Badge
+                      colorPalette={priorityConfig.color}
+                      size="xs"
+                      variant="subtle"
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                    >
+                      <PriorityIcon size={12} />
+                      {priorityConfig.label}
+                    </Badge>
+                  )
+                })()}
               </HStack>
               {todo.scheduled_date && (
                 <HStack gap={1} align="center">
@@ -221,19 +209,39 @@ export default function TodoCard({
           </VStack>
           <VStack gap={1} align="end">
             <HStack gap={1}>
-              <Badge
-                colorPalette={getStatusColor(todo.status || "todo")}
-                size="sm"
-              >
-                {todo.status || "todo"}
-              </Badge>
-              <Badge
-                colorPalette={getPriorityColor(todo.priority || "medium")}
-                size="sm"
-                variant="subtle"
-              >
-                {todo.priority || "medium"}
-              </Badge>
+              {(() => {
+                const statusConfig = getStatusConfig(todo.status || "todo")
+                const StatusIcon = statusConfig.icon
+                return (
+                  <Badge
+                    colorPalette={statusConfig.color}
+                    size="sm"
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                  >
+                    <StatusIcon size={14} />
+                    {statusConfig.label}
+                  </Badge>
+                )
+              })()}
+              {(() => {
+                const priorityConfig = getPriorityConfig(todo.priority || "medium")
+                const PriorityIcon = priorityConfig.icon
+                return (
+                  <Badge
+                    colorPalette={priorityConfig.color}
+                    size="sm"
+                    variant="subtle"
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                  >
+                    <PriorityIcon size={14} />
+                    {priorityConfig.label}
+                  </Badge>
+                )
+              })()}
             </HStack>
             {showUnlinkButton && (
               <Button
