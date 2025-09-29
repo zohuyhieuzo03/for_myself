@@ -2,6 +2,7 @@ import { Button, ButtonGroup, Input, Text, VStack } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
+import { FiCalendar } from "react-icons/fi"
 
 import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
@@ -59,6 +60,7 @@ export default function TodoDetailDialog({
       estimate_minutes: todo.estimate_minutes || undefined,
       priority: todo.priority || "medium",
       type: todo.type || "task",
+      scheduled_date: todo.scheduled_date ? new Date(todo.scheduled_date).toISOString().split('T')[0] : undefined,
     },
   })
 
@@ -72,6 +74,7 @@ export default function TodoDetailDialog({
       estimate_minutes: todo.estimate_minutes || undefined,
       priority: todo.priority || "medium",
       type: todo.type || "task",
+      scheduled_date: todo.scheduled_date ? new Date(todo.scheduled_date).toISOString().split('T')[0] : undefined,
     })
   }, [open, reset, todo])
 
@@ -99,6 +102,7 @@ export default function TodoDetailDialog({
           estimate_minutes: data.estimate_minutes,
           priority: data.priority,
           type: data.type,
+          scheduled_date: data.scheduled_date,
         },
       })
       // Checklist CRUD is handled inline by ChecklistManager
@@ -299,6 +303,34 @@ export default function TodoDetailDialog({
                     </option>
                   ))}
                 </select>
+              </Field>
+
+              <Field
+                invalid={!!errors.scheduled_date}
+                errorText={errors.scheduled_date?.message}
+                label="Scheduled Date"
+              >
+                <div style={{ position: "relative", width: "100%" }}>
+                  <FiCalendar 
+                    style={{ 
+                      position: "absolute", 
+                      left: "8px", 
+                      top: "50%", 
+                      transform: "translateY(-50%)", 
+                      color: "#718096",
+                      pointerEvents: "none" 
+                    }} 
+                    size={16}
+                  />
+                  <Input
+                    {...register("scheduled_date")}
+                    placeholder="Select scheduled date"
+                    type="date"
+                    style={{
+                      paddingLeft: "36px",
+                    }}
+                  />
+                </div>
               </Field>
 
               <Field label="Checklist">

@@ -1118,6 +1118,8 @@ export type TodosCreateTodoEndpointData = {
 
 export type TodosCreateTodoEndpointResponse = (TodoPublic);
 
+export type TodosReadOverdueTodosResponse = (TodosPublic);
+
 export type TodosReadTodoData = {
     id: string;
 };
@@ -1186,8 +1188,6 @@ export type TodosReadDailyTodosData = {
 };
 
 export type TodosReadDailyTodosResponse = (TodosPublic);
-
-export type TodosReadOverdueTodosResponse = (TodosPublic);
 
 export type TodosScheduleTodoEndpointData = {
     date: string;

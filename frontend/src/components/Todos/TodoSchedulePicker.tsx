@@ -138,8 +138,29 @@ export default function TodoSchedulePicker({
           <VStack gap={6} align="stretch">
             {/* Calendar Section */}
             <Box>
-              <Text fontWeight="bold" mb={3}>Select Date</Text>
-              <Box p={2} bg="white" borderRadius="md" border="1px solid" borderColor="gray.200">
+              <Flex justify="space-between" align="center" mb={3}>
+                <Text fontWeight="bold" fontSize="lg">Select Date</Text>
+                <Box px={3} py={1} bg="blue.50" borderRadius="lg" border="1px solid" borderColor="blue.200">
+                  <Text fontSize="sm" fontWeight="medium" color="blue.700">
+                    {selectedDate.toLocaleDateString("en-US", { 
+                      weekday: "long", 
+                      month: "short", 
+                      day: "numeric",
+                      year: "numeric"
+                    })}
+                  </Text>
+                </Box>
+              </Flex>
+              
+              <Box 
+                p={3} 
+                bg="white" 
+                borderRadius="lg" 
+                border="1px solid" 
+                borderColor="gray.200"
+                _hover={{ borderColor: "blue.300", boxShadow: "sm" }}
+                transition="all 0.2s"
+              >
                 <Calendar
                   date={selectedDate}
                   onChange={(date) => onDateChange(date || selectedDate)}
@@ -147,6 +168,42 @@ export default function TodoSchedulePicker({
                   color="#3182ce"
                 />
               </Box>
+              
+              {/* Quick Date Buttons */}
+              <Flex gap={2} mt={3} flexWrap="wrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorScheme="blue"
+                  onClick={() => onDateChange(new Date())}
+                >
+                  Today
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorScheme="blue"
+                  onClick={() => {
+                    const tomorrow = new Date()
+                    tomorrow.setDate(tomorrow.getDate() + 1)
+                    onDateChange(tomorrow)
+                  }}
+                >
+                  Tomorrow
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorScheme="blue"
+                  onClick={() => {
+                    const nextWeek = new Date()
+                    nextWeek.setDate(nextWeek.getDate() + 7)
+                    onDateChange(nextWeek)
+                  }}
+                >
+                  Next Week
+                </Button>
+              </Flex>
             </Box>
 
             {/* Mode Toggle */}
@@ -159,8 +216,8 @@ export default function TodoSchedulePicker({
                   colorScheme={currentMode === "create_new" ? "purple" : "gray"}
                   onClick={() => setCurrentMode("create_new")}
                   flex={1}
-                  leftIcon={<FiPlus />}
                 >
+                  <FiPlus style={{ marginRight: "8px" }} />
                   Create New Todo
                 </Button>
                 <Button
@@ -169,20 +226,39 @@ export default function TodoSchedulePicker({
                   colorScheme={currentMode === "schedule_existing" ? "green" : "gray"}
                   onClick={() => setCurrentMode("schedule_existing")}
                   flex={1}
-                  leftIcon={<FiCalendar />}
                 >
+                  <FiCalendar style={{ marginRight: "8px" }} />
                   Schedule Existing
                 </Button>
               </HStack>
             </Box>
 
             {/* Selected Date Display */}
-            <Box p={3} bg="blue.50" borderRadius="md" border="1px solid" borderColor="blue.200">
-              <HStack>
-                <FiCalendar color="var(--chakra-colors-blue-600)" />
-                <Text fontWeight="bold" color="blue.700">
-                  Scheduling for: {formatDate(selectedDate)}
-                </Text>
+            <Box 
+              p={4} 
+              bg="gradient-to-r from-blue.50 to-indigo.50" 
+              borderRadius="lg" 
+              border="1px solid" 
+              borderColor="blue.200"
+              boxShadow="sm"
+            >
+              <HStack gap={3}>
+                <Box p={2} bg="blue.500" borderRadius="md">
+                  <FiCalendar color="white" size={16} />
+                </Box>
+                <VStack align="start" gap={0}>
+                  <Text fontSize="sm" color="blue.600" fontWeight="medium">
+                    Scheduling for:
+                  </Text>
+                  <Text fontWeight="bold" color="blue.800" fontSize="lg">
+                    {selectedDate.toLocaleDateString("en-US", { 
+                      weekday: "long", 
+                      year: "numeric", 
+                      month: "long", 
+                      day: "numeric" 
+                    })}
+                  </Text>
+                </VStack>
               </HStack>
             </Box>
 
@@ -275,8 +351,8 @@ export default function TodoSchedulePicker({
                   loading={scheduleMutation.isPending}
                   onClick={() => handleScheduleSingle(selectedTodoIds[0])}
                   disabled={selectedTodoIds.length !== 1}
-                  leftIcon={<FiCalendar />}
                 >
+                  <FiCalendar style={{ marginRight: "8px" }} />
                   Schedule Selected ({selectedTodoIds.length})
                 </Button>
                 
@@ -285,8 +361,8 @@ export default function TodoSchedulePicker({
                   loading={scheduleMutation.isPending}
                   onClick={handleScheduleMultiple}
                   disabled={selectedTodoIds.length === 0}
-                  leftIcon={<FiCheck />}
                 >
+                  <FiCheck style={{ marginRight: "8px" }} />
                   Schedule All ({selectedTodoIds.length})
                 </Button>
               </HStack>

@@ -1,12 +1,12 @@
 import { Badge, Box, Button, HStack, Text, VStack } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { FiX } from "react-icons/fi"
+import { FiX, FiCalendar } from "react-icons/fi"
 
 import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
-import { formatDateTimeShort, handleError } from "@/utils"
+import { formatDateTimeShort, formatDate, handleError } from "@/utils"
 
 interface TodoCardProps {
   todo: TodoPublic
@@ -126,21 +126,31 @@ export default function TodoCard({
             >
               {todo.title}
             </Text>
-            <HStack gap={2}>
-              <Badge
-                colorPalette={getStatusColor(todo.status || "todo")}
-                size="xs"
-              >
-                {todo.status || "todo"}
-              </Badge>
-              <Badge
-                colorPalette={getPriorityColor(todo.priority || "medium")}
-                size="xs"
-                variant="subtle"
-              >
-                {todo.priority || "medium"}
-              </Badge>
-            </HStack>
+            <VStack gap={1} align="start">
+              <HStack gap={2}>
+                <Badge
+                  colorPalette={getStatusColor(todo.status || "todo")}
+                  size="xs"
+                >
+                  {todo.status || "todo"}
+                </Badge>
+                <Badge
+                  colorPalette={getPriorityColor(todo.priority || "medium")}
+                  size="xs"
+                  variant="subtle"
+                >
+                  {todo.priority || "medium"}
+                </Badge>
+              </HStack>
+              {todo.scheduled_date && (
+                <HStack gap={1} align="center">
+                  <FiCalendar size={12} color="var(--chakra-colors-blue-500)" />
+                  <Text fontSize="xs" color="blue.500" fontWeight="medium">
+                    {formatDate(new Date(todo.scheduled_date))}
+                  </Text>
+                </HStack>
+              )}
+            </VStack>
           </VStack>
           {showUnlinkButton && (
             <Button
@@ -242,16 +252,26 @@ export default function TodoCard({
           </VStack>
         </HStack>
 
-        {/* Footer with type and estimate */}
+        {/* Footer with type, estimate, and scheduled date */}
         <HStack justify="space-between" align="center">
           <Text fontSize="xs" color="gray.500">
             {todo.type || "task"}
           </Text>
-          {todo.estimate_minutes && (
-            <Text fontSize="xs" color="gray.500">
-              {todo.estimate_minutes}m
-            </Text>
-          )}
+          <HStack gap={2}>
+            {todo.estimate_minutes && (
+              <Text fontSize="xs" color="gray.500">
+                {todo.estimate_minutes}m
+              </Text>
+            )}
+            {todo.scheduled_date && (
+              <HStack gap={1} align="center">
+                <FiCalendar size={12} color="var(--chakra-colors-blue-500)" />
+                <Text fontSize="xs" color="blue.500" fontWeight="medium">
+                  {formatDate(new Date(todo.scheduled_date))}
+                </Text>
+              </HStack>
+            )}
+          </HStack>
         </HStack>
 
         {/* Created date */}
