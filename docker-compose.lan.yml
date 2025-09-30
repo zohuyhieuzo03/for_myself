@@ -27,7 +27,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - GOOGLE_REDIRECT_URI=http://fastapi-dev.local:8000/api/v1/gmail/callback
+      - GOOGLE_REDIRECT_URI=http://localhost:8000/api/v1/gmail/callback
       - GMAIL_ENCRYPTION_KEY=RM5wPkMFUCt2ElVbVHAMQoG4XnFcuS8rQ0hs2Tyw1og
     command: ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "--reload", "app/main.py"]
 

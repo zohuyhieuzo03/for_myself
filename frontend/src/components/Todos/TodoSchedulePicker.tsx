@@ -2,18 +2,20 @@ import {
   Badge,
   Box,
   Button,
+  Card,
   Flex,
   HStack,
+  IconButton,
+  Input,
   Text,
   VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { Calendar } from "react-date-range"
-import { FiCalendar, FiCheck, FiPlus } from "react-icons/fi"
-import { TodosService } from "@/client"
+import { FiCalendar, FiCheck, FiPlus, FiX } from "react-icons/fi"
+import { TodosService, type TodoCreate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
-import AddTodo from "@/components/Todos/AddTodo"
 import {
   DialogContent,
   DialogFooter,
@@ -45,6 +47,7 @@ export default function TodoSchedulePicker({
     "schedule_existing" | "create_new"
   >(mode)
   const [selectedTodoIds, setSelectedTodoIds] = useState<string[]>([])
+  const [newTodoTitle, setNewTodoTitle] = useState("")
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
@@ -69,6 +72,21 @@ export default function TodoSchedulePicker({
     onSuccess: () => {
       showSuccessToast("Todo scheduled successfully")
       queryClient.invalidateQueries({ queryKey: ["todos"] })
+    },
+    onError: (err: ApiError) => {
+      handleError(err)
+    },
+  })
+
+  // Mutation để create new todo
+  const createTodoMutation = useMutation({
+    mutationFn: (data: TodoCreate) =>
+      TodosService.createTodoEndpoint({ requestBody: data }),
+    onSuccess: () => {
+      showSuccessToast("Todo created and scheduled successfully")
+      setNewTodoTitle("")
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+      onClose()
     },
     onError: (err: ApiError) => {
       handleError(err)
@@ -292,10 +310,41 @@ export default function TodoSchedulePicker({
                 <Text fontWeight="bold" mb={3}>
                   Create New Todo
                 </Text>
-                <AddTodo
-                  defaultScheduledDate={selectedDate}
-                  onClose={onClose}
-                />
+                <Card.Root variant="outline">
+                  <Card.Body p={4}>
+                    <HStack gap={2}>
+                      <Input
+                        placeholder="Enter todo title and press Enter..."
+                        value={newTodoTitle}
+                        onChange={(e) => setNewTodoTitle(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && newTodoTitle.trim()) {
+                            createTodoMutation.mutate({
+                              title: newTodoTitle.trim(),
+                              description: "",
+                              status: "todo",
+                              scheduled_date: formatDate(selectedDate),
+                            })
+                          } else if (e.key === "Escape") {
+                            setNewTodoTitle("")
+                          }
+                        }}
+                        size="md"
+                        autoFocus
+                      />
+                      <IconButton
+                        aria-label="Clear"
+                        size="md"
+                        variant="ghost"
+                        colorScheme="gray"
+                        onClick={() => setNewTodoTitle("")}
+                        disabled={!newTodoTitle}
+                      >
+                        <FiX />
+                      </IconButton>
+                    </HStack>
+                  </Card.Body>
+                </Card.Root>
               </Box>
             ) : (
               <Box>

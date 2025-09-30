@@ -84,7 +84,8 @@ export default function TodoSearch({
     },
     initialPageParam: 0,
     enabled: true, // Always enabled, empty search will return all todos
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    placeholderData: (previousData: any) => previousData,
+    staleTime: 2 * 60 * 1000, // 2 minutes
     refetchOnWindowFocus: false,
   })
 

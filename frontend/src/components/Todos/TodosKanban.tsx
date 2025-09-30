@@ -4,10 +4,11 @@ import {
   Button,
   Card,
   Container,
-  EmptyState,
   Flex,
   Heading,
   HStack,
+  IconButton,
+  Input,
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -29,10 +30,11 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useMemo, useState } from "react"
-import { FiArchive, FiCheckSquare } from "react-icons/fi"
+import { useMemo, useRef, useState } from "react"
+import { FiArchive, FiPlus, FiX } from "react-icons/fi"
 
 import {
+  type TodoCreate,
   type TodoPublic,
   type TodoStatus,
   TodosService,
@@ -40,7 +42,6 @@ import {
 } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import PendingTodos from "@/components/Pending/PendingTodos"
-import AddTodo from "@/components/Todos/AddTodo"
 import TodoDetailDialog from "@/components/Todos/TodoDetailDialog"
 // import { TodoActionsMenu } from "@/components/Todos/TodoActionsMenu"
 import useCustomToast from "@/hooks/useCustomToast"
@@ -290,6 +291,7 @@ function KanbanColumn({
   bgColor,
   todos,
   onOpen,
+  onAddTodo,
 }: {
   status: TodoStatus
   title: string
@@ -297,7 +299,12 @@ function KanbanColumn({
   bgColor: string
   todos: TodoPublic[]
   onOpen: (todo: TodoPublic) => void
+  onAddTodo: (title: string, status: TodoStatus) => void
 }) {
+  const [isAdding, setIsAdding] = useState(false)
+  const [newTitle, setNewTitle] = useState("")
+  const inputRef = useRef<HTMLInputElement>(null)
+  
   const { setNodeRef, isOver } = useDroppable({
     id: status,
   })
@@ -307,6 +314,32 @@ function KanbanColumn({
     (over?.id != null &&
       (over.id === status || todos.some((t) => t.id === (over.id as string))))
 
+  const handleAddClick = () => {
+    setIsAdding(true)
+    setTimeout(() => inputRef.current?.focus(), 0)
+  }
+
+  const handleSubmit = () => {
+    if (newTitle.trim()) {
+      onAddTodo(newTitle.trim(), status)
+      setNewTitle("")
+      setIsAdding(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setNewTitle("")
+    setIsAdding(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSubmit()
+    } else if (e.key === "Escape") {
+      handleCancel()
+    }
+  }
+
   return (
     <VStack align="stretch" gap={3} ref={setNodeRef}>
       <Box
@@ -314,15 +347,25 @@ function KanbanColumn({
         color={color}
         p={3}
         borderRadius="md"
-        textAlign="center"
       >
-        <HStack justify="center" gap={2}>
-          <Text fontWeight="bold" fontSize="sm">
-            {title}
-          </Text>
-          <Badge colorScheme="whiteAlpha" variant="solid">
-            {todos.length}
-          </Badge>
+        <HStack justify="space-between">
+          <HStack gap={2}>
+            <Text fontWeight="bold" fontSize="sm">
+              {title}
+            </Text>
+            <Badge colorScheme="whiteAlpha" variant="solid">
+              {todos.length}
+            </Badge>
+          </HStack>
+          <IconButton
+            aria-label="Add todo"
+            size="xs"
+            variant="ghost"
+            colorScheme="whiteAlpha"
+            onClick={handleAddClick}
+          >
+            <FiPlus />
+          </IconButton>
         </HStack>
       </Box>
 
@@ -339,7 +382,35 @@ function KanbanColumn({
         ref={setNodeRef}
         minH="200px"
       >
-        {todos.length === 0 ? (
+        {/* Add Todo Input */}
+        {isAdding && (
+          <Card.Root size="sm" variant="outline">
+            <Card.Body p={3}>
+              <HStack gap={2}>
+                <Input
+                  ref={inputRef}
+                  placeholder="Enter todo title..."
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  size="sm"
+                  autoFocus
+                />
+                <IconButton
+                  aria-label="Cancel"
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="gray"
+                  onClick={handleCancel}
+                >
+                  <FiX />
+                </IconButton>
+              </HStack>
+            </Card.Body>
+          </Card.Root>
+        )}
+
+        {todos.length === 0 && !isAdding ? (
           <Box
             p={4}
             border="2px dashed"
@@ -405,6 +476,28 @@ export default function TodosKanban({
     },
   })
 
+  const createTodoMutation = useMutation({
+    mutationFn: (data: TodoCreate) =>
+      TodosService.createTodoEndpoint({ requestBody: data }),
+    onSuccess: () => {
+      showSuccessToast("Todo created successfully.")
+    },
+    onError: (err: ApiError) => {
+      handleError(err)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+    },
+  })
+
+  const handleAddTodo = (title: string, status: TodoStatus) => {
+    createTodoMutation.mutate({
+      title,
+      description: "",
+      status,
+    })
+  }
+
   const todos = data?.data ?? []
   const selectedTodo = useMemo(
     () => todos.find((t) => t.id === selectedId) ?? null,
@@ -465,46 +558,6 @@ export default function TodosKanban({
     return <PendingTodos />
   }
 
-  if (activeTodos.length === 0) {
-    return (
-      <Container maxW="full">
-        <Flex justify="space-between" align="center" mb={6}>
-          <Heading size="lg">Todo Kanban Board</Heading>
-          <HStack gap={2}>
-            <Button
-              variant={viewMode === "table" ? "solid" : "outline"}
-              onClick={() => onViewModeChange("table")}
-            >
-              Table View
-            </Button>
-            <Button
-              variant={viewMode === "kanban" ? "solid" : "outline"}
-              onClick={() => onViewModeChange("kanban")}
-            >
-              Kanban View
-            </Button>
-          </HStack>
-        </Flex>
-
-        <EmptyState.Root>
-          <EmptyState.Content>
-            <EmptyState.Indicator>
-              <FiCheckSquare />
-            </EmptyState.Indicator>
-            <VStack textAlign="center">
-              <EmptyState.Title>You don't have any todos yet</EmptyState.Title>
-              <EmptyState.Description>
-                Add a new todo to get started
-              </EmptyState.Description>
-            </VStack>
-          </EmptyState.Content>
-        </EmptyState.Root>
-
-        <AddTodo />
-      </Container>
-    )
-  }
-
   // Group active todos by status
   const todosByStatus = STATUS_COLUMNS.reduce(
     (acc, column) => {
@@ -536,8 +589,6 @@ export default function TodosKanban({
         </HStack>
       </Flex>
 
-      <AddTodo />
-
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
@@ -555,6 +606,7 @@ export default function TodosKanban({
                 onOpen={(todo) => {
                   onSelectedIdChange(todo.id)
                 }}
+                onAddTodo={handleAddTodo}
               />
             </Box>
           ))}

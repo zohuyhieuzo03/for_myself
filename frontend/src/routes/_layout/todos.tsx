@@ -45,7 +45,10 @@ function getTodosQueryOptions({ page }: { page: number | undefined }) {
         skip: (currentPage - 1) * PER_PAGE,
         limit: PER_PAGE,
       }),
-    queryKey: ["todos", { page: currentPage }],
+    queryKey: ["todos", "table", { page: currentPage }],
+    placeholderData: (previousData: any) => previousData,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   }
 }
 
@@ -60,10 +63,7 @@ function TodosTable() {
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
-  const { data, isLoading, isPlaceholderData } = useQuery({
-    ...getTodosQueryOptions({ page }),
-    placeholderData: (prevData) => prevData,
-  })
+  const { data, isLoading, isPlaceholderData } = useQuery(getTodosQueryOptions({ page }))
 
   const archiveTodoMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: TodoStatus }) =>
@@ -78,7 +78,8 @@ function TodosTable() {
       handleError(err)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] })
+      queryClient.invalidateQueries({ queryKey: ["todos", "table"] })
+      queryClient.invalidateQueries({ queryKey: ["todos", "kanban"] })
     },
   })
 

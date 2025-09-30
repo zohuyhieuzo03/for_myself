@@ -177,6 +177,9 @@ export default function DailyTodosView({
     queryFn: () =>
       TodosService.readDailyTodos({ date: formatDate(displayDate) }),
     enabled: !pickerMode,
+    placeholderData: (previousData: any) => previousData,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
   })
 
   // Query để lấy overdue todos
@@ -184,6 +187,9 @@ export default function DailyTodosView({
     queryKey: ["todos", "overdue"],
     queryFn: () => TodosService.readOverdueTodos(),
     enabled: showOverdue && !pickerMode,
+    placeholderData: (previousData: any) => previousData,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
   })
 
   // Query để lấy completed todos cho ngày được chọn
@@ -192,6 +198,9 @@ export default function DailyTodosView({
     queryFn: () =>
       TodosService.readCompletedDailyTodos({ date: formatDate(displayDate) }),
     enabled: !pickerMode,
+    placeholderData: (previousData: any) => previousData,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
   })
 
   // Mutation để rollover overdue todos
@@ -200,7 +209,9 @@ export default function DailyTodosView({
     onSuccess: (data) => {
       showSuccessToast(`Rolled over ${data.count} overdue todos to today`)
       // Refresh all queries
-      queryClient.invalidateQueries({ queryKey: ["todos"] })
+      queryClient.invalidateQueries({ queryKey: ["todos", "daily"] })
+      queryClient.invalidateQueries({ queryKey: ["todos", "overdue"] })
+      queryClient.invalidateQueries({ queryKey: ["todos", "completed"] })
     },
     onError: (err: ApiError) => {
       handleError(err)

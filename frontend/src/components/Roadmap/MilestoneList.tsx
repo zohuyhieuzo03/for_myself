@@ -2,10 +2,12 @@ import {
   Badge,
   Box,
   Button,
+  Card,
   Flex,
   Heading,
   HStack,
   IconButton,
+  Input,
   Text,
   VStack,
 } from "@chakra-ui/react"
@@ -36,6 +38,7 @@ import {
   FiMenu,
   FiPlus,
   FiTrash2,
+  FiX,
 } from "react-icons/fi"
 import type {
   MilestoneReorderRequest,
@@ -54,7 +57,6 @@ import { ResourceForm } from "../Resources/ResourceForm"
 import { ResourceSubjectForm } from "../Resources/ResourceSubjectForm"
 import TodoCard from "../Todos/TodoCard"
 import TodoDetailDialog from "../Todos/TodoDetailDialog"
-import { TodoForm } from "../Todos/TodoForm"
 import { MilestoneForm } from "./MilestoneForm"
 
 interface MilestoneListProps {
@@ -77,7 +79,8 @@ function SortableMilestoneItem({
   roadmapId,
 }: SortableMilestoneItemProps) {
   const [showTodos, setShowTodos] = useState(false)
-  const [isTodoFormOpen, setIsTodoFormOpen] = useState(false)
+  const [isAddingTodo, setIsAddingTodo] = useState(false)
+  const [newTodoTitle, setNewTodoTitle] = useState("")
   const [selectedTodo, setSelectedTodo] = useState<TodoPublic | null>(null)
   const [showResources, setShowResources] = useState(false)
   const [isResourceFormOpen, setIsResourceFormOpen] = useState(false)
@@ -102,7 +105,7 @@ function SortableMilestoneItem({
         milestoneId: milestone.id,
       })
     },
-    enabled: showTodos || isTodoFormOpen,
+    enabled: showTodos || isAddingTodo,
   })
 
   const todos = todosResponse?.data || []
@@ -150,7 +153,6 @@ function SortableMilestoneItem({
       queryClient.invalidateQueries({
         queryKey: ["milestone-todos", milestone.id],
       })
-      setIsTodoFormOpen(false)
       setShowTodos(true) // Auto-expand todos section after creating
       showSuccessToast("Todo created successfully!")
     },
@@ -399,19 +401,70 @@ function SortableMilestoneItem({
             {showTodos ? <FiChevronDown /> : <FiChevronRight />}
             Todos ({todos.length})
           </Button>
-          <Button size="sm" onClick={() => setIsTodoFormOpen(true)}>
+          <IconButton
+            aria-label="Add todo"
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              setIsAddingTodo(true)
+              setShowTodos(true)
+            }}
+          >
             <FiPlus />
-            Add Todo
-          </Button>
+          </IconButton>
         </Flex>
 
         {showTodos && (
           <VStack align="stretch" gap={2}>
+            {/* Quick Add Todo Input */}
+            {isAddingTodo && (
+              <Card.Root size="sm" variant="outline">
+                <Card.Body p={3}>
+                  <HStack gap={2}>
+                    <Input
+                      placeholder="Enter todo title..."
+                      value={newTodoTitle}
+                      onChange={(e) => setNewTodoTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && newTodoTitle.trim()) {
+                          createTodoMutation.mutate({
+                            title: newTodoTitle.trim(),
+                            description: "",
+                            status: "todo",
+                            milestone_id: milestone.id,
+                          })
+                          setNewTodoTitle("")
+                          setIsAddingTodo(false)
+                        } else if (e.key === "Escape") {
+                          setNewTodoTitle("")
+                          setIsAddingTodo(false)
+                        }
+                      }}
+                      size="sm"
+                      autoFocus
+                    />
+                    <IconButton
+                      aria-label="Cancel"
+                      size="sm"
+                      variant="ghost"
+                      colorScheme="gray"
+                      onClick={() => {
+                        setNewTodoTitle("")
+                        setIsAddingTodo(false)
+                      }}
+                    >
+                      <FiX />
+                    </IconButton>
+                  </HStack>
+                </Card.Body>
+              </Card.Root>
+            )}
+
             {todosLoading ? (
               <Text fontSize="sm" color="gray.500">
                 Loading todos...
               </Text>
-            ) : todos.length === 0 ? (
+            ) : todos.length === 0 && !isAddingTodo ? (
               <Text fontSize="sm" color="gray.500">
                 No todos yet
               </Text>
@@ -427,16 +480,6 @@ function SortableMilestoneItem({
             )}
           </VStack>
         )}
-
-        {/* Todo Form Modal */}
-        <TodoForm
-          isOpen={isTodoFormOpen}
-          onClose={() => setIsTodoFormOpen(false)}
-          onSubmit={createTodoMutation.mutate}
-          isLoading={createTodoMutation.isPending}
-          initialData={{ milestone_id: milestone.id }}
-          title={`Add Todo to ${milestone.title}`}
-        />
 
         {/* Todo Detail Dialog */}
         {selectedTodo && (
