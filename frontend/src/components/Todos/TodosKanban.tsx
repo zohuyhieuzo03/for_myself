@@ -304,7 +304,7 @@ function KanbanColumn({
   const [isAdding, setIsAdding] = useState(false)
   const [newTitle, setNewTitle] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
-  
+
   const { setNodeRef, isOver } = useDroppable({
     id: status,
   })
@@ -337,7 +337,7 @@ function KanbanColumn({
     if (e.nativeEvent.isComposing) {
       return
     }
-    
+
     if (e.key === "Enter") {
       handleSubmit()
     } else if (e.key === "Escape") {
@@ -347,12 +347,7 @@ function KanbanColumn({
 
   return (
     <VStack align="stretch" gap={3} ref={setNodeRef}>
-      <Box
-        bg={bgColor}
-        color={color}
-        p={3}
-        borderRadius="md"
-      >
+      <Box bg={bgColor} color={color} p={3} borderRadius="md">
         <HStack justify="space-between">
           <HStack gap={2}>
             <Text fontWeight="bold" fontSize="sm">

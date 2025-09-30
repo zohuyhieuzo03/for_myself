@@ -12,16 +12,16 @@ import {
 } from "@chakra-ui/react"
 import { useMemo, useState } from "react"
 import {
-  FiBriefcase,
   FiBook,
-  FiHome,
+  FiBriefcase,
   FiCheckSquare,
-  FiUser,
-  FiHeart,
-  FiDollarSign,
-  FiMoreHorizontal,
   FiChevronDown,
   FiChevronUp,
+  FiDollarSign,
+  FiHeart,
+  FiHome,
+  FiMoreHorizontal,
+  FiUser,
 } from "react-icons/fi"
 
 import type { TodoPublic, TodoType } from "@/client"
@@ -213,7 +213,10 @@ export default function TaskTypeAnalysis({
 
           {/* Summary Stats */}
           <Box pt={4} borderTopWidth="1px" borderColor="gray.200">
-            <Grid templateColumns="repeat(auto-fit, minmax(150px, 1fr))" gap={3}>
+            <Grid
+              templateColumns="repeat(auto-fit, minmax(150px, 1fr))"
+              gap={3}
+            >
               <Box>
                 <Text fontSize="sm" color="gray.600" mb={1}>
                   Active Tasks

@@ -127,11 +127,12 @@ def create_resource_subject(
     existing_subjects = session.exec(statement).all()
     next_order = max([s.order_index for s in existing_subjects], default=-1) + 1
     
-    subject = ResourceSubject(
-        **subject_in.model_dump(),
-        resource_id=resource_id,
-        order_index=next_order,
-    )
+    subject_dict = subject_in.model_dump()
+    subject_dict.update({
+        "resource_id": resource_id,
+        "order_index": next_order,
+    })
+    subject = ResourceSubject(**subject_dict)
     session.add(subject)
     session.commit()
     session.refresh(subject)

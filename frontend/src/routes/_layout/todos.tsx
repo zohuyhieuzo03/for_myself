@@ -63,7 +63,9 @@ function TodosTable() {
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
-  const { data, isLoading, isPlaceholderData } = useQuery(getTodosQueryOptions({ page }))
+  const { data, isLoading, isPlaceholderData } = useQuery(
+    getTodosQueryOptions({ page }),
+  )
 
   const archiveTodoMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: TodoStatus }) =>

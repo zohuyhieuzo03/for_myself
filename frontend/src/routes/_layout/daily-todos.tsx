@@ -1,11 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { useState } from "react"
 import { Container, VStack } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
-
+import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
+import { TodosService } from "@/client"
 import DailyTodosView from "@/components/Todos/DailyTodosView"
 import TaskTypeAnalysis from "@/components/Todos/TaskTypeAnalysis"
-import { TodosService } from "@/client"
 import { formatDate } from "@/utils"
 
 export const Route = createFileRoute("/_layout/daily-todos")({

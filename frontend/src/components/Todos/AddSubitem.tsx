@@ -71,7 +71,7 @@ export default function AddSubitem({ todo }: AddSubitemProps) {
             if (e.nativeEvent.isComposing) {
               return
             }
-            
+
             if (e.key === "Enter" && newSubitemTitle.trim()) {
               createSubitemMutation.mutate(newSubitemTitle.trim())
             }

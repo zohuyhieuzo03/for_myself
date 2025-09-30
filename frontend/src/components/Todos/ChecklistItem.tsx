@@ -141,7 +141,7 @@ const ChecklistItem = ({ item, todoId }: ChecklistItemProps) => {
                 if (e.nativeEvent.isComposing) {
                   return
                 }
-                
+
                 if (e.key === "Enter") handleSaveEdit()
                 if (e.key === "Escape") handleCancelEdit()
               }}

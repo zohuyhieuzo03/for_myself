@@ -12,15 +12,12 @@ import { useState } from "react"
 import {
   type ResourceCreate,
   type ResourcePublic,
-  type ResourceSubjectCreate,
-  type ResourceSubjectUpdate,
   ResourcesService,
   type ResourceUpdate,
 } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
 import { ResourceCard } from "./ResourceCard"
 import { ResourceForm } from "./ResourceForm"
-import { ResourceSubjectForm } from "./ResourceSubjectForm"
 
 interface ResourceListProps {
   milestoneId?: string
@@ -28,12 +25,7 @@ interface ResourceListProps {
 
 export function ResourceList({ milestoneId }: ResourceListProps) {
   const [isResourceFormOpen, setIsResourceFormOpen] = useState(false)
-  const [isSubjectFormOpen, setIsSubjectFormOpen] = useState(false)
   const [editingResource, setEditingResource] = useState<ResourcePublic | null>(
-    null,
-  )
-  const [editingSubject, setEditingSubject] = useState<string | null>(null)
-  const [selectedResourceId, setSelectedResourceId] = useState<string | null>(
     null,
   )
 
@@ -93,80 +85,6 @@ export function ResourceList({ milestoneId }: ResourceListProps) {
     },
   })
 
-  // Create subject mutation
-  const createSubjectMutation = useMutation({
-    mutationFn: ({
-      resourceId,
-      data,
-    }: {
-      resourceId: string
-      data: ResourceSubjectCreate
-    }) =>
-      ResourcesService.createResourceSubject({ resourceId, requestBody: data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resources"] })
-      setIsSubjectFormOpen(false)
-      showSuccessToast("Subject created successfully")
-    },
-    onError: () => {
-      showErrorToast("Failed to create subject")
-    },
-  })
-
-  // Update subject mutation
-  const updateSubjectMutation = useMutation({
-    mutationFn: ({
-      subjectId,
-      data,
-    }: {
-      subjectId: string
-      data: ResourceSubjectUpdate
-    }) =>
-      ResourcesService.updateResourceSubject({ subjectId, requestBody: data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resources"] })
-      setIsSubjectFormOpen(false)
-      setEditingSubject(null)
-      showSuccessToast("Subject updated successfully")
-    },
-    onError: () => {
-      showErrorToast("Failed to update subject")
-    },
-  })
-
-  // Delete subject mutation
-  const deleteSubjectMutation = useMutation({
-    mutationFn: (subjectId: string) =>
-      ResourcesService.deleteResourceSubject({ subjectId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resources"] })
-      showSuccessToast("Subject deleted successfully")
-    },
-    onError: () => {
-      showErrorToast("Failed to delete subject")
-    },
-  })
-
-  // Toggle subject completion mutation
-  const toggleSubjectMutation = useMutation({
-    mutationFn: ({
-      subjectId,
-      isCompleted,
-    }: {
-      subjectId: string
-      isCompleted: boolean
-    }) =>
-      ResourcesService.updateResourceSubject({
-        subjectId,
-        requestBody: { is_completed: isCompleted },
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resources"] })
-    },
-    onError: () => {
-      showErrorToast("Failed to update subject")
-    },
-  })
 
   const handleCreateResource = () => {
     setEditingResource(null)
@@ -195,36 +113,6 @@ export function ResourceList({ milestoneId }: ResourceListProps) {
     }
   }
 
-  const handleEditSubject = (subjectId: string) => {
-    setEditingSubject(subjectId)
-    setIsSubjectFormOpen(true)
-  }
-
-  const handleDeleteSubject = (subjectId: string) => {
-    if (window.confirm("Are you sure you want to delete this subject?")) {
-      deleteSubjectMutation.mutate(subjectId)
-    }
-  }
-
-  const handleSubjectToggle = (subjectId: string, isCompleted: boolean) => {
-    toggleSubjectMutation.mutate({ subjectId, isCompleted })
-  }
-
-  const handleSubjectSubmit = (
-    data: ResourceSubjectCreate | ResourceSubjectUpdate,
-  ) => {
-    if (editingSubject) {
-      updateSubjectMutation.mutate({
-        subjectId: editingSubject,
-        data: data as ResourceSubjectUpdate,
-      })
-    } else if (selectedResourceId) {
-      createSubjectMutation.mutate({
-        resourceId: selectedResourceId,
-        data: data as ResourceSubjectCreate,
-      })
-    }
-  }
 
   if (isLoading) {
     return <Text>Loading resources...</Text>
@@ -257,9 +145,6 @@ export function ResourceList({ milestoneId }: ResourceListProps) {
                 resource={resource}
                 onEdit={handleEditResource}
                 onDelete={handleDeleteResource}
-                onSubjectToggle={handleSubjectToggle}
-                onSubjectEdit={handleEditSubject}
-                onSubjectDelete={handleDeleteSubject}
               />
             ))}
           </Grid>
@@ -278,16 +163,6 @@ export function ResourceList({ milestoneId }: ResourceListProps) {
         milestoneId={milestoneId}
       />
 
-      <ResourceSubjectForm
-        isOpen={isSubjectFormOpen}
-        onClose={() => {
-          setIsSubjectFormOpen(false)
-          setEditingSubject(null)
-          setSelectedResourceId(null)
-        }}
-        onSubmit={handleSubjectSubmit}
-        isEditing={!!editingSubject}
-      />
     </Box>
   )
 }

@@ -430,7 +430,7 @@ function SortableMilestoneItem({
                         if (e.nativeEvent.isComposing) {
                           return
                         }
-                        
+
                         if (e.key === "Enter" && newTodoTitle.trim()) {
                           createTodoMutation.mutate({
                             title: newTodoTitle.trim(),

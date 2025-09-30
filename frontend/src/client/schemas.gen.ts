@@ -1217,6 +1217,17 @@ export const ItemUpdateSchema = {
                 }
             ],
             title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
         }
     },
     type: 'object',
@@ -3127,6 +3138,18 @@ export const UserUpdateSchema = {
                 }
             ],
             title: 'Password'
+        },
+        full_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Full Name'
         },
         is_superuser: {
             anyOf: [

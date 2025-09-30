@@ -242,6 +242,7 @@ export type ItemsPublic = {
 
 export type ItemUpdate = {
     title?: (string | null);
+    description?: (string | null);
 };
 
 export type Message = {
@@ -574,6 +575,7 @@ export type UsersPublic = {
 export type UserUpdate = {
     email?: (string | null);
     password?: (string | null);
+    full_name?: (string | null);
     is_superuser?: (boolean | null);
 };
 

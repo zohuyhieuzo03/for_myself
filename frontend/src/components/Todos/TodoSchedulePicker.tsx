@@ -14,7 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { Calendar } from "react-date-range"
 import { FiCalendar, FiCheck, FiPlus, FiX } from "react-icons/fi"
-import { TodosService, type TodoCreate } from "@/client"
+import { type TodoCreate, TodosService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import {
   DialogContent,
@@ -322,7 +322,7 @@ export default function TodoSchedulePicker({
                           if (e.nativeEvent.isComposing) {
                             return
                           }
-                          
+
                           if (e.key === "Enter" && newTodoTitle.trim()) {
                             createTodoMutation.mutate({
                               title: newTodoTitle.trim(),
