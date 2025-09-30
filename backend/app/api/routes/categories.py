@@ -18,11 +18,19 @@ router = APIRouter(prefix="/categories", tags=["categories"])
 
 @router.get("/", response_model=CategoriesPublic)
 def read_categories(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = 0,
+    limit: int = 100,
 ) -> Any:
     """
     Retrieve categories for current user.
     """
+    if skip < 0:
+        raise HTTPException(status_code=422, detail="skip must be >= 0")
+    if limit <= 0:
+        raise HTTPException(status_code=422, detail="limit must be > 0")
+    
     categories, count = crud.get_categories(
         session=session, user_id=current_user.id, skip=skip, limit=limit
     )

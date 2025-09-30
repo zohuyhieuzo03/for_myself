@@ -25,57 +25,50 @@ def test_read_accounts_pagination(
     
     db.commit()
     
-    # Test first page
+    # Test default pagination
     response = client.get("/api/v1/accounts/", headers=normal_user_token_headers)
     assert response.status_code == 200
     
     data = response.json()
-    assert "items" in data
-    assert "total" in data
-    assert "page" in data
-    assert "size" in data
-    assert "pages" in data
+    assert "data" in data
+    assert "count" in data
     
-    # Should return all 12 accounts on first page
-    assert len(data["items"]) == 12
-    assert data["total"] == 12
-    assert data["page"] == 1
+    # Should return all 12 accounts
+    assert len(data["data"]) == 12
+    assert data["count"] == 12
     
-    # Test with page size
+    # Test with skip and limit
     response = client.get(
-        "/api/v1/accounts/?size=5", 
+        "/api/v1/accounts/?skip=0&limit=5", 
         headers=normal_user_token_headers
     )
     assert response.status_code == 200
     
     data = response.json()
-    assert len(data["items"]) == 5
-    assert data["total"] == 12
-    assert data["page"] == 1
-    assert data["size"] == 5
-    assert data["pages"] == 3
+    assert len(data["data"]) == 5
+    assert data["count"] == 12
     
-    # Test second page
+    # Test second page (skip first 5)
     response = client.get(
-        "/api/v1/accounts/?page=2&size=5", 
+        "/api/v1/accounts/?skip=5&limit=5", 
         headers=normal_user_token_headers
     )
     assert response.status_code == 200
     
     data = response.json()
-    assert len(data["items"]) == 5
-    assert data["page"] == 2
+    assert len(data["data"]) == 5
+    assert data["count"] == 12
     
     # Test third page (should have remaining items)
     response = client.get(
-        "/api/v1/accounts/?page=3&size=5", 
+        "/api/v1/accounts/?skip=10&limit=5", 
         headers=normal_user_token_headers
     )
     assert response.status_code == 200
     
     data = response.json()
-    assert len(data["items"]) == 2  # Remaining 2 items
-    assert data["page"] == 3
+    assert len(data["data"]) == 2  # Remaining 2 items
+    assert data["count"] == 12
 
 
 def test_read_accounts_empty(
@@ -86,8 +79,5 @@ def test_read_accounts_empty(
     assert response.status_code == 200
     
     data = response.json()
-    assert data["items"] == []
-    assert data["total"] == 0
-    assert data["page"] == 1
-    assert data["size"] == 50  # default size
-    assert data["pages"] == 0
+    assert data["data"] == []
+    assert data["count"] == 0

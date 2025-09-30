@@ -32,6 +32,7 @@ class UserRegister(SQLModel):
 class UserUpdate(BaseModel):
     email: EmailStr | None = Field(default=None, max_length=255)
     password: str | None = Field(default=None, min_length=8, max_length=40)
+    full_name: str | None = Field(default=None, max_length=255)
     is_superuser: bool | None = None
 
 
@@ -96,6 +97,7 @@ class ItemCreate(ItemBase):
 # Properties to receive on item update
 class ItemUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = None
 
 
 # Database model, database table inferred from class name

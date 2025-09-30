@@ -1,0 +1,119 @@
+---
+alwaysApply: true
+---
+
+# Cursor Rules - Full Stack FastAPI Template
+
+## 🏗️ Kiến trúc
+- **Backend**: FastAPI + SQLModel + PostgreSQL + Alembic
+- **Frontend**: React + TypeScript + TanStack Router + Chakra UI
+- **Development**: Docker Compose
+
+## 🚀 Development Workflow
+
+### 1. Backend First
+```python
+# 1. Models (backend/app/models.py)
+class EntityBase(SQLModel):          # Base fields
+class EntityCreate(EntityBase):      # Creation
+class EntityUpdate(BaseModel):       # Update (optional)
+class Entity(EntityBase, table=True): # Database
+class EntityPublic(EntityBase):      # API response
+```
+
+### 2. CRUD & API
+- Tạo `crud/entity.py` với create/read/update/delete
+- Import vào `crud/__init__.py` và thêm `__all__`
+- Tạo `api/routes/entity.py` với GET/POST/PUT/DELETE
+
+### 3. Database Migration
+```bash
+# Tạo migration
+docker exec full-stack-fastapi-template-backend-1 alembic revision --autogenerate -m "description"
+
+# Chạy migration
+docker exec full-stack-fastapi-template-backend-1 alembic upgrade head
+
+# Xem lịch sử
+docker exec full-stack-fastapi-template-backend-1 alembic history
+
+# Rollback
+docker exec full-stack-fastapi-template-backend-1 alembic downgrade -1
+```
+
+### 4. API Client & Frontend
+```bash
+# Generate client
+./scripts/generate-client.sh
+
+# Frontend components
+frontend/src/components/EntityName/
+├── EntityNameList.tsx
+├── EntityNameForm.tsx
+├── EntityNameItem.tsx
+└── EntityNameDetail.tsx
+```
+
+## 🐳 Docker Commands
+
+### Container Management
+```bash
+docker compose watch          # Start all
+docker compose down           # Stop all
+docker compose logs backend   # View logs
+```
+
+### Backend Operations
+```bash
+cd backend && source .venv/bin/activate && pytest
+cd backend && source .venv/bin/activate && ./scripts/generate-client.sh
+```
+
+### Frontend Operations
+```bash
+cd frontend && npm install
+cd frontend && npm run dev
+cd frontend && npm test
+cd frontend && npm run build
+```
+
+## 📁 File Structure
+```
+backend/app/
+├── models.py              # SQLModel definitions
+├── crud/                  # Database operations
+├── api/routes/           # API endpoints
+└── alembic/versions/     # Migrations
+
+frontend/src/
+├── components/           # React components
+├── routes/              # TanStack Router
+├── client/              # Auto-generated API client
+└── hooks/               # Custom hooks
+```
+
+## 🎯 Naming Conventions
+- **Backend**: PascalCase models, snake_case functions
+- **Frontend**: PascalCase components, camelCase hooks
+- **API**: snake_case routes, camelCase client calls
+
+## 🔧 Code Quality
+- **Backend**: Type hints, Pydantic validation, SQLModel
+- **Frontend**: TypeScript strict, ESLint, component composition
+- **Testing**: pytest (backend), npm test (frontend)
+
+## 🚨 Error Handling
+- ❌ **KHÔNG** fix chắp vá, workaround, magic numbers
+- ✅ **LUÔN** tìm nguyên nhân gốc rễ
+- ✅ **ĐỌC** error message cẩn thận
+- ✅ **KIỂM TRA** documentation và best practices
+
+## 📋 Migration Best Practices
+- ✅ Tạo migration khi thay đổi models
+- ✅ Chạy migration sau khi tạo
+- ✅ Commit migration files
+- ❌ Không sửa/xóa migration đã commit
+
+---
+
+**Lưu ý**: Sử dụng Docker commands cho tất cả database operations trong development.
