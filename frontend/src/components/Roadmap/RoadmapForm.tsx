@@ -37,7 +37,6 @@ function RoadmapForm({
     priority: roadmap?.priority || "medium",
     start_date: roadmap?.start_date || "",
     target_date: roadmap?.target_date || "",
-    progress_percentage: roadmap?.progress_percentage || 0,
   })
 
   const createMutation = useMutation({
@@ -177,20 +176,7 @@ function RoadmapForm({
                 />
               </Field>
 
-              <Field label="Progress Percentage">
-                <Input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={formData.progress_percentage}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      progress_percentage: parseInt(e.target.value, 10) || 0,
-                    })
-                  }
-                />
-              </Field>
+              
             </VStack>
           </DialogBody>
 
