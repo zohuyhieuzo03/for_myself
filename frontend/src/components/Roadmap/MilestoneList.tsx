@@ -426,6 +426,11 @@ function SortableMilestoneItem({
                       value={newTodoTitle}
                       onChange={(e) => setNewTodoTitle(e.target.value)}
                       onKeyDown={(e) => {
+                        // Ignore Enter key when composing (e.g., typing Vietnamese)
+                        if (e.nativeEvent.isComposing) {
+                          return
+                        }
+                        
                         if (e.key === "Enter" && newTodoTitle.trim()) {
                           createTodoMutation.mutate({
                             title: newTodoTitle.trim(),

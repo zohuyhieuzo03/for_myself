@@ -137,6 +137,11 @@ const ChecklistItem = ({ item, todoId }: ChecklistItemProps) => {
               onChange={(e) => setEditTitle(e.target.value)}
               size="sm"
               onKeyDown={(e) => {
+                // Ignore Enter key when composing (e.g., typing Vietnamese)
+                if (e.nativeEvent.isComposing) {
+                  return
+                }
+                
                 if (e.key === "Enter") handleSaveEdit()
                 if (e.key === "Escape") handleCancelEdit()
               }}

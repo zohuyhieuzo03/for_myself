@@ -69,6 +69,11 @@ export default function AddParent({ todo, hasParent }: AddParentProps) {
           placeholder="Enter parent title"
           size="sm"
           onKeyDown={(e) => {
+            // Ignore Enter key when composing (e.g., typing Vietnamese)
+            if (e.nativeEvent.isComposing) {
+              return
+            }
+            
             if (e.key === "Enter" && newParentTitle.trim()) {
               createParentAndAssignMutation.mutate(newParentTitle.trim())
             }

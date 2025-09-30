@@ -333,6 +333,11 @@ function KanbanColumn({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Ignore Enter key when composing (e.g., typing Vietnamese)
+    if (e.nativeEvent.isComposing) {
+      return
+    }
+    
     if (e.key === "Enter") {
       handleSubmit()
     } else if (e.key === "Escape") {
