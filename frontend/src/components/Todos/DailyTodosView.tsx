@@ -11,7 +11,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import React, { useState } from "react"
 import { FiCalendar, FiClock, FiPlus, FiRefreshCw } from "react-icons/fi"
 
 import { type TodoPublic, TodosService } from "@/client"
@@ -27,6 +27,132 @@ interface DailyTodosViewProps {
   selectedId: string | null
   onSelectedIdChange: (id: string | null) => void
   pickerMode?: boolean
+}
+
+interface TodoCardComponentProps {
+  todo: TodoPublic
+  onClick: () => void
+  isSelected: boolean
+  displayDate: Date
+  overdueTodosList: TodoPublic[]
+}
+
+const TodoCardComponent = ({
+  todo,
+  onClick,
+  isSelected,
+  displayDate,
+  overdueTodosList,
+}: TodoCardComponentProps) => {
+  const statusConfig = getStatusConfig(todo.status || "todo")
+  const priorityConfig = getPriorityConfig(todo.priority || "medium")
+  const StatusIcon = statusConfig.icon
+  const PriorityIcon = priorityConfig.icon
+
+  return (
+    <Box
+      cursor="pointer"
+      onClick={onClick}
+      bg={isSelected ? "blue.50" : "white"}
+      borderColor={isSelected ? "blue.200" : "gray.200"}
+      borderWidth={isSelected ? "2px" : "1px"}
+      _hover={{
+        bg: isSelected ? "blue.50" : "gray.50",
+        borderColor: "blue.300",
+      }}
+      p={4}
+      borderRadius="md"
+      w="full"
+    >
+      <Flex justify="space-between" align="center">
+        <VStack align="start" gap={1} flex={1}>
+          <Text
+            fontWeight="bold"
+            color={overdueTodosList.includes(todo) ? "red.600" : "inherit"}
+          >
+            {todo.title}
+          </Text>
+          <HStack gap={4} fontSize="sm" color="gray.600">
+            <HStack gap={1}>
+              <FiCalendar />
+              <Text>
+                {overdueTodosList.includes(todo)
+                  ? "Overdue"
+                  : formatDate(displayDate)}
+              </Text>
+            </HStack>
+            {todo.estimate_minutes && (
+              <HStack gap={1}>
+                <FiClock />
+                <Text>{todo.estimate_minutes}m</Text>
+              </HStack>
+            )}
+          </HStack>
+        </VStack>
+
+        <HStack gap={2}>
+          <Badge
+            colorPalette={statusConfig.color}
+            size="sm"
+            display="flex"
+            alignItems="center"
+            gap={1}
+          >
+            <StatusIcon size={14} />
+            {statusConfig.label}
+          </Badge>
+          <Badge
+            colorPalette={priorityConfig.color}
+            size="sm"
+            variant="subtle"
+            display="flex"
+            alignItems="center"
+            gap={1}
+          >
+            <PriorityIcon size={14} />
+            {priorityConfig.label}
+          </Badge>
+          {todo.type && (
+            <Badge
+              size="sm"
+              colorPalette={
+                todo.type === "work"
+                  ? "blue"
+                  : todo.type === "learning"
+                    ? "purple"
+                    : todo.type === "daily_life"
+                      ? "green"
+                      : todo.type === "health"
+                        ? "pink"
+                        : todo.type === "finance"
+                          ? "yellow"
+                          : todo.type === "personal"
+                            ? "orange"
+                            : "gray"
+              }
+              variant="subtle"
+            >
+              {todo.type === "daily_life"
+                ? "Daily Life"
+                : todo.type === "health"
+                  ? "Health"
+                  : todo.type === "finance"
+                    ? "Finance"
+                    : todo.type === "personal"
+                      ? "Personal"
+                      : todo.type === "learning"
+                        ? "Learning"
+                        : todo.type === "work"
+                          ? "Work"
+                          : todo.type === "task"
+                            ? "Task"
+                            : "Other"}
+            </Badge>
+          )}
+        </HStack>
+      </Flex>
+    </Box>
+  )
 }
 
 export default function DailyTodosView({
@@ -60,6 +186,14 @@ export default function DailyTodosView({
     enabled: showOverdue && !pickerMode,
   })
 
+  // Query để lấy completed todos cho ngày được chọn
+  const { data: completedTodos } = useQuery({
+    queryKey: ["todos", "completed", formatDate(displayDate)],
+    queryFn: () =>
+      TodosService.readCompletedDailyTodos({ date: formatDate(displayDate) }),
+    enabled: !pickerMode,
+  })
+
   // Mutation để rollover overdue todos
   const rolloverMutation = useMutation({
     mutationFn: () => TodosService.rolloverTodosEndpoint(),
@@ -91,6 +225,7 @@ export default function DailyTodosView({
 
   const dailyTodosList = dailyTodos?.data ?? []
   const overdueTodosList = overdueTodos?.data ?? []
+  const completedTodosList = completedTodos?.data ?? []
 
   const handleTodoClick = (todo: TodoPublic) => {
     if (pickerMode) {
@@ -107,89 +242,6 @@ export default function DailyTodosView({
   // }
 
   const isSelected = (todo: TodoPublic) => selectedId === todo.id
-
-  const TodoCardComponent = ({
-    todo,
-    onClick,
-    isSelected,
-  }: {
-    todo: TodoPublic
-    onClick: () => void
-    isSelected: boolean
-  }) => {
-    const statusConfig = getStatusConfig(todo.status || "todo")
-    const priorityConfig = getPriorityConfig(todo.priority || "medium")
-    const StatusIcon = statusConfig.icon
-    const PriorityIcon = priorityConfig.icon
-
-    return (
-      <Box
-        cursor="pointer"
-        onClick={onClick}
-        bg={isSelected ? "blue.50" : "white"}
-        borderColor={isSelected ? "blue.200" : "gray.200"}
-        borderWidth={isSelected ? "2px" : "1px"}
-        _hover={{
-          bg: isSelected ? "blue.50" : "gray.50",
-          borderColor: "blue.300",
-        }}
-        p={4}
-        borderRadius="md"
-        w="full"
-      >
-        <Flex justify="space-between" align="center">
-          <VStack align="start" gap={1} flex={1}>
-            <Text
-              fontWeight="bold"
-              color={overdueTodosList.includes(todo) ? "red.600" : "inherit"}
-            >
-              {todo.title}
-            </Text>
-            <HStack gap={4} fontSize="sm" color="gray.600">
-              <HStack gap={1}>
-                <FiCalendar />
-                <Text>
-                  {overdueTodosList.includes(todo)
-                    ? "Overdue"
-                    : formatDate(displayDate)}
-                </Text>
-              </HStack>
-              {todo.estimate_minutes && (
-                <HStack gap={1}>
-                  <FiClock />
-                  <Text>{todo.estimate_minutes}m</Text>
-                </HStack>
-              )}
-            </HStack>
-          </VStack>
-
-          <HStack gap={2}>
-            <Badge
-              colorPalette={statusConfig.color}
-              size="sm"
-              display="flex"
-              alignItems="center"
-              gap={1}
-            >
-              <StatusIcon size={14} />
-              {statusConfig.label}
-            </Badge>
-            <Badge
-              colorPalette={priorityConfig.color}
-              size="sm"
-              variant="subtle"
-              display="flex"
-              alignItems="center"
-              gap={1}
-            >
-              <PriorityIcon size={14} />
-              {priorityConfig.label}
-            </Badge>
-          </HStack>
-        </Flex>
-      </Box>
-    )
-  }
 
   return (
     <Container maxW="container.xl" py={6}>
@@ -257,6 +309,8 @@ export default function DailyTodosView({
                   todo={todo}
                   onClick={() => handleTodoClick(todo)}
                   isSelected={isSelected(todo)}
+                  displayDate={displayDate}
+                  overdueTodosList={overdueTodosList}
                 />
               ))}
             </VStack>
@@ -331,10 +385,148 @@ export default function DailyTodosView({
                   todo={todo}
                   onClick={() => handleTodoClick(todo)}
                   isSelected={isSelected(todo)}
+                  displayDate={displayDate}
+                  overdueTodosList={overdueTodosList}
                 />
               ))
             )}
           </VStack>
+        </Box>
+
+        {/* Completed Todos Section */}
+        <Box>
+          <Flex align="center" gap={2} mb={4}>
+            <Badge
+              colorScheme="green"
+              variant="subtle"
+              px={2}
+              py={1}
+              borderRadius="md"
+            >
+              Completed ({completedTodosList.length})
+            </Badge>
+            <Text fontSize="sm" color="gray.600">
+              Todos completed or archived on this day
+            </Text>
+          </Flex>
+
+          {completedTodosList.length > 0 && (
+            <VStack gap={2}>
+              {completedTodosList.map((todo) => (
+                <Box
+                  key={todo.id}
+                  cursor="pointer"
+                  onClick={() => handleTodoClick(todo)}
+                  bg={isSelected(todo) ? "green.50" : "white"}
+                  borderColor={isSelected(todo) ? "green.200" : "gray.200"}
+                  borderWidth={isSelected(todo) ? "2px" : "1px"}
+                  _hover={{
+                    bg: isSelected(todo) ? "green.50" : "gray.50",
+                    borderColor: "green.300",
+                  }}
+                  p={4}
+                  borderRadius="md"
+                  w="full"
+                  opacity={0.8}
+                >
+                  <Flex justify="space-between" align="center">
+                    <VStack align="start" gap={1} flex={1}>
+                      <Text
+                        fontWeight="bold"
+                        textDecoration="line-through"
+                        color="gray.600"
+                      >
+                        {todo.title}
+                      </Text>
+                      <HStack gap={4} fontSize="sm" color="gray.500">
+                        <HStack gap={1}>
+                          <FiCalendar />
+                          <Text>{formatDate(displayDate)}</Text>
+                        </HStack>
+                        {todo.estimate_minutes && (
+                          <HStack gap={1}>
+                            <FiClock />
+                            <Text>{todo.estimate_minutes}m</Text>
+                          </HStack>
+                        )}
+                      </HStack>
+                    </VStack>
+
+                    <HStack gap={2}>
+                      <Badge
+                        colorPalette={
+                          getStatusConfig(todo.status || "done").color
+                        }
+                        size="sm"
+                        display="flex"
+                        alignItems="center"
+                        gap={1}
+                      >
+                        {React.createElement(
+                          getStatusConfig(todo.status || "done").icon,
+                          { size: 14 },
+                        )}
+                        {getStatusConfig(todo.status || "done").label}
+                      </Badge>
+                      <Badge
+                        colorPalette={
+                          getPriorityConfig(todo.priority || "medium").color
+                        }
+                        size="sm"
+                        variant="subtle"
+                        display="flex"
+                        alignItems="center"
+                        gap={1}
+                      >
+                        {React.createElement(
+                          getPriorityConfig(todo.priority || "medium").icon,
+                          { size: 14 },
+                        )}
+                        {getPriorityConfig(todo.priority || "medium").label}
+                      </Badge>
+                      {todo.type && (
+                        <Badge
+                          size="sm"
+                          colorPalette={
+                            todo.type === "work"
+                              ? "blue"
+                              : todo.type === "learning"
+                                ? "purple"
+                                : todo.type === "daily_life"
+                                  ? "green"
+                                  : todo.type === "health"
+                                    ? "pink"
+                                    : todo.type === "finance"
+                                      ? "yellow"
+                                      : todo.type === "personal"
+                                        ? "orange"
+                                        : "gray"
+                          }
+                          variant="subtle"
+                        >
+                          {todo.type === "daily_life"
+                            ? "Daily Life"
+                            : todo.type === "health"
+                              ? "Health"
+                              : todo.type === "finance"
+                                ? "Finance"
+                                : todo.type === "personal"
+                                  ? "Personal"
+                                  : todo.type === "learning"
+                                    ? "Learning"
+                                    : todo.type === "work"
+                                      ? "Work"
+                                      : todo.type === "task"
+                                        ? "Task"
+                                        : "Other"}
+                        </Badge>
+                      )}
+                    </HStack>
+                  </Flex>
+                </Box>
+              ))}
+            </VStack>
+          )}
         </Box>
 
         {/* Schedule Todo Dialog */}
@@ -349,7 +541,11 @@ export default function DailyTodosView({
         {/* Todo Detail Dialog */}
         <TodoDetailWrapper
           selectedId={selectedId}
-          todos={[...dailyTodosList, ...overdueTodosList]}
+          todos={[
+            ...dailyTodosList,
+            ...overdueTodosList,
+            ...completedTodosList,
+          ]}
           onClose={() => onSelectedIdChange(null)}
           onUpdate={() => {
             queryClient.invalidateQueries({ queryKey: ["todos"] })

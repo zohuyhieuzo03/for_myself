@@ -1245,6 +1245,12 @@ export type TodosReadDailyTodosData = {
 
 export type TodosReadDailyTodosResponse = (TodosPublic);
 
+export type TodosReadCompletedDailyTodosData = {
+    date: string;
+};
+
+export type TodosReadCompletedDailyTodosResponse = (TodosPublic);
+
 export type TodosScheduleTodoEndpointData = {
     date: string;
     id: string;

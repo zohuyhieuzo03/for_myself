@@ -20,7 +20,7 @@ services:
       - SMTP_PORT=1025
       - SMTP_TLS=false
       - EMAILS_FROM_EMAIL=noreply@example.com
-      - POSTGRES_SERVER=host.docker.internal
+      - POSTGRES_SERVER=db
       - POSTGRES_PORT=5432
       - POSTGRES_DB=app
       - POSTGRES_USER=postgres

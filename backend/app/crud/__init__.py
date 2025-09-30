@@ -22,6 +22,7 @@ from .todo import (
     update_checklist_item,
     update_todo,
     get_todos_for_date,
+    get_completed_todos_for_date,
     get_overdue_todos,
     schedule_todo_for_date,
     rollover_overdue_todos,
@@ -137,6 +138,7 @@ __all__ = [
     "update_checklist_item",
     # Daily scheduling functions
     "get_todos_for_date",
+    "get_completed_todos_for_date",
     "get_overdue_todos",
     "schedule_todo_for_date",
     "rollover_overdue_todos",

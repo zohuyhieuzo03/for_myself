@@ -20,6 +20,7 @@ from app.crud import (
     update_checklist_item,
     update_todo,
     get_todos_for_date,
+    get_completed_todos_for_date,
     get_overdue_todos,
     schedule_todo_for_date,
     rollover_overdue_todos,
@@ -291,6 +292,23 @@ def read_daily_todos(
     Get todos scheduled for a specific date.
     """
     todos = get_todos_for_date(
+        session=session, 
+        owner_id=current_user.id, 
+        target_date=date
+    )
+    return TodosPublic(data=todos, count=len(todos))
+
+
+@router.get("/daily/{date}/completed", response_model=TodosPublic)
+def read_completed_daily_todos(
+    session: SessionDep, 
+    current_user: CurrentUser, 
+    date: date
+) -> Any:
+    """
+    Get completed/archived todos for a specific date.
+    """
+    todos = get_completed_todos_for_date(
         session=session, 
         owner_id=current_user.id, 
         target_date=date

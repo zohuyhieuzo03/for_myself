@@ -1,8 +1,8 @@
 import { Button, Flex, Input, Textarea } from "@chakra-ui/react"
+import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { FaRegCommentDots } from "react-icons/fa6"
 import { FeedbackService } from "@/client"
-import { useMutation } from "@tanstack/react-query"
 import useCustomToast from "@/hooks/useCustomToast"
 import {
   DialogBody,
@@ -53,7 +53,11 @@ const FeedbackButton = () => {
         </DialogHeader>
         <DialogBody>
           <Field label="Title" required>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Title"
+            />
           </Field>
           <Field label="Description">
             <Textarea
@@ -68,7 +72,11 @@ const FeedbackButton = () => {
           <Button variant="subtle" onClick={() => setIsOpen(false)} mr={2}>
             Cancel
           </Button>
-          <Button onClick={() => createMutation.mutate()} loading={createMutation.isPending} disabled={!title.trim()}>
+          <Button
+            onClick={() => createMutation.mutate()}
+            loading={createMutation.isPending}
+            disabled={!title.trim()}
+          >
             Submit
           </Button>
         </DialogFooter>
@@ -78,5 +86,3 @@ const FeedbackButton = () => {
 }
 
 export default FeedbackButton
-
-

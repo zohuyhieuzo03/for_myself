@@ -218,6 +218,21 @@ def rollover_overdue_todos(*, session: Session, owner_id: uuid.UUID) -> list[Tod
     return overdue_todos
 
 
+def get_completed_todos_for_date(
+    *, session: Session, owner_id: uuid.UUID, target_date: date
+) -> list[Todo]:
+    """Get all completed/archived todos for a specific date"""
+    statement = (
+        select(Todo)
+        .where(Todo.owner_id == owner_id)
+        .where(Todo.scheduled_date == target_date)
+        .where(Todo.status.in_(["done", "archived"]))
+        .order_by(Todo.updated_at.desc())
+    )
+    todos = list(session.exec(statement).all())
+    return todos
+
+
 def get_daily_schedule_summary(
     *, session: Session, owner_id: uuid.UUID, days: int = 7
 ) -> dict[date, int]:
