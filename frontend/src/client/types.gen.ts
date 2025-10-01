@@ -449,6 +449,7 @@ export type TodoCreate = {
     scheduled_date?: (string | null);
     parent_id?: (string | null);
     milestone_id?: (string | null);
+    subject_id?: (string | null);
 };
 
 export type TodoPriority = 'low' | 'medium' | 'high' | 'urgent';
@@ -464,6 +465,8 @@ export type TodoPublic = {
     id: string;
     owner_id: string;
     parent_id?: (string | null);
+    milestone_id?: (string | null);
+    subject_id?: (string | null);
     created_at: string;
     updated_at: string;
     checklist_items?: Array<ChecklistItemPublic>;
@@ -487,6 +490,7 @@ export type TodoUpdate = {
     type?: (TodoType | null);
     parent_id?: (string | null);
     milestone_id?: (string | null);
+    subject_id?: (string | null);
     scheduled_date?: (string | null);
 };
 
@@ -1214,6 +1218,18 @@ export type TodosReadTodoMilestoneData = {
 };
 
 export type TodosReadTodoMilestoneResponse = (unknown);
+
+export type TodosReadTodoSubjectData = {
+    id: string;
+};
+
+export type TodosReadTodoSubjectResponse = (unknown);
+
+export type TodosReadTodosBySubjectData = {
+    subjectId: string;
+};
+
+export type TodosReadTodosBySubjectResponse = (TodosPublic);
 
 export type TodosReadChecklistItemsData = {
     todoId: string;

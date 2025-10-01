@@ -114,6 +114,28 @@ def get_todo_milestone(*, session: Session, todo_id: uuid.UUID) -> Any | None:
     return milestone
 
 
+# ========= SUBJECT QUERIES =========
+def get_todos_by_subject(*, session: Session, subject_id: uuid.UUID, owner_id: uuid.UUID) -> list[Todo]:
+    statement = select(Todo).where(
+        Todo.subject_id == subject_id,
+        Todo.owner_id == owner_id
+    ).order_by(Todo.created_at)
+    todos = list(session.exec(statement).all())
+    return todos
+
+
+def get_todo_subject(*, session: Session, todo_id: uuid.UUID) -> Any | None:
+    statement = select(Todo).where(Todo.id == todo_id)
+    todo = session.exec(statement).first()
+    if not todo:
+        return None
+    if todo.subject_id is None:
+        return None
+    from app.models import ResourceSubject
+    subject = session.get(ResourceSubject, todo.subject_id)
+    return subject
+
+
 # ========= CHECKLIST ITEM CRUD =========
 def create_checklist_item(*, session: Session, checklist_item_in: ChecklistItemCreate, todo_id: uuid.UUID) -> ChecklistItem:
     db_checklist_item = ChecklistItem.model_validate(checklist_item_in, update={"todo_id": todo_id})
@@ -165,7 +187,7 @@ def get_todos_for_date(
         select(Todo)
         .where(Todo.owner_id == owner_id)
         .where(Todo.scheduled_date == target_date)
-        .where(Todo.status.in_(["todo", "doing", "planning"]))  # Only active statuses
+        .where(Todo.status.in_(["todo", "doing", "planning", "backlog"]))  # Only active statuses
         .order_by(Todo.priority.desc(), Todo.created_at.asc())
     )
     todos = list(session.exec(statement).all())
@@ -179,7 +201,7 @@ def get_overdue_todos(*, session: Session, owner_id: uuid.UUID) -> list[Todo]:
         select(Todo)
         .where(Todo.owner_id == owner_id)
         .where(Todo.scheduled_date < today)
-        .where(Todo.status.in_(["todo", "doing", "planning"]))
+        .where(Todo.status.in_(["todo", "doing", "planning", "backlog"]))
         .order_by(Todo.scheduled_date.desc(), Todo.priority.desc())
     )
     todos = list(session.exec(statement).all())
@@ -247,7 +269,7 @@ def get_daily_schedule_summary(
         .where(Todo.owner_id == owner_id)
         .where(Todo.scheduled_date >= today)
         .where(Todo.scheduled_date <= end_date)
-        .where(Todo.status.in_(["todo", "doing", "planning"]))
+        .where(Todo.status.in_(["todo", "doing", "planning", "backlog"]))
         .group_by(Todo.scheduled_date)
     )
     

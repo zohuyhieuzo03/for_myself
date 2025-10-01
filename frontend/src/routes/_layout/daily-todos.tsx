@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_layout/daily-todos")({
 
 function DailyTodosPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [displayDate] = useState(new Date())
+  const [displayDate, setDisplayDate] = useState(new Date())
 
   // Query để lấy todos cho ngày hiện tại
   const { data: dailyTodos } = useQuery({
@@ -63,6 +63,8 @@ function DailyTodosPage() {
       <DailyTodosView
         selectedId={selectedId}
         onSelectedIdChange={setSelectedId}
+        displayDate={displayDate}
+        onDisplayDateChange={setDisplayDate}
       />
     </VStack>
   )

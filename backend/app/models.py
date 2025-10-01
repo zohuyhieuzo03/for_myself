@@ -205,6 +205,7 @@ class TodoBase(SQLModel):
 class TodoCreate(TodoBase):
     parent_id: uuid.UUID | None = None
     milestone_id: uuid.UUID | None = None
+    subject_id: uuid.UUID | None = None
     scheduled_date: date | None = None
 
     @field_validator('parent_id', mode='before')
@@ -215,6 +216,11 @@ class TodoCreate(TodoBase):
     @field_validator('milestone_id', mode='before')
     @classmethod
     def validate_milestone_id(cls, v):
+        return convert_empty_string_to_none(v)
+
+    @field_validator('subject_id', mode='before')
+    @classmethod
+    def validate_subject_id(cls, v):
         return convert_empty_string_to_none(v)
 
 
@@ -228,6 +234,7 @@ class TodoUpdate(BaseModel):
     type: TodoType | None = None
     parent_id: uuid.UUID | None = None
     milestone_id: uuid.UUID | None = None
+    subject_id: uuid.UUID | None = None
     scheduled_date: date | None = None
 
     @field_validator('parent_id', mode='before')
@@ -238,6 +245,11 @@ class TodoUpdate(BaseModel):
     @field_validator('milestone_id', mode='before')
     @classmethod
     def validate_milestone_id(cls, v):
+        return convert_empty_string_to_none(v)
+
+    @field_validator('subject_id', mode='before')
+    @classmethod
+    def validate_subject_id(cls, v):
         return convert_empty_string_to_none(v)
 
 
@@ -253,6 +265,9 @@ class Todo(TodoBase, table=True):
     milestone_id: uuid.UUID | None = Field(
         default=None, foreign_key="roadmapmilestone.id", ondelete="SET NULL"
     )
+    subject_id: uuid.UUID | None = Field(
+        default=None, foreign_key="resourcesubject.id", ondelete="SET NULL"
+    )
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     owner: User | None = Relationship(back_populates="todos")
@@ -264,6 +279,7 @@ class Todo(TodoBase, table=True):
         back_populates="todo", cascade_delete=True
     )
     milestone: Optional["RoadmapMilestone"] = Relationship(back_populates="todos")
+    subject: Optional["ResourceSubject"] = Relationship(back_populates="todos")
 
 
 # Properties to return via API, id is always required
@@ -271,6 +287,8 @@ class TodoPublic(TodoBase):
     id: uuid.UUID
     owner_id: uuid.UUID
     parent_id: uuid.UUID | None = None
+    milestone_id: uuid.UUID | None = None
+    subject_id: uuid.UUID | None = None
     created_at: datetime
     updated_at: datetime
     checklist_items: list["ChecklistItemPublic"] = []
@@ -862,6 +880,7 @@ class ResourceSubject(ResourceSubjectBase, table=True):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     resource: Resource | None = Relationship(back_populates="subjects")
+    todos: list["Todo"] = Relationship(back_populates="subject")
 
 
 class ResourceSubjectPublic(ResourceSubjectBase):

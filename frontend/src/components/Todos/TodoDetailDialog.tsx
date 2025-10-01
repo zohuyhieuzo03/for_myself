@@ -4,7 +4,13 @@ import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FiCalendar } from "react-icons/fi"
 
-import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
+import {
+  type ResourceSubjectPublic,
+  ResourcesService,
+  type TodoPublic,
+  TodosService,
+  type TodoUpdate,
+} from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import {
   TODO_PRIORITY_OPTIONS,
@@ -43,6 +49,17 @@ export default function TodoDetailDialog({
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
+  // Fetch all resources and their subjects for the subject selector
+  const { data: resourcesData } = useQuery({
+    queryKey: ["resources"],
+    queryFn: () => ResourcesService.readResources(),
+    enabled: open, // Only fetch when dialog is open
+  })
+
+  // Flatten all subjects from all resources
+  const allSubjects: ResourceSubjectPublic[] =
+    resourcesData?.data?.flatMap((resource) => resource.subjects || []) || []
+
   // Checklist items are managed independently by ChecklistManager
 
   const {
@@ -60,6 +77,7 @@ export default function TodoDetailDialog({
       estimate_minutes: todo.estimate_minutes || undefined,
       priority: todo.priority || "medium",
       type: todo.type || "task",
+      subject_id: todo.subject_id || undefined,
       scheduled_date: todo.scheduled_date
         ? new Date(todo.scheduled_date).toISOString().split("T")[0]
         : undefined,
@@ -76,6 +94,7 @@ export default function TodoDetailDialog({
       estimate_minutes: todo.estimate_minutes || undefined,
       priority: todo.priority || "medium",
       type: todo.type || "task",
+      subject_id: todo.subject_id || undefined,
       scheduled_date: todo.scheduled_date
         ? new Date(todo.scheduled_date).toISOString().split("T")[0]
         : undefined,
@@ -307,6 +326,30 @@ export default function TodoDetailDialog({
                   {TODO_TYPE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
+              <Field
+                invalid={!!errors.subject_id}
+                errorText={errors.subject_id?.message}
+                label="Subject (Optional)"
+              >
+                <select
+                  {...register("subject_id")}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                  }}
+                >
+                  <option value="">No Subject</option>
+                  {allSubjects.map((subject) => (
+                    <option key={subject.id} value={subject.id}>
+                      {subject.title}
                     </option>
                   ))}
                 </select>

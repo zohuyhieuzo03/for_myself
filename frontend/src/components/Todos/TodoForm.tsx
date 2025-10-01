@@ -6,10 +6,12 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
+import { useQuery } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import type { TodoCreate, TodoStatus } from "@/client"
+import type { ResourceSubjectPublic, TodoCreate, TodoStatus } from "@/client"
+import { ResourcesService } from "@/client"
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -37,6 +39,17 @@ export function TodoForm({
   initialData = {},
   title = "Add Todo",
 }: TodoFormProps) {
+  // Fetch all resources and their subjects for the subject selector
+  const { data: resourcesData } = useQuery({
+    queryKey: ["resources"],
+    queryFn: () => ResourcesService.readResources(),
+    enabled: isOpen, // Only fetch when dialog is open
+  })
+
+  // Flatten all subjects from all resources
+  const allSubjects: ResourceSubjectPublic[] =
+    resourcesData?.data?.flatMap((resource) => resource.subjects || []) || []
+
   const {
     register,
     handleSubmit,
@@ -52,6 +65,7 @@ export function TodoForm({
       estimate_minutes: undefined,
       priority: "medium" as const,
       type: "task" as const,
+      subject_id: undefined,
       ...initialData,
     },
   })
@@ -66,6 +80,7 @@ export function TodoForm({
         estimate_minutes: undefined,
         priority: "medium" as const,
         type: "task" as const,
+        subject_id: undefined,
         ...initialData,
       })
     }
@@ -206,6 +221,30 @@ export function TodoForm({
                   <option value="health">Health</option>
                   <option value="finance">Finance</option>
                   <option value="other">Other</option>
+                </select>
+              </Field>
+
+              <Field
+                invalid={!!errors.subject_id}
+                errorText={errors.subject_id?.message}
+                label="Subject (Optional)"
+              >
+                <select
+                  {...register("subject_id")}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                  }}
+                >
+                  <option value="">No Subject</option>
+                  {allSubjects.map((subject) => (
+                    <option key={subject.id} value={subject.id}>
+                      {subject.title}
+                    </option>
+                  ))}
                 </select>
               </Field>
             </VStack>

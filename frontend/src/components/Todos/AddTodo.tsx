@@ -6,12 +6,18 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaPlus } from "react-icons/fa"
 
-import { type TodoCreate, type TodoStatus, TodosService } from "@/client"
+import {
+  type ResourceSubjectPublic,
+  ResourcesService,
+  type TodoCreate,
+  type TodoStatus,
+  TodosService,
+} from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { formatDate, handleError } from "@/utils"
@@ -40,6 +46,18 @@ const AddTodo = (props: AddTodoProps = {}) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+
+  // Fetch all resources and their subjects for the subject selector
+  const { data: resourcesData } = useQuery({
+    queryKey: ["resources"],
+    queryFn: () => ResourcesService.readResources(),
+    enabled: isOpen, // Only fetch when dialog is open
+  })
+
+  // Flatten all subjects from all resources
+  const allSubjects: ResourceSubjectPublic[] =
+    resourcesData?.data?.flatMap((resource) => resource.subjects || []) || []
+
   const {
     register,
     handleSubmit,
@@ -55,6 +73,7 @@ const AddTodo = (props: AddTodoProps = {}) => {
       estimate_minutes: undefined,
       priority: "medium" as const,
       type: "task" as const,
+      subject_id: undefined,
     },
   })
 
@@ -68,6 +87,7 @@ const AddTodo = (props: AddTodoProps = {}) => {
           estimate_minutes: data.estimate_minutes,
           priority: data.priority,
           type: data.type,
+          subject_id: data.subject_id || undefined,
           scheduled_date: defaultScheduledDate
             ? formatDate(defaultScheduledDate)
             : undefined,
@@ -226,6 +246,30 @@ const AddTodo = (props: AddTodoProps = {}) => {
                   <option value="health">Health</option>
                   <option value="finance">Finance</option>
                   <option value="other">Other</option>
+                </select>
+              </Field>
+
+              <Field
+                invalid={!!errors.subject_id}
+                errorText={errors.subject_id?.message}
+                label="Subject (Optional)"
+              >
+                <select
+                  {...register("subject_id")}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                  }}
+                >
+                  <option value="">No Subject</option>
+                  {allSubjects.map((subject) => (
+                    <option key={subject.id} value={subject.id}>
+                      {subject.title}
+                    </option>
+                  ))}
                 </select>
               </Field>
 

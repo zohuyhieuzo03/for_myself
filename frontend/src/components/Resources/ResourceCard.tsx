@@ -21,7 +21,6 @@ export function ResourceCard({
   onEdit,
   onDelete,
 }: ResourceCardProps) {
-
   return (
     <Box
       position="relative"
@@ -57,8 +56,8 @@ export function ResourceCard({
       <Flex justify="space-between" align="start">
         <Box flex="1">
           <Link to="/resources" search={{ id: resource.id }}>
-            <Heading 
-              size="md" 
+            <Heading
+              size="md"
               mb={2}
               cursor="pointer"
               _hover={{ color: "blue.500" }}

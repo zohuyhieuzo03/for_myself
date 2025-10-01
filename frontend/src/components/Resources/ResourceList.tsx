@@ -85,7 +85,6 @@ export function ResourceList({ milestoneId }: ResourceListProps) {
     },
   })
 
-
   const handleCreateResource = () => {
     setEditingResource(null)
     setIsResourceFormOpen(true)
@@ -112,7 +111,6 @@ export function ResourceList({ milestoneId }: ResourceListProps) {
       createResourceMutation.mutate(data as ResourceCreate)
     }
   }
-
 
   if (isLoading) {
     return <Text>Loading resources...</Text>
@@ -162,7 +160,6 @@ export function ResourceList({ milestoneId }: ResourceListProps) {
         isEditing={!!editingResource}
         milestoneId={milestoneId}
       />
-
     </Box>
   )
 }

@@ -16,7 +16,11 @@ import {
 } from "../ui/drawer"
 import SidebarItems from "./SidebarItems"
 
-const Sidebar = () => {
+interface SidebarProps {
+  collapsed?: boolean
+}
+
+const Sidebar = ({ collapsed }: SidebarProps) => {
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const { logout } = useAuth()
@@ -82,12 +86,12 @@ const Sidebar = () => {
         position="sticky"
         bg="bg.subtle"
         top={0}
-        minW="xs"
+        minW={collapsed ? "16" : "xs"}
         h="100vh"
-        p={4}
+        p={collapsed ? 2 : 4}
       >
         <Box w="100%">
-          <SidebarItems />
+          <SidebarItems collapsed={collapsed} />
         </Box>
       </Box>
     </>

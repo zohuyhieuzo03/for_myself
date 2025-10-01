@@ -19,6 +19,8 @@ from .todo import (
     get_todos,
     get_todos_by_milestone,
     get_todo_milestone,
+    get_todos_by_subject,
+    get_todo_subject,
     update_checklist_item,
     update_todo,
     get_todos_for_date,
@@ -130,6 +132,8 @@ __all__ = [
     "get_todo_parent",
     "get_todos_by_milestone",
     "get_todo_milestone",
+    "get_todos_by_subject",
+    "get_todo_subject",
     # Checklist functions
     "create_checklist_item",
     "delete_checklist_item",

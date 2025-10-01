@@ -62,6 +62,7 @@ const financeItems = [
 
 interface SidebarItemsProps {
   onClose?: () => void
+  collapsed?: boolean
 }
 
 interface Item {
@@ -70,7 +71,7 @@ interface Item {
   path: string
 }
 
-const SidebarItems = ({ onClose }: SidebarItemsProps) => {
+const SidebarItems = ({ onClose, collapsed }: SidebarItemsProps) => {
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
 
@@ -81,8 +82,8 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   const listItems = finalItems.map(({ icon, title, path }) => (
     <RouterLink key={title} to={path} onClick={onClose}>
       <Flex
-        gap={4}
-        px={4}
+        gap={collapsed ? 0 : 4}
+        px={collapsed ? 0 : 4}
         py={2}
         _hover={{
           background: "gray.subtle",
@@ -90,8 +91,13 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
         alignItems="center"
         fontSize="sm"
       >
-        <Icon as={icon} alignSelf="center" />
-        <Text ml={2}>{title}</Text>
+        <Icon
+          as={icon}
+          alignSelf="center"
+          boxSize={5}
+          mx={collapsed ? "auto" : 0}
+        />
+        {!collapsed && <Text ml={2}>{title}</Text>}
       </Flex>
     </RouterLink>
   ))
@@ -99,8 +105,8 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   const financeListItems = financeItems.map(({ icon, title, path }) => (
     <RouterLink key={title} to={path} onClick={onClose}>
       <Flex
-        gap={4}
-        px={4}
+        gap={collapsed ? 0 : 4}
+        px={collapsed ? 0 : 4}
         py={2}
         _hover={{
           background: "gray.subtle",
@@ -108,17 +114,24 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
         alignItems="center"
         fontSize="sm"
       >
-        <Icon as={icon} alignSelf="center" />
-        <Text ml={2}>{title}</Text>
+        <Icon
+          as={icon}
+          alignSelf="center"
+          boxSize={5}
+          mx={collapsed ? "auto" : 0}
+        />
+        {!collapsed && <Text ml={2}>{title}</Text>}
       </Flex>
     </RouterLink>
   ))
 
   return (
     <>
-      <Text fontSize="xs" px={4} py={2} fontWeight="bold">
-        Menu
-      </Text>
+      {!collapsed && (
+        <Text fontSize="xs" px={4} py={2} fontWeight="bold">
+          Menu
+        </Text>
+      )}
       <Box>{listItems}</Box>
       <Box>{financeListItems}</Box>
     </>

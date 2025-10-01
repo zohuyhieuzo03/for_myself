@@ -27,6 +27,8 @@ interface DailyTodosViewProps {
   selectedId: string | null
   onSelectedIdChange: (id: string | null) => void
   pickerMode?: boolean
+  displayDate?: Date
+  onDisplayDateChange?: (date: Date) => void
 }
 
 interface TodoCardComponentProps {
@@ -159,8 +161,14 @@ export default function DailyTodosView({
   selectedId,
   onSelectedIdChange,
   pickerMode = false,
+  displayDate: propDisplayDate,
+  onDisplayDateChange,
 }: DailyTodosViewProps) {
-  const [displayDate, setDisplayDate] = useState(new Date())
+  // Use prop displayDate if provided, otherwise use local state
+  const [localDisplayDate, setLocalDisplayDate] = useState(new Date())
+  const displayDate = propDisplayDate ?? localDisplayDate
+  const setDisplayDate = onDisplayDateChange ?? setLocalDisplayDate
+
   const [pickerDate, setPickerDate] = useState(new Date())
   const [showOverdue] = useState(true)
   const {

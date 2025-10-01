@@ -17,6 +17,8 @@ from app.crud import (
     get_todo_parent,
     get_todos_by_milestone,
     get_todo_milestone,
+    get_todos_by_subject,
+    get_todo_subject,
     update_checklist_item,
     update_todo,
     get_todos_for_date,
@@ -198,6 +200,29 @@ def read_todo_milestone(session: SessionDep, current_user: CurrentUser, id: uuid
         raise HTTPException(status_code=400, detail="Not enough permissions")
     milestone = get_todo_milestone(session=session, todo_id=id)
     return milestone
+
+
+@router.get("/{id}/subject")
+def read_todo_subject(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
+    """
+    Get subject of a todo, if any.
+    """
+    todo = session.get(Todo, id)
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    if not current_user.is_superuser and (todo.owner_id != current_user.id):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
+    subject = get_todo_subject(session=session, todo_id=id)
+    return subject
+
+
+@router.get("/by-subject/{subject_id}", response_model=TodosPublic)
+def read_todos_by_subject(session: SessionDep, current_user: CurrentUser, subject_id: uuid.UUID) -> Any:
+    """
+    Get all todos assigned to a specific subject.
+    """
+    todos = get_todos_by_subject(session=session, subject_id=subject_id, owner_id=current_user.id)
+    return TodosPublic(data=todos, count=len(todos))
 
 
 # ========= CHECKLIST ITEM ENDPOINTS =========

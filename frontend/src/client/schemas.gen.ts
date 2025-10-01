@@ -2410,6 +2410,18 @@ export const TodoCreateSchema = {
                 }
             ],
             title: 'Milestone Id'
+        },
+        subject_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Subject Id'
         }
     },
     type: 'object',
@@ -2500,6 +2512,30 @@ export const TodoPublicSchema = {
                 }
             ],
             title: 'Parent Id'
+        },
+        milestone_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Milestone Id'
+        },
+        subject_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Subject Id'
         },
         created_at: {
             type: 'string',
@@ -2629,6 +2665,18 @@ export const TodoUpdateSchema = {
                 }
             ],
             title: 'Milestone Id'
+        },
+        subject_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Subject Id'
         },
         scheduled_date: {
             anyOf: [
