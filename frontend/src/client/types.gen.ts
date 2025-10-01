@@ -339,6 +339,7 @@ export type ResourcesPublic = {
 export type ResourceSubjectCreate = {
     title: string;
     description?: (string | null);
+    learning_objectives?: (string | null);
     is_completed?: boolean;
     order_index?: number;
 };
@@ -346,6 +347,7 @@ export type ResourceSubjectCreate = {
 export type ResourceSubjectPublic = {
     title: string;
     description?: (string | null);
+    learning_objectives?: (string | null);
     is_completed?: boolean;
     order_index?: number;
     id: string;
@@ -366,6 +368,7 @@ export type ResourceSubjectsPublic = {
 export type ResourceSubjectUpdate = {
     title?: (string | null);
     description?: (string | null);
+    learning_objectives?: (string | null);
     is_completed?: (boolean | null);
     order_index?: (number | null);
 };

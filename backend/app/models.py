@@ -854,6 +854,7 @@ class ResourcesPublic(SQLModel):
 class ResourceSubjectBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=500)
+    learning_objectives: str | None = Field(default=None)
     is_completed: bool = Field(default=False)
     order_index: int = Field(default=0)
 
@@ -865,6 +866,7 @@ class ResourceSubjectCreate(ResourceSubjectBase):
 class ResourceSubjectUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=500)
+    learning_objectives: str | None = None
     is_completed: bool | None = None
     order_index: int | None = None
 

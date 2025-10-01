@@ -1,4 +1,4 @@
-import { Button, Input, Text, VStack } from "@chakra-ui/react"
+import { Button, Input, Text, Textarea, VStack } from "@chakra-ui/react"
 import { useState } from "react"
 import type { ResourceSubjectCreate, ResourceSubjectUpdate } from "@/client"
 import {
@@ -29,6 +29,7 @@ export function ResourceSubjectForm({
   const [formData, setFormData] = useState<ResourceSubjectCreate>({
     title: initialData?.title || "",
     description: initialData?.description || "",
+    learning_objectives: (initialData as any)?.learning_objectives || "",
     is_completed: initialData?.is_completed || false,
     order_index: initialData?.order_index || 0,
   })
@@ -76,6 +77,17 @@ export function ResourceSubjectForm({
                     handleInputChange("description", e.target.value)
                   }
                   placeholder="Subject description"
+                />
+              </Field>
+
+              <Field label="Learning Objectives">
+                <Textarea
+                  value={formData.learning_objectives || ""}
+                  onChange={(e) =>
+                    handleInputChange("learning_objectives", e.target.value)
+                  }
+                  placeholder="What should be learned, key questions, required knowledge..."
+                  rows={4}
                 />
               </Field>
 

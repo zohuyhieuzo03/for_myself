@@ -95,31 +95,20 @@ function SubjectItem({
       <Card.Body p={4}>
         {/* Subject Header */}
         <Flex align="center" justify="space-between" mb={3}>
-          <Box flex="1">
-            <Flex align="center" gap={2} mb={1}>
-              <input
-                type="checkbox"
-                checked={subject.is_completed}
-                onChange={(e) => onToggle(subject.id, e.target.checked)}
-                style={{ marginRight: "8px" }}
-              />
-              <Text
-                fontWeight="medium"
-                textDecoration={subject.is_completed ? "line-through" : "none"}
-              >
-                {subject.title}
-              </Text>
-            </Flex>
-            {subject.description && (
-              <Text
-                fontSize="sm"
-                color="gray.600"
-                textDecoration={subject.is_completed ? "line-through" : "none"}
-              >
-                {subject.description}
-              </Text>
-            )}
-          </Box>
+          <Flex align="center" gap={2} flex="1">
+            <input
+              type="checkbox"
+              checked={subject.is_completed}
+              onChange={(e) => onToggle(subject.id, e.target.checked)}
+              style={{ marginRight: "8px" }}
+            />
+            <Text
+              fontWeight="medium"
+              textDecoration={subject.is_completed ? "line-through" : "none"}
+            >
+              {subject.title}
+            </Text>
+          </Flex>
           <HStack>
             <Button
               size="sm"
@@ -138,6 +127,35 @@ function SubjectItem({
             </Button>
           </HStack>
         </Flex>
+
+        {/* Temporarily hidden description and learning objectives */}
+        {/* {
+        {subject.description && (
+          <Text
+            fontSize="sm"
+            color="gray.600"
+            textDecoration={subject.is_completed ? "line-through" : "none"}
+            mb={2}
+          >
+            {subject.description}
+          </Text>
+        )} */}
+        {subject.learning_objectives && (
+          <Box mt={3} pl={3} borderLeft="3px solid" borderColor="gray.200">
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              textTransform="uppercase"
+              letterSpacing="wide"
+              mb={1}
+            >
+              Learning objectives
+            </Text>
+            <Text fontSize="sm" color="gray.700" whiteSpace="pre-wrap" lineHeight="1.5">
+              {subject.learning_objectives}
+            </Text>
+          </Box>
+        )}
 
         {/* Todos Section */}
         <Box borderTop="1px" borderColor="gray.200" pt={3}>
@@ -532,9 +550,25 @@ export function ResourceDetail({ resourceId }: ResourceDetailProps) {
               size="sm"
               variant="outline"
               colorScheme="blue"
+              maxW="300px"
             >
               <FiExternalLink />
-              {resource.url}
+              {(() => {
+                try {
+                  const url = new URL(resource.url)
+                  const domain = url.hostname
+                  // Nếu URL quá dài, chỉ hiển thị domain
+                  if (resource.url.length > 50) {
+                    return domain.replace('www.', '')
+                  }
+                  return resource.url
+                } catch {
+                  // Nếu không parse được URL, hiển thị 30 ký tự đầu
+                  return resource.url.length > 30 
+                    ? resource.url.substring(0, 30) + '...'
+                    : resource.url
+                }
+              })()}
             </Button>
           </HStack>
         </Box>

@@ -1711,6 +1711,17 @@ export const ResourceSubjectCreateSchema = {
             ],
             title: 'Description'
         },
+        learning_objectives: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Learning Objectives'
+        },
         is_completed: {
             type: 'boolean',
             title: 'Is Completed',
@@ -1746,6 +1757,17 @@ export const ResourceSubjectPublicSchema = {
                 }
             ],
             title: 'Description'
+        },
+        learning_objectives: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Learning Objectives'
         },
         is_completed: {
             type: 'boolean',
@@ -1825,6 +1847,17 @@ export const ResourceSubjectUpdateSchema = {
                 }
             ],
             title: 'Description'
+        },
+        learning_objectives: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Learning Objectives'
         },
         is_completed: {
             anyOf: [
