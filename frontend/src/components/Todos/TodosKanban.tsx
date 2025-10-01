@@ -205,84 +205,84 @@ const DraggableTodoCard = memo(
           transition="box-shadow 0.2s"
           _active={{ cursor: "grabbing" }}
         >
-        <Card.Body p={3}>
-          <VStack align="stretch" gap={2}>
-            <Flex justify="space-between" align="start">
-              <Text
-                fontWeight="medium"
-                fontSize="sm"
-                overflow="hidden"
-                textOverflow="ellipsis"
-                display="-webkit-box"
-                style={{ WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
-                wordBreak="break-word"
-              >
-                {todo.title}
-              </Text>
-              <HStack gap={1}>
-                <Button
-                  size="xs"
-                  variant="ghost"
-                  colorScheme="gray"
-                  onClick={handleArchive}
-                  disabled={archiveTodoMutation.isPending}
-                  title="Archive todo"
+          <Card.Body p={3}>
+            <VStack align="stretch" gap={2}>
+              <Flex justify="space-between" align="start">
+                <Text
+                  fontWeight="medium"
+                  fontSize="sm"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  display="-webkit-box"
+                  style={{ WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
+                  wordBreak="break-word"
                 >
-                  <FiArchive fontSize="12px" />
-                </Button>
-                {/* <TodoActionsMenu todo={todo} /> */}
+                  {todo.title}
+                </Text>
+                <HStack gap={1}>
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    colorScheme="gray"
+                    onClick={handleArchive}
+                    disabled={archiveTodoMutation.isPending}
+                    title="Archive todo"
+                  >
+                    <FiArchive fontSize="12px" />
+                  </Button>
+                  {/* <TodoActionsMenu todo={todo} /> */}
+                </HStack>
+              </Flex>
+
+              {todo.description && (
+                <Text
+                  fontSize="xs"
+                  color="gray.600"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  display="-webkit-box"
+                  style={{ WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
+                >
+                  {todo.description}
+                </Text>
+              )}
+
+              {/* Type, Priority and Estimate */}
+              <HStack gap={2} flexWrap="wrap">
+                {todo.type && TASK_TYPE_CONFIG[todo.type] && (
+                  <Badge
+                    size="sm"
+                    colorPalette={TASK_TYPE_CONFIG[todo.type].colorPalette}
+                    variant="subtle"
+                  >
+                    {TASK_TYPE_CONFIG[todo.type].label}
+                  </Badge>
+                )}
+                {todo.priority && PRIORITY_CONFIG[todo.priority] && (
+                  <Badge
+                    size="sm"
+                    colorPalette={PRIORITY_CONFIG[todo.priority].colorPalette}
+                    variant="subtle"
+                  >
+                    {todo.priority}
+                  </Badge>
+                )}
+                {todo.estimate_minutes && (
+                  <Badge size="sm" colorPalette="green" variant="subtle">
+                    {todo.estimate_minutes}m
+                  </Badge>
+                )}
               </HStack>
-            </Flex>
 
-            {todo.description && (
-              <Text
-                fontSize="xs"
-                color="gray.600"
-                overflow="hidden"
-                textOverflow="ellipsis"
-                display="-webkit-box"
-                style={{ WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
-              >
-                {todo.description}
-              </Text>
-            )}
+              {/* Checklist hidden in Kanban; available in Detail Dialog */}
 
-            {/* Type, Priority and Estimate */}
-            <HStack gap={2} flexWrap="wrap">
-              {todo.type && TASK_TYPE_CONFIG[todo.type] && (
-                <Badge
-                  size="sm"
-                  colorPalette={TASK_TYPE_CONFIG[todo.type].colorPalette}
-                  variant="subtle"
-                >
-                  {TASK_TYPE_CONFIG[todo.type].label}
-                </Badge>
-              )}
-              {todo.priority && PRIORITY_CONFIG[todo.priority] && (
-                <Badge
-                  size="sm"
-                  colorPalette={PRIORITY_CONFIG[todo.priority].colorPalette}
-                  variant="subtle"
-                >
-                  {todo.priority}
-                </Badge>
-              )}
-              {todo.estimate_minutes && (
-                <Badge size="sm" colorPalette="green" variant="subtle">
-                  {todo.estimate_minutes}m
-                </Badge>
-              )}
-            </HStack>
-
-            {/* Checklist hidden in Kanban; available in Detail Dialog */}
-
-            <HStack justify="space-between" fontSize="xs" color="gray.500">
-              <Text>{formatDateTimeShort(todo.created_at)}</Text>
-            </HStack>
-          </VStack>
-        </Card.Body>
-      </Card.Root>
-    </div>
+              <HStack justify="space-between" fontSize="xs" color="gray.500">
+                <Text>{formatDateTimeShort(todo.created_at)}</Text>
+              </HStack>
+            </VStack>
+          </Card.Body>
+        </Card.Root>
+      </div>
     )
   },
   (prevProps, nextProps) =>
@@ -536,47 +536,50 @@ export default function TodosKanban({
     setActiveId(event.active.id as string)
   }, [])
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event
-    setActiveId(null)
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event
+      setActiveId(null)
 
-    if (!over) return
+      if (!over) return
 
-    const todoId = active.id as string
-    const overId = String(over.id)
+      const todoId = active.id as string
+      const overId = String(over.id)
 
-    // Resolve target status whether dropping on column (status id) or on a card (todo id)
-    let newStatus: TodoStatus | null = null
-    if (STATUS_COLUMNS.some((c) => c.status === overId)) {
-      newStatus = overId as TodoStatus
-    } else {
-      const overTodo = todos.find((t) => t.id === overId)
-      if (!overTodo) return
-      newStatus = (overTodo.status ?? "todo") as TodoStatus
-    }
+      // Resolve target status whether dropping on column (status id) or on a card (todo id)
+      let newStatus: TodoStatus | null = null
+      if (STATUS_COLUMNS.some((c) => c.status === overId)) {
+        newStatus = overId as TodoStatus
+      } else {
+        const overTodo = todos.find((t) => t.id === overId)
+        if (!overTodo) return
+        newStatus = (overTodo.status ?? "todo") as TodoStatus
+      }
 
-    // Find the todo to get current status
-    const todo = todos.find((t) => t.id === todoId)
-    if (!todo) return
+      // Find the todo to get current status
+      const todo = todos.find((t) => t.id === todoId)
+      if (!todo) return
 
-    // Only call API if status actually changed
-    if (!newStatus || todo.status === newStatus) return
+      // Only call API if status actually changed
+      if (!newStatus || todo.status === newStatus) return
 
-    // Prevent moving to done if any checklist item is not completed
-    if (
-      newStatus === "done" &&
-      (todo.checklist_items?.some((item) => !item.is_completed) ?? false)
-    ) {
-      handleError({
-        message: "Complete all checklist items before marking as done.",
-        status: 400,
-        name: "ChecklistIncomplete",
-      } as unknown as ApiError)
-      return
-    }
+      // Prevent moving to done if any checklist item is not completed
+      if (
+        newStatus === "done" &&
+        (todo.checklist_items?.some((item) => !item.is_completed) ?? false)
+      ) {
+        handleError({
+          message: "Complete all checklist items before marking as done.",
+          status: 400,
+          name: "ChecklistIncomplete",
+        } as unknown as ApiError)
+        return
+      }
 
-    updateTodoStatusMutation.mutate({ id: todoId, status: newStatus })
-  }, [todos, updateTodoStatusMutation])
+      updateTodoStatusMutation.mutate({ id: todoId, status: newStatus })
+    },
+    [todos, updateTodoStatusMutation],
+  )
 
   // Memoize drag preview todo
   const activeTodo = useMemo(

@@ -46,6 +46,9 @@ export default function TodoSchedulePicker({
   const [currentMode, setCurrentMode] = useState<
     "schedule_existing" | "create_new"
   >(mode)
+  
+  // Force currentMode to match the prop mode when it's schedule_existing
+  const effectiveMode = mode === "schedule_existing" ? "schedule_existing" : currentMode
   const [selectedTodoIds, setSelectedTodoIds] = useState<string[]>([])
   const [newTodoTitle, setNewTodoTitle] = useState("")
   const queryClient = useQueryClient()
@@ -59,7 +62,7 @@ export default function TodoSchedulePicker({
         skip: 0,
         limit: 100,
       }),
-    enabled: currentMode === "schedule_existing",
+    enabled: effectiveMode === "schedule_existing",
   })
 
   // Mutation để schedule todo cho ngày được chọn
@@ -242,38 +245,40 @@ export default function TodoSchedulePicker({
               </Flex>
             </Box>
 
-            {/* Mode Toggle */}
-            <Box>
-              <Text fontWeight="bold" mb={3}>
-                Choose Action:
-              </Text>
-              <HStack gap={2}>
-                <Button
-                  size="md"
-                  variant={currentMode === "create_new" ? "solid" : "outline"}
-                  colorScheme={currentMode === "create_new" ? "purple" : "gray"}
-                  onClick={() => setCurrentMode("create_new")}
-                  flex={1}
-                >
-                  <FiPlus style={{ marginRight: "8px" }} />
-                  Create New Todo
-                </Button>
-                <Button
-                  size="md"
-                  variant={
-                    currentMode === "schedule_existing" ? "solid" : "outline"
-                  }
-                  colorScheme={
-                    currentMode === "schedule_existing" ? "green" : "gray"
-                  }
-                  onClick={() => setCurrentMode("schedule_existing")}
-                  flex={1}
-                >
-                  <FiCalendar style={{ marginRight: "8px" }} />
-                  Schedule Existing
-                </Button>
-              </HStack>
-            </Box>
+            {/* Mode Toggle - only show if mode is create_new */}
+            {mode === "create_new" && (
+              <Box>
+                <Text fontWeight="bold" mb={3}>
+                  Choose Action:
+                </Text>
+                <HStack gap={2}>
+                  <Button
+                    size="md"
+                    variant={currentMode === "create_new" ? "solid" : "outline"}
+                    colorScheme={currentMode === "create_new" ? "purple" : "gray"}
+                    onClick={() => setCurrentMode("create_new")}
+                    flex={1}
+                  >
+                    <FiPlus style={{ marginRight: "8px" }} />
+                    Create New Todo
+                  </Button>
+                  <Button
+                    size="md"
+                    variant={
+                      currentMode === "schedule_existing" ? "solid" : "outline"
+                    }
+                    colorScheme={
+                      currentMode === "schedule_existing" ? "green" : "gray"
+                    }
+                    onClick={() => setCurrentMode("schedule_existing")}
+                    flex={1}
+                  >
+                    <FiCalendar style={{ marginRight: "8px" }} />
+                    Schedule Existing
+                  </Button>
+                </HStack>
+              </Box>
+            )}
 
             {/* Selected Date Display */}
             <Box
@@ -305,7 +310,7 @@ export default function TodoSchedulePicker({
             </Box>
 
             {/* Content based on mode */}
-            {currentMode === "create_new" ? (
+            {effectiveMode === "create_new" && mode === "create_new" ? (
               <Box>
                 <Text fontWeight="bold" mb={3}>
                   Create New Todo
@@ -459,7 +464,7 @@ export default function TodoSchedulePicker({
               Cancel
             </Button>
 
-            {currentMode === "schedule_existing" && (
+            {effectiveMode === "schedule_existing" && (
               <HStack gap={3}>
                 <Button
                   variant="outline"

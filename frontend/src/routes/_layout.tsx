@@ -28,7 +28,13 @@ function Layout() {
       />
       <Flex flex="1" overflow="hidden">
         <Sidebar collapsed={sidebarCollapsed} />
-        <Flex flex="1" direction="column" p={4} overflowY="auto" maxH="calc(100vh - 80px)">
+        <Flex
+          flex="1"
+          direction="column"
+          p={4}
+          overflowY="auto"
+          maxH="calc(100vh - 80px)"
+        >
           <Outlet />
         </Flex>
       </Flex>

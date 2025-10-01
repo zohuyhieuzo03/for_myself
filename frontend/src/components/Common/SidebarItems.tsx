@@ -26,9 +26,7 @@ import type { IconType } from "react-icons/lib"
 import type { UserPublic } from "@/client"
 
 // Main navigation - Core features
-const mainItems = [
-  { icon: FiHome, title: "Dashboard", path: "/" },
-]
+const mainItems = [{ icon: FiHome, title: "Dashboard", path: "/" }]
 
 // Task Management - Productivity tools
 const taskItems = [
@@ -106,20 +104,20 @@ const SidebarItems = ({ onClose, collapsed }: SidebarItemsProps) => {
 
   // Toggle section collapse
   const toggleSection = (section: keyof typeof collapsedSections) => {
-    setCollapsedSections(prev => ({
+    setCollapsedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }))
   }
 
   // Helper function to render menu items with collapsible sections
   const renderMenuItems = (
-    items: Item[], 
-    groupTitle?: string, 
-    sectionKey?: keyof typeof collapsedSections
+    items: Item[],
+    groupTitle?: string,
+    sectionKey?: keyof typeof collapsedSections,
   ) => {
     const isCollapsed = sectionKey ? collapsedSections[sectionKey] : false
-    
+
     const menuItems = items.map(({ icon, title, path }) => (
       <RouterLink key={title} to={path} onClick={onClose}>
         <Flex

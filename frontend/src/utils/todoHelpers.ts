@@ -1,4 +1,3 @@
-import type { TodoPublic } from "@/client"
 import {
   FiAlertCircle,
   FiAlertTriangle,
@@ -8,6 +7,7 @@ import {
   FiInfo,
   FiPlay,
 } from "react-icons/fi"
+import type { TodoPublic } from "@/client"
 
 export interface StatusConfig {
   color: string
