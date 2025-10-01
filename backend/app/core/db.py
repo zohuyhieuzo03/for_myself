@@ -68,6 +68,11 @@ def create_sample_categories(session: Session, user_id: str) -> None:
         {"name": "Đầu tư", "grp": CategoryGroup.savings_debt, "is_envelope": True},
         {"name": "Trả nợ vay", "grp": CategoryGroup.savings_debt, "is_envelope": True},
         {"name": "Trả nợ thẻ tín dụng", "grp": CategoryGroup.savings_debt, "is_envelope": True},
+        
+        # Income
+        {"name": "Thu nhập", "grp": CategoryGroup.income, "is_envelope": True},
+        {"name": "Quà tặng", "grp": CategoryGroup.income, "is_envelope": True},
+        {"name": "Chuyền trả", "grp": CategoryGroup.income, "is_envelope": True},
     ]
     
     # Tạo categories
