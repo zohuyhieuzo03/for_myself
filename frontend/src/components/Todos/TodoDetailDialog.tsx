@@ -1,11 +1,13 @@
 import {
   Button,
-  ButtonGroup,
+  Grid,
+  GridItem,
   Input,
   Text,
   Textarea,
   VStack,
 } from "@chakra-ui/react"
+import { Tabs } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
@@ -17,6 +19,7 @@ import {
   FiClock,
   FiLayers,
   FiUser,
+  FiTrash2,
 } from "react-icons/fi"
 
 import {
@@ -38,7 +41,6 @@ import {
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogRoot,
   DialogTitle,
@@ -46,7 +48,6 @@ import {
 import AddParent from "./AddParent"
 import AddSubitem from "./AddSubitem"
 import ChecklistManager from "./ChecklistManager"
-import DeleteTodo from "./DeleteTodo"
 import TodoCard from "./TodoCard"
 
 interface TodoDetailDialogProps {
@@ -81,7 +82,6 @@ export default function TodoDetailDialog({
     handleSubmit,
     reset,
     getValues,
-    formState: { isSubmitting },
   } = useForm<TodoUpdate>({
     mode: "onBlur",
     criteriaMode: "all",
@@ -201,35 +201,56 @@ export default function TodoDetailDialog({
     queryClient.invalidateQueries({ queryKey: ["todos", todo.id, "children"] })
   }
 
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      await TodosService.deleteTodoEndpoint({ id: todo.id })
+    },
+    onSuccess: () => {
+      showSuccessToast("Todo deleted successfully.")
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+      onOpenChange(false)
+    },
+    onError: (err: ApiError) => handleError(err),
+  })
+
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this todo?")) {
+      deleteMutation.mutate()
+    }
+  }
+
   return (
     <DialogRoot
-      size={{ base: "xs", md: "lg" }}
+      size={{ base: "full", md: "xl" }}
       placement="center"
       open={open}
       onOpenChange={({ open }) => onOpenChange(open)}
     >
+      <DialogTitle>
+        Todo Detail
+      </DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Todo Detail</DialogTitle>
+            <Button
+              variant="ghost"
+              colorPalette="red"
+              size="sm"
+              onClick={handleDelete}
+              loading={deleteMutation.isPending}
+              style={{ position: "absolute", right: "48px", top: "16px" }}
+            >
+              <FiTrash2 size={18} />
+            </Button>
           </DialogHeader>
           <DialogBody>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr",
-                gap: "16px",
-              }}
+            <Grid
+              templateColumns={{ base: "1fr", md: "2fr 1fr" }}
+              gap={{ base: 4, md: 6 }}
             >
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "2fr 1fr",
-                  gap: "24px",
-                }}
-              >
-                {/* LEFT COLUMN (Trello main content) */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* LEFT COLUMN (Trello main content) */}
+              <GridItem>
+                <VStack gap={4} align="stretch">
                   {/* Title */}
                   <div>
                     <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -268,51 +289,79 @@ export default function TodoDetailDialog({
                     </div>
                   </div>
 
-                  {/* Checklist */}
-                  <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <FiList size={16} /> Checklist
-                    </Text>
-                    <div style={{ marginTop: 6 }}>
+                  {/* Tabs for Checklist, Subitems, Parent */}
+                  <Tabs.Root defaultValue="checklist">
+                    <Tabs.List>
+                      <Tabs.Trigger value="checklist">
+                        <FiList size={16} style={{ marginRight: 8 }} />
+                        Checklist
+                      </Tabs.Trigger>
+                      <Tabs.Trigger value="subitems">
+                        <FiLayers size={16} style={{ marginRight: 8 }} />
+                        Subitems
+                      </Tabs.Trigger>
+                      <Tabs.Trigger value="parent">
+                        <FiLayers size={16} style={{ marginRight: 8 }} />
+                        Parent
+                      </Tabs.Trigger>
+                    </Tabs.List>
+
+                    <Tabs.Content value="checklist" style={{ marginTop: 16 }}>
                       <ChecklistManager todoId={todo.id} />
-                    </div>
-                  </div>
+                    </Tabs.Content>
 
-                  {/* Subitems */}
-                  <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <FiLayers size={16} /> Subitems
-                    </Text>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "8px",
-                        width: "100%",
-                        marginTop: 6,
-                      }}
-                    >
-                      {(childrenData?.data ?? []).length === 0 ? (
-                        <Text fontSize="sm" color="gray.600">
-                          No subitems
-                        </Text>
-                      ) : (
-                        (childrenData?.data ?? []).map((child) => (
-                          <TodoCard
-                            key={child.id}
-                            todo={child}
-                            showUnlinkButton={true}
-                            onUnlink={handleChildUnlinked}
-                          />
-                        ))
-                      )}
-                      <AddSubitem todo={todo} />
-                    </div>
-                  </div>
-                </div>
+                    <Tabs.Content value="subitems" style={{ marginTop: 16 }}>
+                      <VStack gap={2} align="stretch">
+                        {(childrenData?.data ?? []).length === 0 ? (
+                          <Text fontSize="sm" color="gray.600">
+                            No subitems
+                          </Text>
+                        ) : (
+                          (childrenData?.data ?? []).map((child) => (
+                            <TodoCard
+                              key={child.id}
+                              todo={child}
+                              showUnlinkButton={true}
+                              onUnlink={handleChildUnlinked}
+                            />
+                          ))
+                        )}
+                        <AddSubitem todo={todo} />
+                      </VStack>
+                    </Tabs.Content>
 
-                {/* RIGHT SIDEBAR (Trello actions/meta) */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    <Tabs.Content value="parent" style={{ marginTop: 16 }}>
+                      <VStack gap={2} align="stretch">
+                        {parentData ? (
+                          <>
+                            <TodoCard todo={parentData} />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              colorPalette="red"
+                              onClick={handleUnlinkParent}
+                              loading={unlinkParentMutation.isPending}
+                            >
+                              Unlink Parent
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Text fontSize="sm" color="gray.600">
+                              No parent
+                            </Text>
+                            <AddParent todo={todo} hasParent={false} />
+                          </>
+                        )}
+                      </VStack>
+                    </Tabs.Content>
+                  </Tabs.Root>
+                </VStack>
+              </GridItem>
+
+              {/* RIGHT SIDEBAR (Trello actions/meta) */}
+              <GridItem>
+                <VStack gap={4} align="stretch">
                   {/* Due Date */}
                   <div>
                     <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -476,56 +525,10 @@ export default function TodoDetailDialog({
                       style={{ marginTop: 6 }}
                     />
                   </div>
-
-                  {/* Parent */}
-                  <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <FiLayers size={16} /> Parent
-                    </Text>
-                    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 8, marginTop: 6 }}>
-                      {parentData ? (
-                        <VStack gap={2} align="stretch">
-                          <TodoCard todo={parentData} />
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            colorPalette="red"
-                            onClick={handleUnlinkParent}
-                            loading={unlinkParentMutation.isPending}
-                          >
-                            Unlink Parent
-                          </Button>
-                        </VStack>
-                      ) : (
-                        <>
-                          <Text fontSize="sm" color="gray.600">
-                            No parent
-                          </Text>
-                          <AddParent todo={todo} hasParent={false} />
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                </VStack>
+              </GridItem>
+            </Grid>
           </DialogBody>
-          <DialogFooter gap={2}>
-            <ButtonGroup>
-              <DeleteTodo id={todo.id} onDeleted={() => onOpenChange(false)} />
-              <Button
-                variant="subtle"
-                colorPalette="gray"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Close
-              </Button>
-              <Button variant="solid" type="submit" loading={isSubmitting}>
-                Save
-              </Button>
-            </ButtonGroup>
-          </DialogFooter>
         </form>
         <DialogCloseTrigger />
       </DialogContent>
