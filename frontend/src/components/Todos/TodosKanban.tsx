@@ -1,84 +1,33 @@
 import {
-  Badge,
   Box,
   Button,
-  Card,
   Container,
   Flex,
   Heading,
   HStack,
-  IconButton,
-  Input,
-  Text,
-  VStack,
 } from "@chakra-ui/react"
 import {
   DndContext,
-  type DragEndEvent,
   DragOverlay,
-  type DragStartEvent,
-  PointerSensor,
-  useDndContext,
-  useDroppable,
-  useSensor,
-  useSensors,
 } from "@dnd-kit/core"
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { memo, useCallback, useMemo, useRef, useState } from "react"
-import { FiArchive, FiPlus, FiX } from "react-icons/fi"
+import { useQuery } from "@tanstack/react-query"
+import { useMemo } from "react"
 
-import {
-  type TodoCreate,
-  type TodoPublic,
-  type TodoStatus,
-  TodosService,
-  type TodoUpdate,
-} from "@/client"
-import type { ApiError } from "@/client/core/ApiError"
+import { type TodoPublic, TodosService } from "@/client"
 import PendingTodos from "@/components/Pending/PendingTodos"
 import TodoDetailDialog from "@/components/Todos/TodoDetailDialog"
-// import { TodoActionsMenu } from "@/components/Todos/TodoActionsMenu"
-import useCustomToast from "@/hooks/useCustomToast"
-import { formatDateTimeShort, handleError } from "@/utils"
-import {
-  PRIORITY_CONFIG,
-  PRIORITY_WEIGHT,
-  TASK_TYPE_CONFIG,
-} from "@/utils/todoHelpers"
+import { STATUS_COLUMNS } from "@/components/Todos/shared/kanbanConstants"
+import KanbanColumn from "@/components/Todos/shared/KanbanColumn"
+import SimpleDragPreview from "@/components/Todos/shared/SimpleDragPreview"
+import { useKanbanDragDrop } from "@/components/Todos/shared/useKanbanDragDrop"
+import { useKanbanMutations } from "@/components/Todos/shared/useKanbanMutations"
+import { PRIORITY_WEIGHT } from "@/utils/todoHelpers"
 
 interface TodosKanbanProps {
   viewMode: "table" | "kanban"
   onViewModeChange: (mode: "table" | "kanban") => void
 }
 
-const STATUS_COLUMNS: Array<{
-  status: TodoStatus
-  title: string
-  color: string
-  bgColor: string
-}> = [
-  {
-    status: "backlog",
-    title: "Backlog",
-    color: "white",
-    bgColor: "purple.500",
-  },
-  { status: "todo", title: "To Do", color: "white", bgColor: "orange.500" },
-  {
-    status: "planning",
-    title: "Planning",
-    color: "white",
-    bgColor: "blue.500",
-  },
-  { status: "doing", title: "Doing", color: "white", bgColor: "teal.500" },
-  { status: "done", title: "Done", color: "white", bgColor: "green.500" },
-]
 
 function compareTodosByPriority(a: TodoPublic, b: TodoPublic): number {
   const wa = a.priority ? PRIORITY_WEIGHT[a.priority] : 0
@@ -97,363 +46,6 @@ function getTodosQueryOptions() {
   }
 }
 
-// Lightweight drag preview component
-const SimpleDragPreview = memo(({ title }: { title: string }) => (
-  <Box
-    bg="white"
-    p={3}
-    borderRadius="md"
-    shadow="xl"
-    border="2px solid"
-    borderColor="blue.400"
-    minW="280px"
-    opacity={0.95}
-    style={{
-      transform: "rotate(3deg)",
-    }}
-  >
-    <Text
-      fontWeight="medium"
-      fontSize="sm"
-      overflow="hidden"
-      textOverflow="ellipsis"
-      display="-webkit-box"
-      style={{ WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
-    >
-      {title}
-    </Text>
-  </Box>
-))
-SimpleDragPreview.displayName = "SimpleDragPreview"
-
-const DraggableTodoCard = memo(
-  ({
-    todo,
-    onOpen,
-  }: {
-    todo: TodoPublic
-    onOpen: (todo: TodoPublic) => void
-  }) => {
-    const queryClient = useQueryClient()
-    const { showSuccessToast } = useCustomToast()
-
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: todo.id })
-
-    const archiveTodoMutation = useMutation({
-      mutationFn: ({ id, status }: { id: string; status: TodoStatus }) =>
-        TodosService.updateTodoEndpoint({
-          id,
-          requestBody: { status } as TodoUpdate,
-        }),
-      onSuccess: () => {
-        showSuccessToast("Todo archived successfully.")
-      },
-      onError: (err: ApiError) => {
-        handleError(err)
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: ["todos"] })
-      },
-    })
-
-    const handleArchive = useCallback(
-      (e: React.MouseEvent) => {
-        e.stopPropagation()
-
-        // Only call API if todo is not already archived
-        if (todo.status === "archived") return
-
-        archiveTodoMutation.mutate({ id: todo.id, status: "archived" })
-      },
-      [todo.status, todo.id, archiveTodoMutation],
-    )
-
-    const handleClick = useCallback(() => {
-      onOpen(todo)
-    }, [onOpen, todo])
-
-    const style = useMemo(
-      () => ({
-        transform: CSS.Transform.toString(transform),
-        transition: transition || undefined,
-        opacity: isDragging ? 0.5 : 1,
-        willChange: isDragging ? "transform" : "auto",
-      }),
-      [transform, transition, isDragging],
-    )
-
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        {...attributes}
-        {...listeners}
-        onClick={handleClick}
-      >
-        <Card.Root
-          size="sm"
-          variant="outline"
-          cursor="grab"
-          _hover={{ shadow: "md" }}
-          transition="box-shadow 0.2s"
-          _active={{ cursor: "grabbing" }}
-        >
-          <Card.Body p={3}>
-            <VStack align="stretch" gap={2}>
-              <Flex justify="space-between" align="start">
-                <Text
-                  fontWeight="medium"
-                  fontSize="sm"
-                  overflow="hidden"
-                  textOverflow="ellipsis"
-                  display="-webkit-box"
-                  style={{ WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
-                  wordBreak="break-word"
-                >
-                  {todo.title}
-                </Text>
-                <HStack gap={1}>
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    colorScheme="gray"
-                    onClick={handleArchive}
-                    disabled={archiveTodoMutation.isPending}
-                    title="Archive todo"
-                  >
-                    <FiArchive fontSize="12px" />
-                  </Button>
-                  {/* <TodoActionsMenu todo={todo} /> */}
-                </HStack>
-              </Flex>
-
-              {todo.description && (
-                <Text
-                  fontSize="xs"
-                  color="gray.600"
-                  overflow="hidden"
-                  textOverflow="ellipsis"
-                  display="-webkit-box"
-                  style={{ WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
-                >
-                  {todo.description}
-                </Text>
-              )}
-
-              {/* Type, Priority and Estimate */}
-              <HStack gap={2} flexWrap="wrap">
-                {todo.type && TASK_TYPE_CONFIG[todo.type] && (
-                  <Badge
-                    size="sm"
-                    colorPalette={TASK_TYPE_CONFIG[todo.type].colorPalette}
-                    variant="subtle"
-                  >
-                    {TASK_TYPE_CONFIG[todo.type].label}
-                  </Badge>
-                )}
-                {todo.priority && PRIORITY_CONFIG[todo.priority] && (
-                  <Badge
-                    size="sm"
-                    colorPalette={PRIORITY_CONFIG[todo.priority].colorPalette}
-                    variant="subtle"
-                  >
-                    {todo.priority}
-                  </Badge>
-                )}
-                {todo.estimate_minutes && (
-                  <Badge size="sm" colorPalette="green" variant="subtle">
-                    {todo.estimate_minutes}m
-                  </Badge>
-                )}
-              </HStack>
-
-              {/* Checklist hidden in Kanban; available in Detail Dialog */}
-
-              <HStack justify="space-between" fontSize="xs" color="gray.500">
-                <Text>{formatDateTimeShort(todo.created_at)}</Text>
-              </HStack>
-            </VStack>
-          </Card.Body>
-        </Card.Root>
-      </div>
-    )
-  },
-  (prevProps, nextProps) =>
-    prevProps.todo.id === nextProps.todo.id &&
-    prevProps.todo.title === nextProps.todo.title &&
-    prevProps.todo.description === nextProps.todo.description &&
-    prevProps.todo.status === nextProps.todo.status &&
-    prevProps.todo.priority === nextProps.todo.priority &&
-    prevProps.todo.type === nextProps.todo.type &&
-    prevProps.todo.estimate_minutes === nextProps.todo.estimate_minutes &&
-    prevProps.todo.created_at === nextProps.todo.created_at &&
-    JSON.stringify(prevProps.todo.checklist_items) ===
-      JSON.stringify(nextProps.todo.checklist_items),
-)
-DraggableTodoCard.displayName = "DraggableTodoCard"
-
-const KanbanColumn = memo(function KanbanColumn({
-  status,
-  title,
-  color,
-  bgColor,
-  todos,
-  onOpen,
-  onAddTodo,
-}: {
-  status: TodoStatus
-  title: string
-  color: string
-  bgColor: string
-  todos: TodoPublic[]
-  onOpen: (todo: TodoPublic) => void
-  onAddTodo: (title: string, status: TodoStatus) => void
-}) {
-  const [isAdding, setIsAdding] = useState(false)
-  const [newTitle, setNewTitle] = useState("")
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const { setNodeRef, isOver } = useDroppable({
-    id: status,
-  })
-  const { over } = useDndContext()
-  const isOverColumn =
-    isOver ||
-    (over?.id != null &&
-      (over.id === status || todos.some((t) => t.id === (over.id as string))))
-
-  const handleAddClick = useCallback(() => {
-    setIsAdding(true)
-    setTimeout(() => inputRef.current?.focus(), 0)
-  }, [])
-
-  const handleSubmit = useCallback(() => {
-    if (newTitle.trim()) {
-      onAddTodo(newTitle.trim(), status)
-      setNewTitle("")
-      setIsAdding(false)
-    }
-  }, [newTitle, onAddTodo, status])
-
-  const handleCancel = useCallback(() => {
-    setNewTitle("")
-    setIsAdding(false)
-  }, [])
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      // Ignore Enter key when composing (e.g., typing Vietnamese)
-      if (e.nativeEvent.isComposing) {
-        return
-      }
-
-      if (e.key === "Enter") {
-        handleSubmit()
-      } else if (e.key === "Escape") {
-        handleCancel()
-      }
-    },
-    [handleSubmit, handleCancel],
-  )
-
-  return (
-    <VStack align="stretch" gap={3} ref={setNodeRef}>
-      <Box bg={bgColor} color={color} p={3} borderRadius="md">
-        <HStack justify="space-between">
-          <HStack gap={2}>
-            <Text fontWeight="bold" fontSize="sm">
-              {title}
-            </Text>
-            <Badge colorScheme="whiteAlpha" variant="solid">
-              {todos.length}
-            </Badge>
-          </HStack>
-          <IconButton
-            aria-label="Add todo"
-            size="xs"
-            variant="ghost"
-            colorScheme="whiteAlpha"
-            onClick={handleAddClick}
-          >
-            <FiPlus />
-          </IconButton>
-        </HStack>
-      </Box>
-
-      <VStack
-        align="stretch"
-        gap={2}
-        flex="1"
-        p={2}
-        borderRadius="md"
-        bg={isOverColumn ? "blue.50" : "transparent"}
-        border={isOverColumn ? "2px dashed" : "2px dashed transparent"}
-        borderColor={isOverColumn ? "blue.300" : "transparent"}
-        transition="all 0.2s"
-        ref={setNodeRef}
-        minH="200px"
-      >
-        {/* Add Todo Input */}
-        {isAdding && (
-          <Card.Root size="sm" variant="outline">
-            <Card.Body p={3}>
-              <HStack gap={2}>
-                <Input
-                  ref={inputRef}
-                  placeholder="Enter todo title..."
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  size="sm"
-                  autoFocus
-                />
-                <IconButton
-                  aria-label="Cancel"
-                  size="sm"
-                  variant="ghost"
-                  colorScheme="gray"
-                  onClick={handleCancel}
-                >
-                  <FiX />
-                </IconButton>
-              </HStack>
-            </Card.Body>
-          </Card.Root>
-        )}
-
-        {todos.length === 0 && !isAdding ? (
-          <Box
-            p={4}
-            border="2px dashed"
-            borderColor="gray.200"
-            borderRadius="md"
-            textAlign="center"
-          >
-            <Text fontSize="sm" color="gray.500">
-              {isOver ? "Drop here" : "No todos"}
-            </Text>
-          </Box>
-        ) : (
-          <SortableContext
-            items={todos.map((todo) => todo.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {todos.map((todo) => (
-              <DraggableTodoCard key={todo.id} todo={todo} onOpen={onOpen} />
-            ))}
-          </SortableContext>
-        )}
-      </VStack>
-    </VStack>
-  )
-})
 
 export default function TodosKanban({
   viewMode,
@@ -465,66 +57,13 @@ export default function TodosKanban({
   onSelectedIdChange: (id: string | null) => void
 }) {
   const { data, isLoading } = useQuery(getTodosQueryOptions())
-  const queryClient = useQueryClient()
-  const { showSuccessToast } = useCustomToast()
-  const [activeId, setActiveId] = useState<string | null>(null)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-  )
-
-  const updateTodoStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: TodoStatus }) =>
-      TodosService.updateTodoEndpoint({
-        id,
-        requestBody: { status } as TodoUpdate,
-      }),
-    onSuccess: () => {
-      showSuccessToast("Todo status updated successfully.")
-    },
-    onError: (err: ApiError) => {
-      handleError(err)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] })
-    },
-  })
-
-  const createTodoMutation = useMutation({
-    mutationFn: (data: TodoCreate) =>
-      TodosService.createTodoEndpoint({ requestBody: data }),
-    onSuccess: () => {
-      showSuccessToast("Todo created successfully.")
-    },
-    onError: (err: ApiError) => {
-      handleError(err)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] })
-    },
-  })
-
-  const handleAddTodo = useCallback(
-    (title: string, status: TodoStatus) => {
-      createTodoMutation.mutate({
-        title,
-        description: "",
-        status,
-      })
-    },
-    [createTodoMutation],
-  )
-
+  const { handleAddTodo } = useKanbanMutations()
+  
   const todos = data?.data ?? []
   const selectedTodo = useMemo(
     () => todos.find((t) => t.id === selectedId) ?? null,
     [todos, selectedId],
   )
-  // Dialog open is derived from URL id via selectedTodo
 
   // Filter out archived todos and group by status - memoized
   const activeTodos = useMemo(
@@ -532,64 +71,14 @@ export default function TodosKanban({
     [todos],
   )
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveId(event.active.id as string)
-  }, [])
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event
-      setActiveId(null)
-
-      if (!over) return
-
-      const todoId = active.id as string
-      const overId = String(over.id)
-
-      // Resolve target status whether dropping on column (status id) or on a card (todo id)
-      let newStatus: TodoStatus | null = null
-      if (STATUS_COLUMNS.some((c) => c.status === overId)) {
-        newStatus = overId as TodoStatus
-      } else {
-        const overTodo = todos.find((t) => t.id === overId)
-        if (!overTodo) return
-        newStatus = (overTodo.status ?? "todo") as TodoStatus
-      }
-
-      // Find the todo to get current status
-      const todo = todos.find((t) => t.id === todoId)
-      if (!todo) return
-
-      // Only call API if status actually changed
-      if (!newStatus || todo.status === newStatus) return
-
-      // Prevent moving to done if any checklist item is not completed
-      if (
-        newStatus === "done" &&
-        (todo.checklist_items?.some((item) => !item.is_completed) ?? false)
-      ) {
-        handleError({
-          message: "Complete all checklist items before marking as done.",
-          status: 400,
-          name: "ChecklistIncomplete",
-        } as unknown as ApiError)
-        return
-      }
-
-      updateTodoStatusMutation.mutate({ id: todoId, status: newStatus })
-    },
-    [todos, updateTodoStatusMutation],
-  )
-
-  // Memoize drag preview todo
-  const activeTodo = useMemo(
-    () => (activeId ? todos.find((todo) => todo.id === activeId) : null),
-    [activeId, todos],
+  const { sensors, activeTodo, handleDragStart, handleDragEnd } = useKanbanDragDrop(
+    activeTodos,
+    []
   )
 
   // Memoize onOpen handler
-  const handleOpenTodo = useCallback(
-    (todo: TodoPublic) => {
+  const handleOpenTodo = useMemo(
+    () => (todo: TodoPublic) => {
       onSelectedIdChange(todo.id)
     },
     [onSelectedIdChange],
@@ -605,7 +94,7 @@ export default function TodosKanban({
             .sort(compareTodosByPriority)
           return acc
         },
-        {} as Record<TodoStatus, TodoPublic[]>,
+        {} as Record<string, TodoPublic[]>,
       ),
     [activeTodos],
   )
@@ -647,8 +136,9 @@ export default function TodosKanban({
                 title={column.title}
                 color={column.color}
                 bgColor={column.bgColor}
-                todos={todosByStatus[column.status]}
-                onOpen={handleOpenTodo}
+                todos={todosByStatus[column.status] || []}
+                onTodoClick={handleOpenTodo}
+                isSelected={(todo) => todo.id === selectedId}
                 onAddTodo={handleAddTodo}
               />
             </Box>
