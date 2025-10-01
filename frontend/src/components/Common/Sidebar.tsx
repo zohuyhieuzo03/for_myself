@@ -50,8 +50,8 @@ const Sidebar = ({ collapsed }: SidebarProps) => {
         </DrawerTrigger>
         <DrawerContent maxW="xs">
           <DrawerCloseTrigger />
-          <DrawerBody>
-            <Flex flexDir="column" justify="space-between">
+          <DrawerBody overflowY="auto">
+            <Flex flexDir="column" justify="space-between" minH="100%">
               <Box>
                 <SidebarItems onClose={() => setOpen(false)} />
                 <Flex
@@ -83,14 +83,18 @@ const Sidebar = ({ collapsed }: SidebarProps) => {
 
       <Box
         display={{ base: "none", md: "flex" }}
+        flexDir="column"
         position="sticky"
         bg="bg.subtle"
         top={0}
         minW={collapsed ? "16" : "xs"}
-        h="100vh"
+        w={collapsed ? "16" : "xs"}
+        h="calc(100vh - 80px)"
+        maxH="calc(100vh - 80px)"
         p={collapsed ? 2 : 4}
+        transition="all 0.3s ease"
       >
-        <Box w="100%">
+        <Box w="100%" flex="1" overflowY="auto" overflowX="hidden">
           <SidebarItems collapsed={collapsed} />
         </Box>
       </Box>
