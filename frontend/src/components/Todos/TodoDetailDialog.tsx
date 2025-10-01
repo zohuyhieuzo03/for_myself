@@ -73,6 +73,7 @@ export default function TodoDetailDialog({
     register,
     handleSubmit,
     reset,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<TodoUpdate>({
     mode: "onBlur",
@@ -132,6 +133,7 @@ export default function TodoDetailDialog({
           estimate_minutes: data.estimate_minutes,
           priority: data.priority,
           type: data.type,
+          subject_id: data.subject_id,
           scheduled_date:
             data.scheduled_date && data.scheduled_date.trim() !== ""
               ? data.scheduled_date
@@ -147,12 +149,23 @@ export default function TodoDetailDialog({
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] })
       queryClient.invalidateQueries({ queryKey: ["checklist", todo.id] })
-      onOpenChange(false)
     },
   })
 
   const onSubmit: SubmitHandler<TodoUpdate> = (data) => {
     mutation.mutate(data)
+  }
+
+  // Autosave helper: merges current form values and persists
+  const autoSaveAllFields = () => {
+    const current = getValues()
+    mutation.mutate({
+      ...current,
+      scheduled_date:
+        current.scheduled_date && current.scheduled_date.trim() !== ""
+          ? current.scheduled_date
+          : null,
+    })
   }
 
   // ========== Parent unlink logic (hooks section) ==========
@@ -236,6 +249,10 @@ export default function TodoDetailDialog({
               >
                 <Input
                   {...register("title", { required: "Title is required" })}
+                  onBlur={(e) => {
+                    register("title").onBlur(e)
+                    autoSaveAllFields()
+                  }}
                   placeholder="Title"
                   type="text"
                 />
@@ -248,6 +265,10 @@ export default function TodoDetailDialog({
               >
                 <Textarea
                   {...register("description")}
+                  onBlur={(e) => {
+                    register("description").onBlur(e)
+                    autoSaveAllFields()
+                  }}
                   placeholder="Description"
                   rows={6}
                   resize="vertical"
@@ -261,6 +282,10 @@ export default function TodoDetailDialog({
               >
                 <select
                   {...register("status")}
+                  onBlur={(e) => {
+                    register("status").onBlur(e)
+                    autoSaveAllFields()
+                  }}
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -287,6 +312,10 @@ export default function TodoDetailDialog({
                     valueAsNumber: true,
                     min: { value: 0, message: "Estimate must be 0 or greater" },
                   })}
+                  onBlur={(e) => {
+                    register("estimate_minutes").onBlur(e)
+                    autoSaveAllFields()
+                  }}
                   placeholder="Enter estimated time in minutes"
                   type="number"
                   min="0"
@@ -300,6 +329,10 @@ export default function TodoDetailDialog({
               >
                 <select
                   {...register("priority")}
+                  onBlur={(e) => {
+                    register("priority").onBlur(e)
+                    autoSaveAllFields()
+                  }}
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -323,6 +356,10 @@ export default function TodoDetailDialog({
               >
                 <select
                   {...register("type")}
+                  onBlur={(e) => {
+                    register("type").onBlur(e)
+                    autoSaveAllFields()
+                  }}
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -346,6 +383,10 @@ export default function TodoDetailDialog({
               >
                 <select
                   {...register("subject_id")}
+                  onBlur={(e) => {
+                    register("subject_id").onBlur(e)
+                    autoSaveAllFields()
+                  }}
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -382,6 +423,10 @@ export default function TodoDetailDialog({
                   />
                   <Input
                     {...register("scheduled_date")}
+                    onBlur={(e) => {
+                      register("scheduled_date").onBlur(e)
+                      autoSaveAllFields()
+                    }}
                     placeholder="Select scheduled date"
                     type="date"
                     style={{
