@@ -21,7 +21,11 @@ import TodoSchedulePicker from "@/components/Todos/TodoSchedulePicker"
 // removed DialogTrigger import since not used after simplifying dialog structure
 import useCustomToast from "@/hooks/useCustomToast"
 import { formatDate, handleError } from "@/utils"
-import { getPriorityConfig, getStatusConfig } from "@/utils/todoHelpers"
+import {
+  getPriorityConfig,
+  getStatusConfig,
+  TASK_TYPE_CONFIG,
+} from "@/utils/todoHelpers"
 
 interface DailyTodosViewProps {
   selectedId: string | null
@@ -114,41 +118,13 @@ const TodoCardComponent = ({
             <PriorityIcon size={14} />
             {priorityConfig.label}
           </Badge>
-          {todo.type && (
+          {todo.type && TASK_TYPE_CONFIG[todo.type] && (
             <Badge
               size="sm"
-              colorPalette={
-                todo.type === "work"
-                  ? "blue"
-                  : todo.type === "learning"
-                    ? "purple"
-                    : todo.type === "daily_life"
-                      ? "green"
-                      : todo.type === "health"
-                        ? "pink"
-                        : todo.type === "finance"
-                          ? "yellow"
-                          : todo.type === "personal"
-                            ? "orange"
-                            : "gray"
-              }
+              colorPalette={TASK_TYPE_CONFIG[todo.type].colorPalette}
               variant="subtle"
             >
-              {todo.type === "daily_life"
-                ? "Daily Life"
-                : todo.type === "health"
-                  ? "Health"
-                  : todo.type === "finance"
-                    ? "Finance"
-                    : todo.type === "personal"
-                      ? "Personal"
-                      : todo.type === "learning"
-                        ? "Learning"
-                        : todo.type === "work"
-                          ? "Work"
-                          : todo.type === "task"
-                            ? "Task"
-                            : "Other"}
+              {TASK_TYPE_CONFIG[todo.type].label}
             </Badge>
           )}
         </HStack>
@@ -503,41 +479,13 @@ export default function DailyTodosView({
                         )}
                         {getPriorityConfig(todo.priority || "medium").label}
                       </Badge>
-                      {todo.type && (
+                      {todo.type && TASK_TYPE_CONFIG[todo.type] && (
                         <Badge
                           size="sm"
-                          colorPalette={
-                            todo.type === "work"
-                              ? "blue"
-                              : todo.type === "learning"
-                                ? "purple"
-                                : todo.type === "daily_life"
-                                  ? "green"
-                                  : todo.type === "health"
-                                    ? "pink"
-                                    : todo.type === "finance"
-                                      ? "yellow"
-                                      : todo.type === "personal"
-                                        ? "orange"
-                                        : "gray"
-                          }
+                          colorPalette={TASK_TYPE_CONFIG[todo.type].colorPalette}
                           variant="subtle"
                         >
-                          {todo.type === "daily_life"
-                            ? "Daily Life"
-                            : todo.type === "health"
-                              ? "Health"
-                              : todo.type === "finance"
-                                ? "Finance"
-                                : todo.type === "personal"
-                                  ? "Personal"
-                                  : todo.type === "learning"
-                                    ? "Learning"
-                                    : todo.type === "work"
-                                      ? "Work"
-                                      : todo.type === "task"
-                                        ? "Task"
-                                        : "Other"}
+                          {TASK_TYPE_CONFIG[todo.type].label}
                         </Badge>
                       )}
                     </HStack>
