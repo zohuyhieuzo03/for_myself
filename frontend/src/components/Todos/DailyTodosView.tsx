@@ -12,7 +12,14 @@ import {
 } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
-import { FiCalendar, FiClock, FiPlus, FiRefreshCw, FiGrid, FiList } from "react-icons/fi"
+import {
+  FiCalendar,
+  FiClock,
+  FiGrid,
+  FiList,
+  FiPlus,
+  FiRefreshCw,
+} from "react-icons/fi"
 
 import { type TodoPublic, TodosService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
@@ -27,7 +34,6 @@ import {
   getStatusConfig,
   TASK_TYPE_CONFIG,
 } from "@/utils/todoHelpers"
-
 
 interface DailyTodosViewProps {
   selectedId: string | null
@@ -44,7 +50,6 @@ interface TodoCardComponentProps {
   displayDate: Date
   overdueTodosList: TodoPublic[]
 }
-
 
 const TodoCardComponent = ({
   todo,
@@ -151,7 +156,7 @@ export default function DailyTodosView({
   const [pickerDate, setPickerDate] = useState(new Date())
   const [showOverdue] = useState(true)
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list")
-  
+
   const {
     open: isPickerOpen,
     onOpen: onPickerOpen,
@@ -206,7 +211,6 @@ export default function DailyTodosView({
       handleError(err)
     },
   })
-
 
   // Mutation để update todo status - để khi cần thiết
   // const updateStatusMutation = useMutation({
@@ -516,7 +520,9 @@ export default function DailyTodosView({
                           {todo.type && TASK_TYPE_CONFIG[todo.type] && (
                             <Badge
                               size="sm"
-                              colorPalette={TASK_TYPE_CONFIG[todo.type].colorPalette}
+                              colorPalette={
+                                TASK_TYPE_CONFIG[todo.type].colorPalette
+                              }
                               variant="subtle"
                             >
                               {TASK_TYPE_CONFIG[todo.type].label}

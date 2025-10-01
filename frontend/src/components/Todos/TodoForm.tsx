@@ -4,6 +4,7 @@ import {
   DialogTitle,
   Input,
   Text,
+  Textarea,
   VStack,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
@@ -129,10 +130,11 @@ export function TodoForm({
                 errorText={errors.description?.message}
                 label="Description"
               >
-                <Input
+                <Textarea
                   {...register("description")}
                   placeholder="Description"
-                  type="text"
+                  rows={4}
+                  resize="vertical"
                 />
               </Field>
 

@@ -8,21 +8,14 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import {
-  useDndContext,
-  useDroppable,
-} from "@dnd-kit/core"
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
+import { useDndContext, useDroppable } from "@dnd-kit/core"
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { memo, useCallback, useRef, useState } from "react"
 import { FiPlus, FiX } from "react-icons/fi"
 
 import { formatDate } from "@/utils"
-
-import type { KanbanColumnProps } from "./kanbanTypes"
 import DraggableTodoCard from "./DraggableTodoCard"
+import type { KanbanColumnProps } from "./kanbanTypes"
 
 // Kanban column component
 const KanbanColumn = memo(function KanbanColumn({

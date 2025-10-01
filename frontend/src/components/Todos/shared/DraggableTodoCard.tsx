@@ -1,13 +1,5 @@
-import {
-  Badge,
-  Card,
-  HStack,
-  Text,
-  VStack,
-} from "@chakra-ui/react"
-import {
-  useSortable,
-} from "@dnd-kit/sortable"
+import { Badge, Card, HStack, Text, VStack } from "@chakra-ui/react"
+import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { memo, useMemo } from "react"
 
@@ -54,7 +46,12 @@ const DraggableTodoCard = memo(
     const PriorityIcon = priorityConfig.icon
 
     const isOverdue = overdueTodosList?.includes(todo) ?? false
-    const showDate = displayDate && isOverdue ? "Overdue" : (displayDate ? formatDate(displayDate) : undefined)
+    const showDate =
+      displayDate && isOverdue
+        ? "Overdue"
+        : displayDate
+          ? formatDate(displayDate)
+          : undefined
 
     return (
       <div
@@ -89,7 +86,7 @@ const DraggableTodoCard = memo(
               >
                 {todo.title}
               </Text>
-              
+
               {todo.description ? (
                 <Text
                   fontSize="xs"
@@ -103,7 +100,7 @@ const DraggableTodoCard = memo(
                 </Text>
               ) : null}
 
-              {(showDate || todo.estimate_minutes) ? (
+              {showDate || todo.estimate_minutes ? (
                 <HStack gap={4} fontSize="xs" color="gray.600">
                   {showDate ? (
                     <HStack gap={1}>
@@ -166,7 +163,8 @@ const DraggableTodoCard = memo(
     prevProps.todo.status === nextProps.todo.status &&
     prevProps.todo.priority === nextProps.todo.priority &&
     prevProps.todo.type === nextProps.todo.type &&
-    prevProps.isSelected(prevProps.todo) === nextProps.isSelected(nextProps.todo),
+    prevProps.isSelected(prevProps.todo) ===
+      nextProps.isSelected(nextProps.todo),
 )
 
 DraggableTodoCard.displayName = "DraggableTodoCard"

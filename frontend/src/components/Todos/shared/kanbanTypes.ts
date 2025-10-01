@@ -1,4 +1,4 @@
-import { type TodoPublic, type TodoStatus } from "@/client"
+import type { TodoPublic, TodoStatus } from "@/client"
 
 export interface BaseKanbanProps {
   onTodoClick: (todo: TodoPublic) => void

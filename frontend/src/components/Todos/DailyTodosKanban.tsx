@@ -1,14 +1,10 @@
 import { Box } from "@chakra-ui/react"
-import {
-  DndContext,
-  DragOverlay,
-} from "@dnd-kit/core"
+import { DndContext, DragOverlay } from "@dnd-kit/core"
 import { useMemo } from "react"
 
-import { type TodoPublic } from "@/client"
-
-import { STATUS_COLUMNS } from "./shared/kanbanConstants"
+import type { TodoPublic } from "@/client"
 import KanbanColumn from "./shared/KanbanColumn"
+import { STATUS_COLUMNS } from "./shared/kanbanConstants"
 import SimpleDragPreview from "./shared/SimpleDragPreview"
 import { useKanbanDragDrop } from "./shared/useKanbanDragDrop"
 import { useKanbanMutations } from "./shared/useKanbanMutations"
@@ -29,17 +25,17 @@ export default function DailyTodosKanban({
   isSelected,
 }: DailyTodosKanbanProps) {
   const { handleAddTodo } = useKanbanMutations()
-  const { sensors, activeTodo, handleDragStart, handleDragEnd } = useKanbanDragDrop(
-    dailyTodosList,
-    overdueTodosList
-  )
+  const { sensors, activeTodo, handleDragStart, handleDragEnd } =
+    useKanbanDragDrop(dailyTodosList, overdueTodosList)
 
   // Group todos by status for kanban view
   const todosByStatus = useMemo(() => {
     const allTodos = [...dailyTodosList, ...overdueTodosList]
     return STATUS_COLUMNS.reduce(
       (acc, column) => {
-        acc[column.status] = allTodos.filter((todo) => todo.status === column.status)
+        acc[column.status] = allTodos.filter(
+          (todo) => todo.status === column.status,
+        )
         return acc
       },
       {} as Record<string, TodoPublic[]>,

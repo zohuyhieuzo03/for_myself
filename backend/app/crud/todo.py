@@ -182,12 +182,11 @@ def delete_checklist_item(*, session: Session, checklist_item_id: uuid.UUID) -> 
 def get_todos_for_date(
     *, session: Session, owner_id: uuid.UUID, target_date: date
 ) -> list[Todo]:
-    """Get all todos scheduled for a specific date"""
+    """Get all todos scheduled for a specific date (including done todos)"""
     statement = (
         select(Todo)
         .where(Todo.owner_id == owner_id)
         .where(Todo.scheduled_date == target_date)
-        .where(Todo.status.in_(["todo", "doing", "planning", "backlog"]))  # Only active statuses
         .order_by(Todo.priority.desc(), Todo.created_at.asc())
     )
     todos = list(session.exec(statement).all())

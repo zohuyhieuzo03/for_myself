@@ -1,4 +1,4 @@
-import { type TodoStatus } from "@/client"
+import type { TodoStatus } from "@/client"
 
 // Status columns for kanban view
 export const STATUS_COLUMNS: Array<{

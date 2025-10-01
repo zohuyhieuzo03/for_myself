@@ -1,4 +1,11 @@
-import { Button, ButtonGroup, Input, Text, VStack } from "@chakra-ui/react"
+import {
+  Button,
+  ButtonGroup,
+  Input,
+  Text,
+  Textarea,
+  VStack,
+} from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
@@ -239,10 +246,11 @@ export default function TodoDetailDialog({
                 errorText={errors.description?.message}
                 label="Description"
               >
-                <Input
+                <Textarea
                   {...register("description")}
                   placeholder="Description"
-                  type="text"
+                  rows={6}
+                  resize="vertical"
                 />
               </Field>
 

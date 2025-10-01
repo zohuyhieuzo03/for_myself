@@ -46,9 +46,10 @@ export default function TodoSchedulePicker({
   const [currentMode, setCurrentMode] = useState<
     "schedule_existing" | "create_new"
   >(mode)
-  
+
   // Force currentMode to match the prop mode when it's schedule_existing
-  const effectiveMode = mode === "schedule_existing" ? "schedule_existing" : currentMode
+  const effectiveMode =
+    mode === "schedule_existing" ? "schedule_existing" : currentMode
   const [selectedTodoIds, setSelectedTodoIds] = useState<string[]>([])
   const [newTodoTitle, setNewTodoTitle] = useState("")
   const queryClient = useQueryClient()
@@ -255,7 +256,9 @@ export default function TodoSchedulePicker({
                   <Button
                     size="md"
                     variant={currentMode === "create_new" ? "solid" : "outline"}
-                    colorScheme={currentMode === "create_new" ? "purple" : "gray"}
+                    colorScheme={
+                      currentMode === "create_new" ? "purple" : "gray"
+                    }
                     onClick={() => setCurrentMode("create_new")}
                     flex={1}
                   >

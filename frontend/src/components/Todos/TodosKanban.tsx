@@ -1,33 +1,22 @@
-import {
-  Box,
-  Button,
-  Container,
-  Flex,
-  Heading,
-  HStack,
-} from "@chakra-ui/react"
-import {
-  DndContext,
-  DragOverlay,
-} from "@dnd-kit/core"
+import { Box, Button, Container, Flex, Heading, HStack } from "@chakra-ui/react"
+import { DndContext, DragOverlay } from "@dnd-kit/core"
 import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 
 import { type TodoPublic, TodosService } from "@/client"
 import PendingTodos from "@/components/Pending/PendingTodos"
-import TodoDetailDialog from "@/components/Todos/TodoDetailDialog"
-import { STATUS_COLUMNS } from "@/components/Todos/shared/kanbanConstants"
 import KanbanColumn from "@/components/Todos/shared/KanbanColumn"
+import { STATUS_COLUMNS } from "@/components/Todos/shared/kanbanConstants"
 import SimpleDragPreview from "@/components/Todos/shared/SimpleDragPreview"
 import { useKanbanDragDrop } from "@/components/Todos/shared/useKanbanDragDrop"
 import { useKanbanMutations } from "@/components/Todos/shared/useKanbanMutations"
+import TodoDetailDialog from "@/components/Todos/TodoDetailDialog"
 import { PRIORITY_WEIGHT } from "@/utils/todoHelpers"
 
 interface TodosKanbanProps {
   viewMode: "table" | "kanban"
   onViewModeChange: (mode: "table" | "kanban") => void
 }
-
 
 function compareTodosByPriority(a: TodoPublic, b: TodoPublic): number {
   const wa = a.priority ? PRIORITY_WEIGHT[a.priority] : 0
@@ -46,7 +35,6 @@ function getTodosQueryOptions() {
   }
 }
 
-
 export default function TodosKanban({
   viewMode,
   onViewModeChange,
@@ -58,7 +46,7 @@ export default function TodosKanban({
 }) {
   const { data, isLoading } = useQuery(getTodosQueryOptions())
   const { handleAddTodo } = useKanbanMutations()
-  
+
   const todos = data?.data ?? []
   const selectedTodo = useMemo(
     () => todos.find((t) => t.id === selectedId) ?? null,
@@ -71,10 +59,8 @@ export default function TodosKanban({
     [todos],
   )
 
-  const { sensors, activeTodo, handleDragStart, handleDragEnd } = useKanbanDragDrop(
-    activeTodos,
-    []
-  )
+  const { sensors, activeTodo, handleDragStart, handleDragEnd } =
+    useKanbanDragDrop(activeTodos, [])
 
   // Memoize onOpen handler
   const handleOpenTodo = useMemo(
