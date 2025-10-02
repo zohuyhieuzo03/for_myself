@@ -155,7 +155,7 @@ export default function DailyTodosView({
 
   const [pickerDate, setPickerDate] = useState(new Date())
   const [showOverdue] = useState(true)
-  const [viewMode, setViewMode] = useState<"list" | "kanban">("list")
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("kanban")
 
   const {
     open: isPickerOpen,

@@ -30,6 +30,20 @@ export default function QuickActions() {
             </Button>
           </Link>
 
+          <Link to="/daily-todos">
+            <Button
+              variant="outline"
+              size="lg"
+              w="full"
+              justifyContent="flex-start"
+              _hover={{ bg: "teal.50", borderColor: "teal.300" }}
+              transition="all 0.2s"
+            >
+              <FiCalendar size={18} style={{ marginRight: "8px" }} />
+              View Daily Todos
+            </Button>
+          </Link>
+
           <Link to="/roadmap" search={{ id: undefined }}>
             <Button
               variant="outline"

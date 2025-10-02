@@ -240,7 +240,7 @@ export default function TaskTypeAnalysis({
                 <Text fontSize="lg" fontWeight="bold" color="blue.600">
                   {statusStats.totalTasks > 0
                     ? (
-                        (statusStats.totalCompleted / statusStats.totalTasks) *
+                        (statusStats.totalCompleted / statusStats.activeTasks) *
                         100
                       ).toFixed(1)
                     : 0}
