@@ -1,6 +1,6 @@
 import { Button, Input, Text, Textarea, VStack } from "@chakra-ui/react"
 import { useState } from "react"
-import type { ResourceSubjectCreate, ResourceSubjectUpdate } from "@/client"
+import type { ResourceSubjectCreate, ResourceSubjectUpdate, ResourceSubjectPublic } from "@/client"
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -15,7 +15,7 @@ interface ResourceSubjectFormProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: ResourceSubjectCreate | ResourceSubjectUpdate) => void
-  initialData?: Partial<ResourceSubjectCreate>
+  initialData?: Partial<ResourceSubjectCreate> | ResourceSubjectPublic
   isEditing?: boolean
 }
 
@@ -29,7 +29,7 @@ export function ResourceSubjectForm({
   const [formData, setFormData] = useState<ResourceSubjectCreate>({
     title: initialData?.title || "",
     description: initialData?.description || "",
-    learning_objectives: (initialData as any)?.learning_objectives || "",
+    learning_objectives: initialData?.learning_objectives || "",
     is_completed: initialData?.is_completed || false,
     order_index: initialData?.order_index || 0,
   })

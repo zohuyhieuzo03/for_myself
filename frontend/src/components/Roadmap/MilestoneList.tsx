@@ -346,6 +346,16 @@ function SortableMilestoneItem({
               {milestone.description}
             </Text>
           )}
+          {milestone.learning_objectives && (
+            <Box mb={2}>
+              <Text fontSize="xs" fontWeight="semibold" color="blue.600" mb={1}>
+                Learning Objectives:
+              </Text>
+              <Text fontSize="sm" color="gray.600" whiteSpace="pre-wrap">
+                {milestone.learning_objectives}
+              </Text>
+            </Box>
+          )}
         </Box>
         <HStack gap={2}>
           <Badge colorScheme={getStatusColor(milestone.status || "pending")}>

@@ -1,4 +1,4 @@
-import { Button, Input, VStack } from "@chakra-ui/react"
+import { Button, Input, Textarea, VStack } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import type {
@@ -39,6 +39,7 @@ export function MilestoneForm({
   const [formData, setFormData] = useState({
     title: milestone?.title || "",
     description: milestone?.description || "",
+    learning_objectives: milestone?.learning_objectives || "",
     status: milestone?.status || "pending",
     target_date: milestone?.target_date || "",
   })
@@ -49,6 +50,7 @@ export function MilestoneForm({
       setFormData({
         title: milestone.title || "",
         description: milestone.description || "",
+        learning_objectives: milestone.learning_objectives || "",
         status: milestone.status || "pending",
         target_date: milestone.target_date || "",
       })
@@ -57,6 +59,7 @@ export function MilestoneForm({
       setFormData({
         title: "",
         description: "",
+        learning_objectives: "",
         status: "pending",
         target_date: "",
       })
@@ -69,6 +72,7 @@ export function MilestoneForm({
       setFormData({
         title: "",
         description: "",
+        learning_objectives: "",
         status: "pending",
         target_date: "",
       })
@@ -154,6 +158,17 @@ export function MilestoneForm({
                     setFormData({ ...formData, description: e.target.value })
                   }
                   placeholder="Enter milestone description"
+                />
+              </Field>
+
+              <Field label="Learning Objectives">
+                <Textarea
+                  value={formData.learning_objectives}
+                  onChange={(e) =>
+                    setFormData({ ...formData, learning_objectives: e.target.value })
+                  }
+                  placeholder="What should be learned, key questions, required knowledge..."
+                  rows={4}
                 />
               </Field>
 

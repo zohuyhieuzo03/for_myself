@@ -1,6 +1,6 @@
 import { Button, Input, VStack } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { RoadmapCreate, RoadmapPublic, RoadmapUpdate } from "@/client"
 import { RoadmapService } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
@@ -38,6 +38,44 @@ function RoadmapForm({
     start_date: roadmap?.start_date || "",
     target_date: roadmap?.target_date || "",
   })
+
+  // Update form data when roadmap prop changes
+  useEffect(() => {
+    if (roadmap) {
+      setFormData({
+        title: roadmap.title || "",
+        description: roadmap.description || "",
+        status: roadmap.status || "planning",
+        priority: roadmap.priority || "medium",
+        start_date: roadmap.start_date || "",
+        target_date: roadmap.target_date || "",
+      })
+    } else {
+      // Reset form when creating new roadmap
+      setFormData({
+        title: "",
+        description: "",
+        status: "planning",
+        priority: "medium",
+        start_date: "",
+        target_date: "",
+      })
+    }
+  }, [roadmap])
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setFormData({
+        title: "",
+        description: "",
+        status: "planning",
+        priority: "medium",
+        start_date: "",
+        target_date: "",
+      })
+    }
+  }, [isOpen])
 
   const createMutation = useMutation({
     mutationFn: (data: RoadmapCreate) =>

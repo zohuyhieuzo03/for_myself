@@ -1285,6 +1285,17 @@ export const MilestoneCreateSchema = {
             ],
             title: 'Description'
         },
+        learning_objectives: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Learning Objectives'
+        },
         status: {
             '$ref': '#/components/schemas/MilestoneStatus',
             default: 'pending'
@@ -1367,6 +1378,17 @@ export const MilestoneUpdateSchema = {
                 }
             ],
             title: 'Description'
+        },
+        learning_objectives: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Learning Objectives'
         },
         status: {
             anyOf: [
@@ -2057,6 +2079,17 @@ export const RoadmapMilestonePublicSchema = {
                 }
             ],
             title: 'Description'
+        },
+        learning_objectives: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Learning Objectives'
         },
         status: {
             '$ref': '#/components/schemas/MilestoneStatus',

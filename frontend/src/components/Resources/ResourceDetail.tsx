@@ -624,7 +624,7 @@ export function ResourceDetail({ resourceId }: ResourceDetailProps) {
         }}
         onSubmit={handleResourceSubmit}
         initialData={editingResource || undefined}
-        isEditing={true}
+        isEditing={!!editingResource}
       />
 
       <ResourceSubjectForm
