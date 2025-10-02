@@ -20,6 +20,7 @@ import {
   FiLayers,
   FiUser,
   FiTrash2,
+  FiX,
 } from "react-icons/fi"
 
 import {
@@ -39,11 +40,9 @@ import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 import {
   DialogBody,
-  DialogCloseTrigger,
   DialogContent,
   DialogHeader,
   DialogRoot,
-  DialogTitle,
 } from "../ui/dialog"
 import AddParent from "./AddParent"
 import AddSubitem from "./AddSubitem"
@@ -221,27 +220,32 @@ export default function TodoDetailDialog({
 
   return (
     <DialogRoot
-      size={{ base: "full", md: "xl" }}
+      size={{ md: "xl" }}
       placement="center"
       open={open}
       onOpenChange={({ open }) => onOpenChange(open)}
     >
-      <DialogTitle>
-        Todo Detail
-      </DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <Button
-              variant="ghost"
-              colorPalette="red"
-              size="sm"
-              onClick={handleDelete}
-              loading={deleteMutation.isPending}
-              style={{ position: "absolute", right: "48px", top: "16px" }}
-            >
-              <FiTrash2 size={18} />
-            </Button>
+            <div style={{ position: "absolute", right: "16px", top: "16px", display: "flex", gap: "8px" }}>
+              <Button
+                variant="ghost"
+                colorPalette="red"
+                size="sm"
+                onClick={handleDelete}
+                loading={deleteMutation.isPending}
+              >
+                <FiTrash2 size={18} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onOpenChange(false)}
+              >
+                <FiX size={18} />
+              </Button>
+            </div>
           </DialogHeader>
           <DialogBody>
             <Grid
@@ -306,54 +310,60 @@ export default function TodoDetailDialog({
                       </Tabs.Trigger>
                     </Tabs.List>
 
-                    <Tabs.Content value="checklist" style={{ marginTop: 16 }}>
-                      <ChecklistManager todoId={todo.id} />
+                    <Tabs.Content value="checklist">
+                      <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                        <ChecklistManager todoId={todo.id} />
+                      </div>
                     </Tabs.Content>
 
-                    <Tabs.Content value="subitems" style={{ marginTop: 16 }}>
-                      <VStack gap={2} align="stretch">
-                        {(childrenData?.data ?? []).length === 0 ? (
-                          <Text fontSize="sm" color="gray.600">
-                            No subitems
-                          </Text>
-                        ) : (
-                          (childrenData?.data ?? []).map((child) => (
-                            <TodoCard
-                              key={child.id}
-                              todo={child}
-                              showUnlinkButton={true}
-                              onUnlink={handleChildUnlinked}
-                            />
-                          ))
-                        )}
-                        <AddSubitem todo={todo} />
-                      </VStack>
-                    </Tabs.Content>
-
-                    <Tabs.Content value="parent" style={{ marginTop: 16 }}>
-                      <VStack gap={2} align="stretch">
-                        {parentData ? (
-                          <>
-                            <TodoCard todo={parentData} />
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              colorPalette="red"
-                              onClick={handleUnlinkParent}
-                              loading={unlinkParentMutation.isPending}
-                            >
-                              Unlink Parent
-                            </Button>
-                          </>
-                        ) : (
-                          <>
+                    <Tabs.Content value="subitems">
+                      <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                        <VStack gap={2} align="stretch">
+                          {(childrenData?.data ?? []).length === 0 ? (
                             <Text fontSize="sm" color="gray.600">
-                              No parent
+                              No subitems
                             </Text>
-                            <AddParent todo={todo} hasParent={false} />
-                          </>
-                        )}
-                      </VStack>
+                          ) : (
+                            (childrenData?.data ?? []).map((child) => (
+                              <TodoCard
+                                key={child.id}
+                                todo={child}
+                                showUnlinkButton={true}
+                                onUnlink={handleChildUnlinked}
+                              />
+                            ))
+                          )}
+                          <AddSubitem todo={todo} />
+                        </VStack>
+                      </div>
+                    </Tabs.Content>
+
+                    <Tabs.Content value="parent">
+                      <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                        <VStack gap={2} align="stretch">
+                          {parentData ? (
+                            <>
+                              <TodoCard todo={parentData} />
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                colorPalette="red"
+                                onClick={handleUnlinkParent}
+                                loading={unlinkParentMutation.isPending}
+                              >
+                                Unlink Parent
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Text fontSize="sm" color="gray.600">
+                                No parent
+                              </Text>
+                              <AddParent todo={todo} hasParent={false} />
+                            </>
+                          )}
+                        </VStack>
+                      </div>
                     </Tabs.Content>
                   </Tabs.Root>
                 </VStack>
@@ -530,7 +540,6 @@ export default function TodoDetailDialog({
             </Grid>
           </DialogBody>
         </form>
-        <DialogCloseTrigger />
       </DialogContent>
     </DialogRoot>
   )
