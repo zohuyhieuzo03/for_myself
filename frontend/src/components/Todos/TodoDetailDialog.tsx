@@ -22,6 +22,7 @@ import {
   FiTrash2,
   FiX,
   FiTarget,
+  FiExternalLink,
 } from "react-icons/fi"
 
 import {
@@ -40,6 +41,7 @@ import {
 } from "@/client/options"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
+import { useNavigate } from "@tanstack/react-router"
 import {
   DialogBody,
   DialogContent,
@@ -62,6 +64,7 @@ export default function TodoDetailDialog({
   onOpenChange,
   todo,
 }: TodoDetailDialogProps) {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
@@ -201,6 +204,29 @@ export default function TodoDetailDialog({
           ? current.due_date
           : null,
     })
+  }
+
+  // Helpers to navigate to selected Subject or Milestone parents
+  const navigateToSelectedSubject = () => {
+    const { subject_id } = getValues()
+    if (!subject_id) return
+    const resource = resourcesData?.data?.find((r) =>
+      (r.subjects || []).some((s) => s.id === subject_id),
+    )
+    if (resource?.id) {
+      navigate({ to: "/resources", search: { id: resource.id } })
+    }
+  }
+
+  const navigateToSelectedMilestone = () => {
+    const { milestone_id } = getValues()
+    if (!milestone_id) return
+    const roadmap = roadmapsData?.data?.find((rm) =>
+      (rm.milestones || []).some((m) => m.id === milestone_id),
+    )
+    if (roadmap?.id) {
+      navigate({ to: "/roadmap", search: { id: roadmap.id } })
+    }
   }
 
   // ========== Parent unlink logic (hooks section) ==========
@@ -549,6 +575,14 @@ export default function TodoDetailDialog({
                   <div>
                     <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <FiUser size={16} /> Subject
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        onClick={navigateToSelectedSubject}
+                        title="Open subject's resource"
+                      >
+                        <FiExternalLink size={14} />
+                      </Button>
                     </Text>
                     <select
                       {...register("subject_id")}
@@ -578,6 +612,14 @@ export default function TodoDetailDialog({
                   <div>
                     <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <FiTarget size={16} /> Milestone
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        onClick={navigateToSelectedMilestone}
+                        title="Open milestone's roadmap"
+                      >
+                        <FiExternalLink size={14} />
+                      </Button>
                     </Text>
                     <select
                       {...register("milestone_id")}
