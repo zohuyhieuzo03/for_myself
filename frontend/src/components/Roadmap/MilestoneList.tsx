@@ -755,6 +755,12 @@ function SortableMilestoneItem({
               })
             }
           }}
+          initialData={(() => {
+            if (!editingSubject) return undefined
+            const allSubjects = (resources || [])
+              .flatMap((r) => r.subjects || [])
+            return allSubjects.find((s) => s.id === editingSubject)
+          })()}
           isEditing={!!editingSubject}
         />
       </Box>

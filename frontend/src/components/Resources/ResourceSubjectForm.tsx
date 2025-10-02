@@ -1,5 +1,5 @@
 import { Button, Input, Text, Textarea, VStack } from "@chakra-ui/react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { ResourceSubjectCreate, ResourceSubjectUpdate, ResourceSubjectPublic } from "@/client"
 import {
   DialogBody,
@@ -34,6 +34,17 @@ export function ResourceSubjectForm({
     order_index: initialData?.order_index || 0,
     due_date: initialData?.due_date || "",
   })
+
+  useEffect(() => {
+    setFormData({
+      title: initialData?.title || "",
+      description: initialData?.description || "",
+      learning_objectives: initialData?.learning_objectives || "",
+      is_completed: initialData?.is_completed || false,
+      order_index: initialData?.order_index || 0,
+      due_date: initialData?.due_date || "",
+    })
+  }, [initialData])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
