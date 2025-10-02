@@ -253,6 +253,7 @@ export type MilestoneCreate = {
     title: string;
     description?: (string | null);
     learning_objectives?: (string | null);
+    questions?: (string | null);
     status?: MilestoneStatus;
     target_date?: (string | null);
     completed_date?: (string | null);
@@ -268,6 +269,7 @@ export type MilestoneUpdate = {
     title?: (string | null);
     description?: (string | null);
     learning_objectives?: (string | null);
+    questions?: (string | null);
     status?: (MilestoneStatus | null);
     target_date?: (string | null);
     completed_date?: (string | null);
@@ -395,6 +397,7 @@ export type RoadmapMilestonePublic = {
     title: string;
     description?: (string | null);
     learning_objectives?: (string | null);
+    questions?: (string | null);
     status?: MilestoneStatus;
     target_date?: (string | null);
     completed_date?: (string | null);

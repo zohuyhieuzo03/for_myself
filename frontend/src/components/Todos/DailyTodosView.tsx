@@ -378,23 +378,6 @@ export default function DailyTodosView({
 
             {/* Daily Todos Section */}
             <Box>
-              <Flex align="center" gap={2} mb={4}>
-                <Text fontWeight="bold" fontSize="lg">
-                  Daily Todos
-                </Text>
-                {dailyTodosList.length > 0 && (
-                  <Badge
-                    colorScheme="blue"
-                    variant="subtle"
-                    px={2}
-                    py={1}
-                    borderRadius="md"
-                  >
-                    {dailyTodosList.length} todos
-                  </Badge>
-                )}
-              </Flex>
-
               <VStack gap={2}>
                 {dailyTodosList.length === 0 ? (
                   <Box p={8} textAlign="center" color="gray.500">
@@ -412,16 +395,18 @@ export default function DailyTodosView({
                     )}
                   </Box>
                 ) : (
-                  dailyTodosList.map((todo) => (
-                    <TodoCardComponent
-                      key={todo.id}
-                      todo={todo}
-                      onClick={() => handleTodoClick(todo)}
-                      isSelected={isSelected(todo)}
-                      displayDate={displayDate}
-                      overdueTodosList={overdueTodosList}
-                    />
-                  ))
+                  dailyTodosList
+                    .filter(todo => todo.status !== 'done' && todo.status !== 'archived')
+                    .map((todo: TodoPublic) => (
+                      <TodoCardComponent
+                        key={todo.id}
+                        todo={todo}
+                        onClick={() => handleTodoClick(todo)}
+                        isSelected={isSelected(todo)}
+                        displayDate={displayDate}
+                        overdueTodosList={overdueTodosList}
+                      />
+                    ))
                 )}
               </VStack>
             </Box>

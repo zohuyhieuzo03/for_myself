@@ -755,6 +755,7 @@ class MilestoneBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=500)
     learning_objectives: str | None = Field(default=None)
+    questions: str | None = Field(default=None)  # Questions that need to be answered
     status: MilestoneStatus = Field(default=MilestoneStatus.pending)
     target_date: date | None = None
     completed_date: date | None = None
@@ -764,6 +765,7 @@ class MilestoneCreate(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=500)
     learning_objectives: str | None = Field(default=None)
+    questions: str | None = Field(default=None)  # Questions that need to be answered
     status: MilestoneStatus = Field(default=MilestoneStatus.pending)
     target_date: date | None = None
     completed_date: date | None = None
@@ -773,6 +775,7 @@ class MilestoneUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=500)
     learning_objectives: str | None = None
+    questions: str | None = None  # Questions that need to be answered
     status: MilestoneStatus | None = None
     target_date: date | None = None
     completed_date: date | None = None

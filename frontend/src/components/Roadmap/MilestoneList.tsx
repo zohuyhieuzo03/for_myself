@@ -53,6 +53,7 @@ import type {
 } from "@/client"
 import { ResourcesService, RoadmapService } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
+import { ExpandableText } from "../Common/ExpandableText"
 import { ResourceForm } from "../Resources/ResourceForm"
 import { ResourceSubjectForm } from "../Resources/ResourceSubjectForm"
 import TodoCard from "../Todos/TodoCard"
@@ -105,7 +106,7 @@ function SortableMilestoneItem({
         milestoneId: milestone.id,
       })
     },
-    enabled: showTodos || isAddingTodo,
+    enabled: true, // Always fetch todos to show count
   })
 
   const todos = todosResponse?.data || []
@@ -346,16 +347,6 @@ function SortableMilestoneItem({
               {milestone.description}
             </Text>
           )}
-          {milestone.learning_objectives && (
-            <Box mb={2}>
-              <Text fontSize="xs" fontWeight="semibold" color="blue.600" mb={1}>
-                Learning Objectives:
-              </Text>
-              <Text fontSize="sm" color="gray.600" whiteSpace="pre-wrap">
-                {milestone.learning_objectives}
-              </Text>
-            </Box>
-          )}
         </Box>
         <HStack gap={2}>
           <Badge colorScheme={getStatusColor(milestone.status || "pending")}>
@@ -390,6 +381,34 @@ function SortableMilestoneItem({
           </IconButton>
         </HStack>
       </Flex>
+
+      {/* Learning Objectives and Questions - Full Width */}
+      {milestone.learning_objectives && (
+        <Box mb={2}>
+          <Text fontSize="xs" fontWeight="semibold" color="blue.600" mb={1}>
+            Learning Objectives:
+          </Text>
+          <ExpandableText 
+            text={milestone.learning_objectives} 
+            bgColor="blue.50"
+            borderColor="blue.200"
+            maxHeight="4.5em"
+          />
+        </Box>
+      )}
+      {milestone.questions && (
+        <Box mb={2}>
+          <Text fontSize="xs" fontWeight="semibold" color="green.600" mb={1}>
+            Questions to Answer:
+          </Text>
+          <ExpandableText 
+            text={milestone.questions} 
+            bgColor="green.50"
+            borderColor="green.200"
+            maxHeight="4.5em"
+          />
+        </Box>
+      )}
 
       {milestone.target_date && (
         <Flex align="center" gap={1} fontSize="sm" color="gray.600">

@@ -32,6 +32,7 @@ import type {
 } from "@/client"
 import { ResourcesService, TodosService } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
+import { ExpandableText } from "../Common/ExpandableText"
 import TodoCard from "../Todos/TodoCard"
 import TodoDetailDialog from "../Todos/TodoDetailDialog"
 import { ResourceForm } from "./ResourceForm"
@@ -141,19 +142,11 @@ function SubjectItem({
           </Text>
         )} */}
         {subject.learning_objectives && (
-          <Box mt={3} pl={3} borderLeft="3px solid" borderColor="gray.200">
-            <Text
-              fontSize="xs"
-              color="gray.500"
-              textTransform="uppercase"
-              letterSpacing="wide"
-              mb={1}
-            >
-              Learning objectives
+          <Box mb={2}>
+            <Text fontSize="xs" fontWeight="semibold" color="blue.600" mb={1}>
+              Learning Objectives:
             </Text>
-            <Text fontSize="sm" color="gray.700" whiteSpace="pre-wrap" lineHeight="1.5">
-              {subject.learning_objectives}
-            </Text>
+            <ExpandableText text={subject.learning_objectives} />
           </Box>
         )}
 

@@ -40,6 +40,7 @@ export function MilestoneForm({
     title: milestone?.title || "",
     description: milestone?.description || "",
     learning_objectives: milestone?.learning_objectives || "",
+    questions: milestone?.questions || "",
     status: milestone?.status || "pending",
     target_date: milestone?.target_date || "",
   })
@@ -51,6 +52,7 @@ export function MilestoneForm({
         title: milestone.title || "",
         description: milestone.description || "",
         learning_objectives: milestone.learning_objectives || "",
+        questions: milestone.questions || "",
         status: milestone.status || "pending",
         target_date: milestone.target_date || "",
       })
@@ -60,6 +62,7 @@ export function MilestoneForm({
         title: "",
         description: "",
         learning_objectives: "",
+        questions: "",
         status: "pending",
         target_date: "",
       })
@@ -73,6 +76,7 @@ export function MilestoneForm({
         title: "",
         description: "",
         learning_objectives: "",
+        questions: "",
         status: "pending",
         target_date: "",
       })
@@ -168,6 +172,17 @@ export function MilestoneForm({
                     setFormData({ ...formData, learning_objectives: e.target.value })
                   }
                   placeholder="What should be learned, key questions, required knowledge..."
+                  rows={4}
+                />
+              </Field>
+
+              <Field label="Questions to Answer">
+                <Textarea
+                  value={formData.questions}
+                  onChange={(e) =>
+                    setFormData({ ...formData, questions: e.target.value })
+                  }
+                  placeholder="What questions need to be answered to complete this milestone? List key questions, assessments, or checkpoints..."
                   rows={4}
                 />
               </Field>

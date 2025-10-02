@@ -21,6 +21,7 @@ import {
   FiUser,
   FiTrash2,
   FiX,
+  FiTarget,
 } from "react-icons/fi"
 
 import {
@@ -29,6 +30,7 @@ import {
   type TodoPublic,
   TodosService,
   type TodoUpdate,
+  RoadmapService,
 } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import {
@@ -74,6 +76,16 @@ export default function TodoDetailDialog({
   const allSubjects: ResourceSubjectPublic[] =
     resourcesData?.data?.flatMap((resource) => resource.subjects || []) || []
 
+  // Fetch all roadmaps with milestones for the milestone selector
+  const { data: roadmapsData } = useQuery({
+    queryKey: ["roadmaps"],
+    queryFn: () => RoadmapService.readRoadmaps(),
+    enabled: open, // Only fetch when dialog is open
+  })
+
+  // Flatten all milestones from all roadmaps
+  const allMilestones = roadmapsData?.data?.flatMap((roadmap) => roadmap.milestones || []) || []
+
   // Checklist items are managed independently by ChecklistManager
 
   const {
@@ -92,6 +104,7 @@ export default function TodoDetailDialog({
       priority: todo.priority || "medium",
       type: todo.type || "task",
       subject_id: todo.subject_id || undefined,
+      milestone_id: todo.milestone_id || undefined,
       scheduled_date: todo.scheduled_date
         ? new Date(todo.scheduled_date).toISOString().split("T")[0]
         : undefined,
@@ -109,6 +122,7 @@ export default function TodoDetailDialog({
       priority: todo.priority || "medium",
       type: todo.type || "task",
       subject_id: todo.subject_id || undefined,
+      milestone_id: todo.milestone_id || undefined,
       scheduled_date: todo.scheduled_date
         ? new Date(todo.scheduled_date).toISOString().split("T")[0]
         : undefined,
@@ -140,6 +154,7 @@ export default function TodoDetailDialog({
           priority: data.priority,
           type: data.type,
           subject_id: data.subject_id,
+          milestone_id: data.milestone_id,
           scheduled_date:
             data.scheduled_date && data.scheduled_date.trim() !== ""
               ? data.scheduled_date
@@ -510,6 +525,35 @@ export default function TodoDetailDialog({
                       {allSubjects.map((subject) => (
                         <option key={subject.id} value={subject.id}>
                           {subject.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Milestone */}
+                  <div>
+                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <FiTarget size={16} /> Milestone
+                    </Text>
+                    <select
+                      {...register("milestone_id")}
+                      onBlur={(e) => {
+                        register("milestone_id").onBlur(e)
+                        autoSaveAllFields()
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        marginTop: 6,
+                      }}
+                    >
+                      <option value="">No Milestone</option>
+                      {allMilestones.map((milestone) => (
+                        <option key={milestone.id} value={milestone.id}>
+                          {milestone.title}
                         </option>
                       ))}
                     </select>
