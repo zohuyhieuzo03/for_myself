@@ -32,6 +32,7 @@ export function ResourceSubjectForm({
     learning_objectives: initialData?.learning_objectives || "",
     is_completed: initialData?.is_completed || false,
     order_index: initialData?.order_index || 0,
+    due_date: initialData?.due_date || "",
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -88,6 +89,16 @@ export function ResourceSubjectForm({
                   }
                   placeholder="What should be learned, key questions, required knowledge..."
                   rows={4}
+                />
+              </Field>
+
+              <Field label="Due Date">
+                <Input
+                  type="date"
+                  value={formData.due_date || ""}
+                  onChange={(e) =>
+                    handleInputChange("due_date", e.target.value)
+                  }
                 />
               </Field>
 

@@ -336,7 +336,7 @@ export default function TodoSchedulePicker({
                               title: newTodoTitle.trim(),
                               description: "",
                               status: "todo",
-                              scheduled_date: formatDate(selectedDate),
+                              planned_date: formatDate(selectedDate),
                             })
                           } else if (e.key === "Escape") {
                             setNewTodoTitle("")
@@ -372,7 +372,7 @@ export default function TodoSchedulePicker({
                           (todo) =>
                             todo.status &&
                             !["done", "archived"].includes(todo.status) &&
-                            !todo.scheduled_date,
+                            !todo.planned_date,
                         ).length
                       }
                     </Badge>
@@ -410,7 +410,7 @@ export default function TodoSchedulePicker({
                         (todo) =>
                           todo.status &&
                           !["done", "archived"].includes(todo.status) &&
-                          !todo.scheduled_date,
+                          !todo.planned_date,
                       )
                       .map((todo) => (
                         <Box

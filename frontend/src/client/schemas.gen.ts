@@ -1323,6 +1323,18 @@ export const MilestoneCreateSchema = {
             ],
             title: 'Target Date'
         },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
+        },
         completed_date: {
             anyOf: [
                 {
@@ -1433,6 +1445,18 @@ export const MilestoneUpdateSchema = {
                 }
             ],
             title: 'Target Date'
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
         },
         completed_date: {
             anyOf: [
@@ -1775,6 +1799,18 @@ export const ResourceSubjectCreateSchema = {
             type: 'integer',
             title: 'Order Index',
             default: 0
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
         }
     },
     type: 'object',
@@ -1822,6 +1858,18 @@ export const ResourceSubjectPublicSchema = {
             type: 'integer',
             title: 'Order Index',
             default: 0
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
         },
         id: {
             type: 'string',
@@ -1924,6 +1972,18 @@ export const ResourceSubjectUpdateSchema = {
                 }
             ],
             title: 'Order Index'
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
         }
     },
     type: 'object',
@@ -2139,6 +2199,18 @@ export const RoadmapMilestonePublicSchema = {
                 }
             ],
             title: 'Target Date'
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
         },
         completed_date: {
             anyOf: [
@@ -2474,7 +2546,7 @@ export const TodoCreateSchema = {
             '$ref': '#/components/schemas/TodoType',
             default: 'task'
         },
-        scheduled_date: {
+        planned_date: {
             anyOf: [
                 {
                     type: 'string',
@@ -2484,7 +2556,19 @@ export const TodoCreateSchema = {
                     type: 'null'
                 }
             ],
-            title: 'Scheduled Date'
+            title: 'Planned Date'
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
         },
         parent_id: {
             anyOf: [
@@ -2521,6 +2605,18 @@ export const TodoCreateSchema = {
                 }
             ],
             title: 'Subject Id'
+        },
+        scheduled_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Scheduled Date'
         }
     },
     type: 'object',
@@ -2578,7 +2674,7 @@ export const TodoPublicSchema = {
             '$ref': '#/components/schemas/TodoType',
             default: 'task'
         },
-        scheduled_date: {
+        planned_date: {
             anyOf: [
                 {
                     type: 'string',
@@ -2588,7 +2684,19 @@ export const TodoPublicSchema = {
                     type: 'null'
                 }
             ],
-            title: 'Scheduled Date'
+            title: 'Planned Date'
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
         },
         id: {
             type: 'string',
@@ -2777,7 +2885,7 @@ export const TodoUpdateSchema = {
             ],
             title: 'Subject Id'
         },
-        scheduled_date: {
+        planned_date: {
             anyOf: [
                 {
                     type: 'string',
@@ -2787,7 +2895,19 @@ export const TodoUpdateSchema = {
                     type: 'null'
                 }
             ],
-            title: 'Scheduled Date'
+            title: 'Planned Date'
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
         }
     },
     type: 'object',

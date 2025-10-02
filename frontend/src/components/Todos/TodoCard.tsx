@@ -131,11 +131,19 @@ export default function TodoCard({
                   )
                 })()}
               </HStack>
-              {todo.scheduled_date && (
+              {todo.planned_date && (
                 <HStack gap={1} align="center">
                   <FiCalendar size={12} color="var(--chakra-colors-blue-500)" />
                   <Text fontSize="xs" color="blue.500" fontWeight="medium">
-                    {formatDate(new Date(todo.scheduled_date))}
+                    {formatDate(new Date(todo.planned_date))}
+                  </Text>
+                </HStack>
+              )}
+              {todo.due_date && (
+                <HStack gap={1} align="center">
+                  <FiCalendar size={12} color="var(--chakra-colors-red-500)" />
+                  <Text fontSize="xs" color="red.500" fontWeight="medium">
+                    Due: {formatDate(new Date(todo.due_date))}
                   </Text>
                 </HStack>
               )}
@@ -274,11 +282,19 @@ export default function TodoCard({
                 {todo.estimate_minutes}m
               </Text>
             )}
-            {todo.scheduled_date && (
+            {todo.planned_date && (
               <HStack gap={1} align="center">
                 <FiCalendar size={12} color="var(--chakra-colors-blue-500)" />
                 <Text fontSize="xs" color="blue.500" fontWeight="medium">
-                  {formatDate(new Date(todo.scheduled_date))}
+                  {formatDate(new Date(todo.planned_date))}
+                </Text>
+              </HStack>
+            )}
+            {todo.due_date && (
+              <HStack gap={1} align="center">
+                <FiCalendar size={12} color="var(--chakra-colors-red-500)" />
+                <Text fontSize="xs" color="red.500" fontWeight="medium">
+                  Due: {formatDate(new Date(todo.due_date))}
                 </Text>
               </HStack>
             )}

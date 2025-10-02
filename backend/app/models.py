@@ -198,7 +198,8 @@ class TodoBase(SQLModel):
     estimate_minutes: int | None = Field(default=None, ge=0)  # Estimate in minutes
     priority: TodoPriority = Field(default=TodoPriority.medium)
     type: TodoType = Field(default=TodoType.task)
-    scheduled_date: date | None = Field(default=None)  # Date when todo is scheduled for
+    planned_date: date | None = Field(default=None)  # Date when todo is planned to be done
+    due_date: date | None = Field(default=None)  # Due date for the todo
 
 
 # Properties to receive on todo creation
@@ -235,7 +236,8 @@ class TodoUpdate(BaseModel):
     parent_id: uuid.UUID | None = None
     milestone_id: uuid.UUID | None = None
     subject_id: uuid.UUID | None = None
-    scheduled_date: date | None = None
+    planned_date: date | None = None
+    due_date: date | None = None
 
     @field_validator('parent_id', mode='before')
     @classmethod
@@ -758,6 +760,7 @@ class MilestoneBase(SQLModel):
     questions: str | None = Field(default=None)  # Questions that need to be answered
     status: MilestoneStatus = Field(default=MilestoneStatus.pending)
     target_date: date | None = None
+    due_date: date | None = None  # Due date for the milestone
     completed_date: date | None = None
 
 
@@ -768,6 +771,7 @@ class MilestoneCreate(SQLModel):
     questions: str | None = Field(default=None)  # Questions that need to be answered
     status: MilestoneStatus = Field(default=MilestoneStatus.pending)
     target_date: date | None = None
+    due_date: date | None = None
     completed_date: date | None = None
 
 
@@ -778,6 +782,7 @@ class MilestoneUpdate(BaseModel):
     questions: str | None = None  # Questions that need to be answered
     status: MilestoneStatus | None = None
     target_date: date | None = None
+    due_date: date | None = None
     completed_date: date | None = None
 
 
@@ -863,6 +868,7 @@ class ResourceSubjectBase(SQLModel):
     learning_objectives: str | None = Field(default=None)
     is_completed: bool = Field(default=False)
     order_index: int = Field(default=0)
+    due_date: date | None = None  # Due date for the subject
 
 
 class ResourceSubjectCreate(ResourceSubjectBase):
@@ -875,6 +881,7 @@ class ResourceSubjectUpdate(BaseModel):
     learning_objectives: str | None = None
     is_completed: bool | None = None
     order_index: int | None = None
+    due_date: date | None = None
 
 
 class ResourceSubjectReorderRequest(SQLModel):

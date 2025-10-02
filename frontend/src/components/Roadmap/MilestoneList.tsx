@@ -34,6 +34,7 @@ import {
   FiCalendar,
   FiChevronDown,
   FiChevronRight,
+  FiClock,
   FiEdit,
   FiMenu,
   FiPlus,
@@ -128,7 +129,7 @@ function SortableMilestoneItem({
         milestoneId: milestone.id,
       })
     },
-    enabled: showResources || isResourceFormOpen,
+    enabled: true, // Always fetch resources to show count
   })
 
   const resources = resourcesResponse?.data || []
@@ -419,6 +420,15 @@ function SortableMilestoneItem({
         </Flex>
       )}
 
+      {milestone.due_date && (
+        <Flex align="center" gap={1} fontSize="sm" color="red.600">
+          <FiClock />
+          <Text>
+            Due: {new Date(milestone.due_date).toLocaleDateString()}
+          </Text>
+        </Flex>
+      )}
+
       {/* Todo section */}
       <Box mt={3} pt={3} borderTop="1px" borderColor="gray.200">
         <Flex justify="space-between" align="center" mb={2}>
@@ -566,7 +576,17 @@ function SortableMilestoneItem({
                 >
                   <Flex justify="space-between" align="start" mb={2}>
                     <Box flex="1">
-                      <Text fontWeight="medium" fontSize="sm">
+                      <Text
+                        fontWeight="medium"
+                        fontSize="sm"
+                        cursor="pointer"
+                        color="blue.600"
+                        _hover={{ textDecoration: "underline" }}
+                        onClick={() => {
+                          // Navigate to resource detail
+                          window.open(`/resources?id=${resource.id}`, '_blank')
+                        }}
+                      >
                         {resource.title}
                       </Text>
                       {resource.description && (

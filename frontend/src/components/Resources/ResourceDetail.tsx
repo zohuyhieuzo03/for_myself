@@ -18,6 +18,7 @@ import {
   FiArrowLeft,
   FiChevronDown,
   FiChevronRight,
+  FiClock,
   FiEdit,
   FiExternalLink,
   FiPlus,
@@ -66,7 +67,7 @@ function SubjectItem({
   const { data: todosResponse, isLoading: todosLoading } = useQuery({
     queryKey: ["subject-todos", subject.id],
     queryFn: () => TodosService.readTodosBySubject({ subjectId: subject.id }),
-    enabled: showTodos || isAddingTodo,
+    enabled: true
   })
 
   const todos = todosResponse?.data || []
@@ -148,6 +149,15 @@ function SubjectItem({
             </Text>
             <ExpandableText text={subject.learning_objectives} />
           </Box>
+        )}
+
+        {subject.due_date && (
+          <Flex align="center" gap={1} fontSize="sm" color="red.600" mb={2}>
+            <FiClock />
+            <Text>
+              Due: {new Date(subject.due_date).toLocaleDateString()}
+            </Text>
+          </Flex>
         )}
 
         {/* Todos Section */}

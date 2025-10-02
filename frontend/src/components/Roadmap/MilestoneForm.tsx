@@ -43,6 +43,7 @@ export function MilestoneForm({
     questions: milestone?.questions || "",
     status: milestone?.status || "pending",
     target_date: milestone?.target_date || "",
+    due_date: milestone?.due_date || "",
   })
 
   // Update form data when milestone prop changes
@@ -55,6 +56,7 @@ export function MilestoneForm({
         questions: milestone.questions || "",
         status: milestone.status || "pending",
         target_date: milestone.target_date || "",
+        due_date: milestone.due_date || "",
       })
     } else {
       // Reset form when creating new milestone
@@ -65,6 +67,7 @@ export function MilestoneForm({
         questions: "",
         status: "pending",
         target_date: "",
+        due_date: "",
       })
     }
   }, [milestone])
@@ -79,6 +82,7 @@ export function MilestoneForm({
         questions: "",
         status: "pending",
         target_date: "",
+        due_date: "",
       })
     }
   }, [isOpen])
@@ -121,6 +125,7 @@ export function MilestoneForm({
     const submitData = {
       ...formData,
       target_date: formData.target_date || undefined,
+      due_date: formData.due_date || undefined,
     }
 
     if (milestone) {
@@ -214,6 +219,16 @@ export function MilestoneForm({
                   value={formData.target_date}
                   onChange={(e) =>
                     setFormData({ ...formData, target_date: e.target.value })
+                  }
+                />
+              </Field>
+
+              <Field label="Due Date">
+                <Input
+                  type="date"
+                  value={formData.due_date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, due_date: e.target.value })
                   }
                 />
               </Field>

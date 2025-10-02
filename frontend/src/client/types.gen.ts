@@ -256,6 +256,7 @@ export type MilestoneCreate = {
     questions?: (string | null);
     status?: MilestoneStatus;
     target_date?: (string | null);
+    due_date?: (string | null);
     completed_date?: (string | null);
 };
 
@@ -272,6 +273,7 @@ export type MilestoneUpdate = {
     questions?: (string | null);
     status?: (MilestoneStatus | null);
     target_date?: (string | null);
+    due_date?: (string | null);
     completed_date?: (string | null);
 };
 
@@ -346,6 +348,7 @@ export type ResourceSubjectCreate = {
     learning_objectives?: (string | null);
     is_completed?: boolean;
     order_index?: number;
+    due_date?: (string | null);
 };
 
 export type ResourceSubjectPublic = {
@@ -354,6 +357,7 @@ export type ResourceSubjectPublic = {
     learning_objectives?: (string | null);
     is_completed?: boolean;
     order_index?: number;
+    due_date?: (string | null);
     id: string;
     resource_id: string;
     created_at: string;
@@ -375,6 +379,7 @@ export type ResourceSubjectUpdate = {
     learning_objectives?: (string | null);
     is_completed?: (boolean | null);
     order_index?: (number | null);
+    due_date?: (string | null);
 };
 
 export type ResourceUpdate = {
@@ -400,6 +405,7 @@ export type RoadmapMilestonePublic = {
     questions?: (string | null);
     status?: MilestoneStatus;
     target_date?: (string | null);
+    due_date?: (string | null);
     completed_date?: (string | null);
     id: string;
     roadmap_id: string;
@@ -455,10 +461,12 @@ export type TodoCreate = {
     estimate_minutes?: (number | null);
     priority?: TodoPriority;
     type?: TodoType;
-    scheduled_date?: (string | null);
+    planned_date?: (string | null);
+    due_date?: (string | null);
     parent_id?: (string | null);
     milestone_id?: (string | null);
     subject_id?: (string | null);
+    scheduled_date?: (string | null);
 };
 
 export type TodoPriority = 'low' | 'medium' | 'high' | 'urgent';
@@ -470,7 +478,8 @@ export type TodoPublic = {
     estimate_minutes?: (number | null);
     priority?: TodoPriority;
     type?: TodoType;
-    scheduled_date?: (string | null);
+    planned_date?: (string | null);
+    due_date?: (string | null);
     id: string;
     owner_id: string;
     parent_id?: (string | null);
@@ -500,7 +509,8 @@ export type TodoUpdate = {
     parent_id?: (string | null);
     milestone_id?: (string | null);
     subject_id?: (string | null);
-    scheduled_date?: (string | null);
+    planned_date?: (string | null);
+    due_date?: (string | null);
 };
 
 export type Token = {

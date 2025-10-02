@@ -105,8 +105,11 @@ export default function TodoDetailDialog({
       type: todo.type || "task",
       subject_id: todo.subject_id || undefined,
       milestone_id: todo.milestone_id || undefined,
-      scheduled_date: todo.scheduled_date
-        ? new Date(todo.scheduled_date).toISOString().split("T")[0]
+      planned_date: todo.planned_date
+        ? new Date(todo.planned_date).toISOString().split("T")[0]
+        : undefined,
+      due_date: todo.due_date
+        ? new Date(todo.due_date).toISOString().split("T")[0]
         : undefined,
     },
   })
@@ -123,8 +126,11 @@ export default function TodoDetailDialog({
       type: todo.type || "task",
       subject_id: todo.subject_id || undefined,
       milestone_id: todo.milestone_id || undefined,
-      scheduled_date: todo.scheduled_date
-        ? new Date(todo.scheduled_date).toISOString().split("T")[0]
+      planned_date: todo.planned_date
+        ? new Date(todo.planned_date).toISOString().split("T")[0]
+        : undefined,
+      due_date: todo.due_date
+        ? new Date(todo.due_date).toISOString().split("T")[0]
         : undefined,
     })
   }, [open, reset, todo])
@@ -155,9 +161,13 @@ export default function TodoDetailDialog({
           type: data.type,
           subject_id: data.subject_id,
           milestone_id: data.milestone_id,
-          scheduled_date:
-            data.scheduled_date && data.scheduled_date.trim() !== ""
-              ? data.scheduled_date
+          planned_date:
+            data.planned_date && data.planned_date.trim() !== ""
+              ? data.planned_date
+              : null,
+          due_date:
+            data.due_date && data.due_date.trim() !== ""
+              ? data.due_date
               : null,
         },
       })
@@ -182,9 +192,13 @@ export default function TodoDetailDialog({
     const current = getValues()
     mutation.mutate({
       ...current,
-      scheduled_date:
-        current.scheduled_date && current.scheduled_date.trim() !== ""
-          ? current.scheduled_date
+      planned_date:
+        current.planned_date && current.planned_date.trim() !== ""
+          ? current.planned_date
+          : null,
+      due_date:
+        current.due_date && current.due_date.trim() !== ""
+          ? current.due_date
           : null,
     })
   }
@@ -387,10 +401,10 @@ export default function TodoDetailDialog({
               {/* RIGHT SIDEBAR (Trello actions/meta) */}
               <GridItem>
                 <VStack gap={4} align="stretch">
-                  {/* Due Date */}
+                  {/* Planned Date */}
                   <div>
                     <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <FiCalendar size={16} /> Due date
+                      <FiCalendar size={16} /> Planned date
                     </Text>
                     <div style={{ position: "relative", width: "100%", marginTop: 6 }}>
                       <FiCalendar
@@ -405,12 +419,42 @@ export default function TodoDetailDialog({
                         size={16}
                       />
                       <Input
-                        {...register("scheduled_date")}
+                        {...register("planned_date")}
                         onBlur={(e) => {
-                          register("scheduled_date").onBlur(e)
+                          register("planned_date").onBlur(e)
                           autoSaveAllFields()
                         }}
-                        placeholder="Select scheduled date"
+                        placeholder="Select planned date"
+                        type="date"
+                        style={{ paddingLeft: "36px" }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Due Date */}
+                  <div>
+                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <FiClock size={16} /> Due date
+                    </Text>
+                    <div style={{ position: "relative", width: "100%", marginTop: 6 }}>
+                      <FiClock
+                        style={{
+                          position: "absolute",
+                          left: "8px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          color: "#718096",
+                          pointerEvents: "none",
+                        }}
+                        size={16}
+                      />
+                      <Input
+                        {...register("due_date")}
+                        onBlur={(e) => {
+                          register("due_date").onBlur(e)
+                          autoSaveAllFields()
+                        }}
+                        placeholder="Select due date"
                         type="date"
                         style={{ paddingLeft: "36px" }}
                       />
