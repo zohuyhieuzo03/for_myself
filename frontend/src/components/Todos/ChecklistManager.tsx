@@ -124,6 +124,16 @@ const ChecklistManager = ({ todoId }: ChecklistManagerProps) => {
             placeholder="Enter checklist item..."
             size="sm"
             autoFocus
+            onKeyDown={(e) => {
+              // Ignore Enter key when composing (e.g., typing Vietnamese)
+              if (e.nativeEvent.isComposing) {
+                return
+              }
+
+              if (e.key === "Enter" && newItemTitle.trim()) {
+                handleAddItem()
+              }
+            }}
           />
           <Button
             size="sm"

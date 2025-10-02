@@ -55,7 +55,7 @@ export function useKanbanMutations() {
         title,
         description: "",
         status,
-        ...(scheduledDate && { scheduled_date: scheduledDate }),
+        ...(scheduledDate && { planned_date: scheduledDate }),
       }
       createTodoMutation.mutate(todoData)
     },

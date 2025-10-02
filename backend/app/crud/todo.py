@@ -186,7 +186,7 @@ def get_todos_for_date(
     statement = (
         select(Todo)
         .where(Todo.owner_id == owner_id)
-        .where(Todo.scheduled_date == target_date)
+        .where(Todo.planned_date == target_date)
         .order_by(Todo.priority.desc(), Todo.created_at.asc())
     )
     todos = list(session.exec(statement).all())
@@ -199,9 +199,9 @@ def get_overdue_todos(*, session: Session, owner_id: uuid.UUID) -> list[Todo]:
     statement = (
         select(Todo)
         .where(Todo.owner_id == owner_id)
-        .where(Todo.scheduled_date < today)
+        .where(Todo.planned_date < today)
         .where(Todo.status.in_(["todo", "doing", "planning", "backlog"]))
-        .order_by(Todo.scheduled_date.desc(), Todo.priority.desc())
+        .order_by(Todo.planned_date.desc(), Todo.priority.desc())
     )
     todos = list(session.exec(statement).all())
     return todos
@@ -215,7 +215,7 @@ def schedule_todo_for_date(
     if not todo:
         return None
     
-    todo.scheduled_date = target_date
+    todo.planned_date = target_date
     todo.updated_at = datetime.now(timezone.utc)
     session.add(todo)
     session.commit()
@@ -229,7 +229,7 @@ def rollover_overdue_todos(*, session: Session, owner_id: uuid.UUID) -> list[Tod
     today = date.today()
     
     for todo in overdue_todos:
-        todo.scheduled_date = today
+        todo.planned_date = today
         todo.updated_at = datetime.now(timezone.utc)
         session.add(todo)
     
@@ -246,7 +246,7 @@ def get_completed_todos_for_date(
     statement = (
         select(Todo)
         .where(Todo.owner_id == owner_id)
-        .where(Todo.scheduled_date == target_date)
+        .where(Todo.planned_date == target_date)
         .where(Todo.status.in_(["done", "archived"]))
         .order_by(Todo.updated_at.desc())
     )
@@ -264,12 +264,12 @@ def get_daily_schedule_summary(
     end_date = today + timedelta(days=days)
     
     statement = (
-        select(Todo.scheduled_date, func.count(Todo.id))
+        select(Todo.planned_date, func.count(Todo.id))
         .where(Todo.owner_id == owner_id)
-        .where(Todo.scheduled_date >= today)
-        .where(Todo.scheduled_date <= end_date)
+        .where(Todo.planned_date >= today)
+        .where(Todo.planned_date <= end_date)
         .where(Todo.status.in_(["todo", "doing", "planning", "backlog"]))
-        .group_by(Todo.scheduled_date)
+        .group_by(Todo.planned_date)
     )
     
     result = session.exec(statement).all()

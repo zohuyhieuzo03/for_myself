@@ -466,7 +466,6 @@ export type TodoCreate = {
     parent_id?: (string | null);
     milestone_id?: (string | null);
     subject_id?: (string | null);
-    scheduled_date?: (string | null);
 };
 
 export type TodoPriority = 'low' | 'medium' | 'high' | 'urgent';

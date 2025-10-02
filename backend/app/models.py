@@ -207,7 +207,6 @@ class TodoCreate(TodoBase):
     parent_id: uuid.UUID | None = None
     milestone_id: uuid.UUID | None = None
     subject_id: uuid.UUID | None = None
-    scheduled_date: date | None = None
 
     @field_validator('parent_id', mode='before')
     @classmethod

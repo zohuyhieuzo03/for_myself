@@ -15,7 +15,7 @@ def batch_rollover_overdue_todos():
             select(User.id)
             .join(Todo)
             .where(
-                Todo.scheduled_date < date.today(),
+                Todo.planned_date < date.today(),
                 Todo.status.in_(["todo", "doing", "planning"])
             )
             .distinct()
@@ -42,7 +42,7 @@ def get_overdue_todos_summary():
         overdue_count_statement = (
             select(User.email, func.count(Todo.id))
             .join(Todo)
-            .where(Todo.scheduled_date < date.today())
+            .where(Todo.planned_date < date.today())
             .where(Todo.status.in_(["todo", "doing", "planning"]))
             .group_by(User.email)
         )

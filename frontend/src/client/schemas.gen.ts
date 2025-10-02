@@ -2605,18 +2605,6 @@ export const TodoCreateSchema = {
                 }
             ],
             title: 'Subject Id'
-        },
-        scheduled_date: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'date'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Scheduled Date'
         }
     },
     type: 'object',

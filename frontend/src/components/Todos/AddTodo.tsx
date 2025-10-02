@@ -88,7 +88,7 @@ const AddTodo = (props: AddTodoProps = {}) => {
           priority: data.priority,
           type: data.type,
           subject_id: data.subject_id || undefined,
-          scheduled_date: defaultScheduledDate
+          planned_date: defaultScheduledDate
             ? formatDate(defaultScheduledDate)
             : undefined,
         },
