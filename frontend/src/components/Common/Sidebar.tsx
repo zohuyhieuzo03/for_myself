@@ -18,9 +18,10 @@ import SidebarItems from "./SidebarItems"
 
 interface SidebarProps {
   collapsed?: boolean
+  onToggleSidebar?: () => void
 }
 
-const Sidebar = ({ collapsed }: SidebarProps) => {
+const Sidebar = ({ collapsed, onToggleSidebar }: SidebarProps) => {
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const { logout } = useAuth()
@@ -87,15 +88,15 @@ const Sidebar = ({ collapsed }: SidebarProps) => {
         position="sticky"
         bg="bg.subtle"
         top={0}
-        minW={collapsed ? "16" : "xs"}
-        w={collapsed ? "16" : "xs"}
+        minW={collapsed ? "16" : "48"}
+        w={collapsed ? "16" : "48"}
         h="calc(100vh - 80px)"
         maxH="calc(100vh - 80px)"
-        p={collapsed ? 2 : 4}
+        p={collapsed ? 2 : 2}
         transition="all 0.3s ease"
       >
         <Box w="100%" flex="1" overflowY="auto" overflowX="hidden">
-          <SidebarItems collapsed={collapsed} />
+          <SidebarItems collapsed={collapsed} onToggleSidebar={onToggleSidebar} />
         </Box>
       </Box>
     </>

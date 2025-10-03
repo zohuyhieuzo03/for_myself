@@ -27,7 +27,10 @@ function Layout() {
         onToggleSidebar={() => setSidebarCollapsed((v) => !v)}
       />
       <Flex flex="1" overflow="hidden">
-        <Sidebar collapsed={sidebarCollapsed} />
+        <Sidebar 
+          collapsed={sidebarCollapsed} 
+          onToggleSidebar={() => setSidebarCollapsed((v) => !v)}
+        />
         <Flex
           flex="1"
           direction="column"

@@ -2,6 +2,7 @@ import { Box, Flex, Icon, Text } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link as RouterLink } from "@tanstack/react-router"
 import { useState } from "react"
+import { LuPanelLeftClose, LuPanelLeftOpen } from "react-icons/lu"
 import {
   FiBarChart,
   FiCalendar,
@@ -76,6 +77,7 @@ const systemItems = [
 interface SidebarItemsProps {
   onClose?: () => void
   collapsed?: boolean
+  onToggleSidebar?: () => void
 }
 
 interface Item {
@@ -84,7 +86,7 @@ interface Item {
   path: string
 }
 
-const SidebarItems = ({ onClose, collapsed }: SidebarItemsProps) => {
+const SidebarItems = ({ onClose, collapsed, onToggleSidebar }: SidebarItemsProps) => {
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
 
@@ -121,9 +123,9 @@ const SidebarItems = ({ onClose, collapsed }: SidebarItemsProps) => {
     const menuItems = items.map(({ icon, title, path }) => (
       <RouterLink key={title} to={path} onClick={onClose}>
         <Flex
-          gap={collapsed ? 0 : 4}
-          px={collapsed ? 0 : 4}
-          py={2}
+          gap={collapsed ? 0 : 2}
+          px={collapsed ? 0 : 2}
+          py={1.5}
           _hover={{
             background: "gray.subtle",
           }}
@@ -134,10 +136,10 @@ const SidebarItems = ({ onClose, collapsed }: SidebarItemsProps) => {
           <Icon
             as={icon}
             alignSelf="center"
-            boxSize={5}
+            boxSize={4}
             mx={collapsed ? "auto" : 0}
           />
-          {!collapsed && <Text ml={2}>{title}</Text>}
+          {!collapsed && <Text ml={1} fontSize="sm">{title}</Text>}
         </Flex>
       </RouterLink>
     ))
@@ -152,8 +154,8 @@ const SidebarItems = ({ onClose, collapsed }: SidebarItemsProps) => {
       <Box>
         <Flex
           alignItems="center"
-          px={4}
-          py={2}
+          px={2}
+          py={1.5}
           cursor="pointer"
           onClick={() => sectionKey && toggleSection(sectionKey)}
           _hover={{
@@ -162,8 +164,8 @@ const SidebarItems = ({ onClose, collapsed }: SidebarItemsProps) => {
         >
           <Icon
             as={isCollapsed ? FiChevronRight : FiChevronDown}
-            boxSize={4}
-            mr={2}
+            boxSize={3}
+            mr={1.5}
             transition="transform 0.2s"
           />
           <Text fontSize="xs" fontWeight="bold" color="gray.500" flex="1">
@@ -184,6 +186,31 @@ const SidebarItems = ({ onClose, collapsed }: SidebarItemsProps) => {
 
   return (
     <Box pb={4}>
+      {/* Toggle Sidebar Button - aligned with other menu items */}
+      {onToggleSidebar && (
+        <Flex
+          gap={collapsed ? 0 : 2}
+          px={collapsed ? 0 : 2}
+          py={1.5}
+          _hover={{
+            background: "gray.subtle",
+          }}
+          alignItems="center"
+          fontSize="sm"
+          cursor="pointer"
+          onClick={onToggleSidebar}
+          title={collapsed ? "Toggle sidebar" : undefined}
+        >
+          <Icon
+            as={collapsed ? LuPanelLeftOpen : LuPanelLeftClose}
+            alignSelf="center"
+            boxSize={4}
+            mx={collapsed ? "auto" : 0}
+          />
+          {!collapsed && <Text ml={1} fontSize="sm">Toggle Menu</Text>}
+        </Flex>
+      )}
+      
       {renderMenuItems(mainItems)}
       {renderMenuItems(taskItems, "Task Management", "tasks")}
       {renderMenuItems(emailItems, "Email & Communication", "email")}
