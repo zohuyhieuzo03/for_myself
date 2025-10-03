@@ -13,13 +13,16 @@ function Dashboard() {
   return (
     <Container maxW="full">
       <Box pt={8} m={4}>
-        <Grid templateColumns={{ base: "1fr", lg: "1fr 1fr", xl: "2fr 1fr" }} gap={6}>
+        <Grid
+          templateColumns={{ base: "1fr", lg: "1fr 1fr", xl: "2fr 1fr" }}
+          gap={6}
+        >
           {/* Main content area */}
           <GridItem>
             <VStack gap={6} align="stretch">
               {/* Quick Stats */}
               <DashboardStats />
-              
+
               {/* Quick Actions */}
               <QuickActions />
             </VStack>

@@ -1,5 +1,5 @@
 import { Button, Input, Text, VStack } from "@chakra-ui/react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { ResourceCreate, ResourceUpdate } from "@/client"
 import {
   DialogBody,
@@ -15,7 +15,7 @@ interface ResourceFormProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: ResourceCreate | ResourceUpdate) => void
-  initialData?: Partial<ResourceCreate>
+  initialData?: Partial<ResourceCreate & { ai_chat_url?: string | null }>
   isEditing?: boolean
   milestoneId?: string
 }
@@ -32,7 +32,20 @@ export function ResourceForm({
     title: initialData?.title || "",
     description: initialData?.description || "",
     url: initialData?.url || "",
+    ai_chat_url: initialData?.ai_chat_url || "",
   })
+
+  // Update form data when initialData changes (for editing)
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        title: initialData.title || "",
+        description: initialData.description || "",
+        url: initialData.url || "",
+        ai_chat_url: initialData.ai_chat_url || "",
+      })
+    }
+  }, [initialData])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -82,6 +95,17 @@ export function ResourceForm({
                   value={formData.url || ""}
                   onChange={(e) => handleInputChange("url", e.target.value)}
                   placeholder="https://example.com"
+                  type="url"
+                />
+              </Field>
+
+              <Field label="AI Chat URL">
+                <Input
+                  value={formData.ai_chat_url || ""}
+                  onChange={(e) =>
+                    handleInputChange("ai_chat_url", e.target.value)
+                  }
+                  placeholder="https://chat.openai.com/g/..."
                   type="url"
                 />
               </Field>

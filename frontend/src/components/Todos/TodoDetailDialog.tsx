@@ -3,35 +3,35 @@ import {
   Grid,
   GridItem,
   Input,
+  Tabs,
   Text,
   Textarea,
   VStack,
 } from "@chakra-ui/react"
-import { Tabs } from "@chakra-ui/react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import { FiCalendar } from "react-icons/fi"
 import {
-  FiFlag,
-  FiTag,
-  FiList,
+  FiCalendar,
   FiClock,
-  FiLayers,
-  FiUser,
-  FiTrash2,
-  FiX,
-  FiTarget,
   FiExternalLink,
+  FiFlag,
+  FiLayers,
+  FiList,
+  FiTag,
+  FiTarget,
+  FiTrash2,
+  FiUser,
+  FiX,
 } from "react-icons/fi"
-
 import {
   type ResourceSubjectPublic,
   ResourcesService,
+  RoadmapService,
   type TodoPublic,
   TodosService,
   type TodoUpdate,
-  RoadmapService,
 } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import {
@@ -41,7 +41,6 @@ import {
 } from "@/client/options"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
-import { useNavigate } from "@tanstack/react-router"
 import {
   DialogBody,
   DialogContent,
@@ -87,16 +86,12 @@ export default function TodoDetailDialog({
   })
 
   // Flatten all milestones from all roadmaps
-  const allMilestones = roadmapsData?.data?.flatMap((roadmap) => roadmap.milestones || []) || []
+  const allMilestones =
+    roadmapsData?.data?.flatMap((roadmap) => roadmap.milestones || []) || []
 
   // Checklist items are managed independently by ChecklistManager
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    getValues,
-  } = useForm<TodoUpdate>({
+  const { register, handleSubmit, reset, getValues } = useForm<TodoUpdate>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
@@ -169,9 +164,7 @@ export default function TodoDetailDialog({
               ? data.planned_date
               : null,
           due_date:
-            data.due_date && data.due_date.trim() !== ""
-              ? data.due_date
-              : null,
+            data.due_date && data.due_date.trim() !== "" ? data.due_date : null,
         },
       })
       // Checklist CRUD is handled inline by ChecklistManager
@@ -283,7 +276,15 @@ export default function TodoDetailDialog({
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <div style={{ position: "absolute", right: "16px", top: "16px", display: "flex", gap: "8px" }}>
+            <div
+              style={{
+                position: "absolute",
+                right: "16px",
+                top: "16px",
+                display: "flex",
+                gap: "8px",
+              }}
+            >
               <Button
                 variant="ghost"
                 colorPalette="red"
@@ -312,12 +313,18 @@ export default function TodoDetailDialog({
                 <VStack gap={4} align="stretch">
                   {/* Title */}
                   <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <FiLayers size={16} /> Title
                     </Text>
                     <div style={{ marginTop: 6 }}>
                       <Input
-                        {...register("title", { required: "Title is required" })}
+                        {...register("title", {
+                          required: "Title is required",
+                        })}
                         onBlur={(e) => {
                           register("title").onBlur(e)
                           autoSaveAllFields()
@@ -331,7 +338,11 @@ export default function TodoDetailDialog({
 
                   {/* Description */}
                   <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <FiTag size={16} /> Description
                     </Text>
                     <div style={{ marginTop: 6 }}>
@@ -429,10 +440,20 @@ export default function TodoDetailDialog({
                 <VStack gap={4} align="stretch">
                   {/* Planned Date */}
                   <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <FiCalendar size={16} /> Planned date
                     </Text>
-                    <div style={{ position: "relative", width: "100%", marginTop: 6 }}>
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        marginTop: 6,
+                      }}
+                    >
                       <FiCalendar
                         style={{
                           position: "absolute",
@@ -459,10 +480,20 @@ export default function TodoDetailDialog({
 
                   {/* Due Date */}
                   <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <FiClock size={16} /> Due date
                     </Text>
-                    <div style={{ position: "relative", width: "100%", marginTop: 6 }}>
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        marginTop: 6,
+                      }}
+                    >
                       <FiClock
                         style={{
                           position: "absolute",
@@ -489,7 +520,11 @@ export default function TodoDetailDialog({
 
                   {/* Status */}
                   <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <FiTag size={16} /> Status
                     </Text>
                     <select
@@ -517,7 +552,11 @@ export default function TodoDetailDialog({
 
                   {/* Priority */}
                   <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <FiFlag size={16} /> Priority
                     </Text>
                     <select
@@ -545,7 +584,11 @@ export default function TodoDetailDialog({
 
                   {/* Type */}
                   <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <FiLayers size={16} /> Type
                     </Text>
                     <select
@@ -573,7 +616,11 @@ export default function TodoDetailDialog({
 
                   {/* Subject */}
                   <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <FiUser size={16} /> Subject
                       <Button
                         size="xs"
@@ -610,7 +657,11 @@ export default function TodoDetailDialog({
 
                   {/* Milestone */}
                   <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <FiTarget size={16} /> Milestone
                       <Button
                         size="xs"
@@ -647,13 +698,20 @@ export default function TodoDetailDialog({
 
                   {/* Estimate */}
                   <div>
-                    <Text fontSize="sm" color="gray.600" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <FiClock size={16} /> Estimate (minutes)
                     </Text>
                     <Input
                       {...register("estimate_minutes", {
                         valueAsNumber: true,
-                        min: { value: 0, message: "Estimate must be 0 or greater" },
+                        min: {
+                          value: 0,
+                          message: "Estimate must be 0 or greater",
+                        },
                       })}
                       onBlur={(e) => {
                         register("estimate_minutes").onBlur(e)

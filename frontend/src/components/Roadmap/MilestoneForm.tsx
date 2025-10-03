@@ -174,7 +174,10 @@ export function MilestoneForm({
                 <Textarea
                   value={formData.learning_objectives}
                   onChange={(e) =>
-                    setFormData({ ...formData, learning_objectives: e.target.value })
+                    setFormData({
+                      ...formData,
+                      learning_objectives: e.target.value,
+                    })
                   }
                   placeholder="What should be learned, key questions, required knowledge..."
                   rows={4}

@@ -25,6 +25,7 @@ def _resource_to_public(resource: Resource) -> ResourcePublic:
         title=resource.title,
         description=resource.description,
         url=resource.url,
+        ai_chat_url=resource.ai_chat_url,
         user_id=resource.user_id,
         milestone_id=resource.milestone_id,
         created_at=resource.created_at,

@@ -1,14 +1,8 @@
-import {
-  Badge,
-  Box,
-  HStack,
-  Text,
-  VStack,
-} from "@chakra-ui/react"
+import { Badge, Box, HStack, Text, VStack } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
-import { FiCalendar, FiTarget, FiClock } from "react-icons/fi"
+import { FiCalendar, FiClock, FiTarget } from "react-icons/fi"
 
-import { TodosService, RoadmapService, ResourcesService } from "@/client"
+import { ResourcesService, RoadmapService, TodosService } from "@/client"
 
 export default function DashboardStats() {
   // Fetch todos with due dates
@@ -32,7 +26,7 @@ export default function DashboardStats() {
   // Calculate stats
   const now = new Date()
   const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-  
+
   let todosDue = 0
   let milestonesDue = 0
   let subjectsDue = 0
@@ -84,7 +78,14 @@ export default function DashboardStats() {
     <Box>
       <VStack gap={6} align="stretch">
         {/* Total Due Count - Prominent Display */}
-        <Box textAlign="center" p={6} bg="red.50" borderRadius="xl" border="1px" borderColor="red.200">
+        <Box
+          textAlign="center"
+          p={6}
+          bg="red.50"
+          borderRadius="xl"
+          border="1px"
+          borderColor="red.200"
+        >
           <Text fontSize="4xl" fontWeight="bold" color="red.600" mb={1}>
             {totalDue}
           </Text>
@@ -96,15 +97,25 @@ export default function DashboardStats() {
         {/* Stats Cards */}
         <VStack gap={3} align="stretch">
           {/* Todos Card */}
-          <Box p={4} border="1px" borderColor="blue.200" borderRadius="lg" bg="blue.50">
+          <Box
+            p={4}
+            border="1px"
+            borderColor="blue.200"
+            borderRadius="lg"
+            bg="blue.50"
+          >
             <HStack justify="space-between" align="center">
               <HStack gap={3} align="center">
                 <Box p={2} bg="blue.100" borderRadius="md">
                   <FiCalendar size={20} color="var(--chakra-colors-blue-600)" />
                 </Box>
                 <VStack align="start" gap={0}>
-                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">Todos</Text>
-                  <Text fontSize="xs" color="gray.500">{totalTodos} total</Text>
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                    Todos
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    {totalTodos} total
+                  </Text>
                 </VStack>
               </HStack>
               {todosDue > 0 && (
@@ -116,15 +127,25 @@ export default function DashboardStats() {
           </Box>
 
           {/* Milestones Card */}
-          <Box p={4} border="1px" borderColor="purple.200" borderRadius="lg" bg="purple.50">
+          <Box
+            p={4}
+            border="1px"
+            borderColor="purple.200"
+            borderRadius="lg"
+            bg="purple.50"
+          >
             <HStack justify="space-between" align="center">
               <HStack gap={3} align="center">
                 <Box p={2} bg="purple.100" borderRadius="md">
                   <FiTarget size={20} color="var(--chakra-colors-purple-600)" />
                 </Box>
                 <VStack align="start" gap={0}>
-                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">Milestones</Text>
-                  <Text fontSize="xs" color="gray.500">{totalMilestones} total</Text>
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                    Milestones
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    {totalMilestones} total
+                  </Text>
                 </VStack>
               </HStack>
               {milestonesDue > 0 && (
@@ -136,15 +157,25 @@ export default function DashboardStats() {
           </Box>
 
           {/* Subjects Card */}
-          <Box p={4} border="1px" borderColor="orange.200" borderRadius="lg" bg="orange.50">
+          <Box
+            p={4}
+            border="1px"
+            borderColor="orange.200"
+            borderRadius="lg"
+            bg="orange.50"
+          >
             <HStack justify="space-between" align="center">
               <HStack gap={3} align="center">
                 <Box p={2} bg="orange.100" borderRadius="md">
                   <FiClock size={20} color="var(--chakra-colors-orange-600)" />
                 </Box>
                 <VStack align="start" gap={0}>
-                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">Subjects</Text>
-                  <Text fontSize="xs" color="gray.500">{totalSubjects} total</Text>
+                  <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+                    Subjects
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    {totalSubjects} total
+                  </Text>
                 </VStack>
               </HStack>
               {subjectsDue > 0 && (

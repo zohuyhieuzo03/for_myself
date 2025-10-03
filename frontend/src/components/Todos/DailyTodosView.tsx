@@ -396,7 +396,10 @@ export default function DailyTodosView({
                   </Box>
                 ) : (
                   dailyTodosList
-                    .filter(todo => todo.status !== 'done' && todo.status !== 'archived')
+                    .filter(
+                      (todo) =>
+                        todo.status !== "done" && todo.status !== "archived",
+                    )
                     .map((todo: TodoPublic) => (
                       <TodoCardComponent
                         key={todo.id}

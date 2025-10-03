@@ -41,7 +41,12 @@ export function ExpandableText({
         overflow={isExpanded ? "visible" : "hidden"}
         position="relative"
       >
-        <Text fontSize={fontSize} color={color} whiteSpace={whiteSpace} lineHeight={lineHeight}>
+        <Text
+          fontSize={fontSize}
+          color={color}
+          whiteSpace={whiteSpace}
+          lineHeight={lineHeight}
+        >
           {text}
         </Text>
         {!isExpanded && (

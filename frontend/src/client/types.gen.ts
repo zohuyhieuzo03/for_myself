@@ -322,6 +322,7 @@ export type ResourceCreate = {
     title: string;
     description?: (string | null);
     url?: (string | null);
+    ai_chat_url?: (string | null);
     milestone_id?: (string | null);
 };
 
@@ -329,6 +330,7 @@ export type ResourcePublic = {
     title: string;
     description?: (string | null);
     url?: (string | null);
+    ai_chat_url?: (string | null);
     id: string;
     user_id: string;
     milestone_id: (string | null);
@@ -386,6 +388,7 @@ export type ResourceUpdate = {
     title?: (string | null);
     description?: (string | null);
     url?: (string | null);
+    ai_chat_url?: (string | null);
 };
 
 export type RoadmapCreate = {

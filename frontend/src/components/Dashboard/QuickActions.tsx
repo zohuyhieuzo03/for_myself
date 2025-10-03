@@ -1,11 +1,6 @@
-import {
-  Box,
-  Button,
-  Text,
-  VStack,
-} from "@chakra-ui/react"
+import { Box, Button, Text, VStack } from "@chakra-ui/react"
 import { Link } from "@tanstack/react-router"
-import { FiCalendar, FiTarget, FiBook } from "react-icons/fi"
+import { FiBook, FiCalendar, FiTarget } from "react-icons/fi"
 
 export default function QuickActions() {
   return (
@@ -14,7 +9,7 @@ export default function QuickActions() {
         <Text fontSize="lg" fontWeight="semibold" color="gray.700">
           Quick Actions
         </Text>
-        
+
         <VStack gap={3} align="stretch">
           <Link to="/todos" search={{ view: "table" }}>
             <Button

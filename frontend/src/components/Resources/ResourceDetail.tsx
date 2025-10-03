@@ -67,7 +67,7 @@ function SubjectItem({
   const { data: todosResponse, isLoading: todosLoading } = useQuery({
     queryKey: ["subject-todos", subject.id],
     queryFn: () => TodosService.readTodosBySubject({ subjectId: subject.id }),
-    enabled: true
+    enabled: true,
   })
 
   const todos = todosResponse?.data || []
@@ -154,9 +154,7 @@ function SubjectItem({
         {subject.due_date && (
           <Flex align="center" gap={1} fontSize="sm" color="red.600" mb={2}>
             <FiClock />
-            <Text>
-              Due: {new Date(subject.due_date).toLocaleDateString()}
-            </Text>
+            <Text>Due: {new Date(subject.due_date).toLocaleDateString()}</Text>
           </Flex>
         )}
 
@@ -562,14 +560,55 @@ export function ResourceDetail({ resourceId }: ResourceDetailProps) {
                   const domain = url.hostname
                   // Nếu URL quá dài, chỉ hiển thị domain
                   if (resource.url.length > 50) {
-                    return domain.replace('www.', '')
+                    return domain.replace("www.", "")
                   }
                   return resource.url
                 } catch {
                   // Nếu không parse được URL, hiển thị 30 ký tự đầu
-                  return resource.url.length > 30 
-                    ? resource.url.substring(0, 30) + '...'
+                  return resource.url.length > 30
+                    ? `${resource.url.substring(0, 30)}...`
                     : resource.url
+                }
+              })()}
+            </Button>
+          </HStack>
+        </Box>
+      )}
+
+      {/* AI Chat URL */}
+      {resource.ai_chat_url && (
+        <Box mb={8}>
+          <HStack>
+            <Text fontWeight="medium">AI Chat:</Text>
+            <Button
+              onClick={() =>
+                resource.ai_chat_url &&
+                window.open(
+                  resource.ai_chat_url,
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
+              size="sm"
+              variant="outline"
+              colorScheme="green"
+              maxW="300px"
+            >
+              <FiExternalLink />
+              {(() => {
+                try {
+                  const url = new URL(resource.ai_chat_url)
+                  const domain = url.hostname
+                  // Nếu URL quá dài, chỉ hiển thị domain
+                  if (resource.ai_chat_url.length > 50) {
+                    return domain.replace("www.", "")
+                  }
+                  return resource.ai_chat_url
+                } catch {
+                  // Nếu không parse được URL, hiển thị 30 ký tự đầu
+                  return resource.ai_chat_url.length > 30
+                    ? `${resource.ai_chat_url.substring(0, 30)}...`
+                    : resource.ai_chat_url
                 }
               })()}
             </Button>

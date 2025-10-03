@@ -1663,6 +1663,18 @@ export const ResourceCreateSchema = {
             ],
             title: 'Url'
         },
+        ai_chat_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Ai Chat Url'
+        },
         milestone_id: {
             anyOf: [
                 {
@@ -1712,6 +1724,18 @@ export const ResourcePublicSchema = {
                 }
             ],
             title: 'Url'
+        },
+        ai_chat_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Ai Chat Url'
         },
         id: {
             type: 'string',
@@ -2047,6 +2071,18 @@ export const ResourceUpdateSchema = {
                 }
             ],
             title: 'Url'
+        },
+        ai_chat_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Ai Chat Url'
         }
     },
     type: 'object',

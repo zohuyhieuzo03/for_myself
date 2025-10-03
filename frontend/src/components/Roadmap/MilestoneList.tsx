@@ -389,8 +389,8 @@ function SortableMilestoneItem({
           <Text fontSize="xs" fontWeight="semibold" color="blue.600" mb={1}>
             Learning Objectives:
           </Text>
-          <ExpandableText 
-            text={milestone.learning_objectives} 
+          <ExpandableText
+            text={milestone.learning_objectives}
             bgColor="blue.50"
             borderColor="blue.200"
             maxHeight="4.5em"
@@ -402,8 +402,8 @@ function SortableMilestoneItem({
           <Text fontSize="xs" fontWeight="semibold" color="green.600" mb={1}>
             Questions to Answer:
           </Text>
-          <ExpandableText 
-            text={milestone.questions} 
+          <ExpandableText
+            text={milestone.questions}
             bgColor="green.50"
             borderColor="green.200"
             maxHeight="4.5em"
@@ -423,9 +423,7 @@ function SortableMilestoneItem({
       {milestone.due_date && (
         <Flex align="center" gap={1} fontSize="sm" color="red.600">
           <FiClock />
-          <Text>
-            Due: {new Date(milestone.due_date).toLocaleDateString()}
-          </Text>
+          <Text>Due: {new Date(milestone.due_date).toLocaleDateString()}</Text>
         </Flex>
       )}
 
@@ -584,7 +582,7 @@ function SortableMilestoneItem({
                         _hover={{ textDecoration: "underline" }}
                         onClick={() => {
                           // Navigate to resource detail
-                          window.open(`/resources?id=${resource.id}`, '_blank')
+                          window.open(`/resources?id=${resource.id}`, "_blank")
                         }}
                       >
                         {resource.title}
@@ -757,8 +755,9 @@ function SortableMilestoneItem({
           }}
           initialData={(() => {
             if (!editingSubject) return undefined
-            const allSubjects = (resources || [])
-              .flatMap((r) => r.subjects || [])
+            const allSubjects = (resources || []).flatMap(
+              (r) => r.subjects || [],
+            )
             return allSubjects.find((s) => s.id === editingSubject)
           })()}
           isEditing={!!editingSubject}

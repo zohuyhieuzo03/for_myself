@@ -1,6 +1,10 @@
 import { Button, Input, Text, Textarea, VStack } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
-import type { ResourceSubjectCreate, ResourceSubjectUpdate, ResourceSubjectPublic } from "@/client"
+import type {
+  ResourceSubjectCreate,
+  ResourceSubjectPublic,
+  ResourceSubjectUpdate,
+} from "@/client"
 import {
   DialogBody,
   DialogCloseTrigger,

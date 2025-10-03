@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { FiCalendar, FiClock, FiTarget } from "react-icons/fi"
 
-import { TodosService, RoadmapService, ResourcesService } from "@/client"
+import { ResourcesService, RoadmapService, TodosService } from "@/client"
 import { formatDate } from "@/utils"
 
 interface UpcomingItem {
@@ -108,7 +108,7 @@ export default function UpcomingDueDates() {
   // Filter items due in next 7 days
   const now = new Date()
   const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-  
+
   const upcomingItemsFiltered = sortedItems.filter((item) => {
     const dueDate = new Date(item.due_date)
     return dueDate >= now && dueDate <= nextWeek
@@ -116,8 +116,12 @@ export default function UpcomingDueDates() {
 
   // Group by type for display
   const todos = upcomingItemsFiltered.filter((item) => item.type === "todo")
-  const milestones = upcomingItemsFiltered.filter((item) => item.type === "milestone")
-  const subjects = upcomingItemsFiltered.filter((item) => item.type === "subject")
+  const milestones = upcomingItemsFiltered.filter(
+    (item) => item.type === "milestone",
+  )
+  const subjects = upcomingItemsFiltered.filter(
+    (item) => item.type === "subject",
+  )
 
   const getStatusColor = (status?: string) => {
     switch (status) {
@@ -188,7 +192,13 @@ export default function UpcomingDueDates() {
 
   if (upcomingItemsFiltered.length === 0) {
     return (
-      <Box p={6} border="1px" borderColor="gray.200" borderRadius="xl" bg="white">
+      <Box
+        p={6}
+        border="1px"
+        borderColor="gray.200"
+        borderRadius="xl"
+        bg="white"
+      >
         <VStack gap={4} align="stretch">
           <Flex align="center" gap={3}>
             <Box p={2} bg="gray.100" borderRadius="lg">
@@ -233,32 +243,46 @@ export default function UpcomingDueDates() {
                 borderColor="gray.200"
                 borderRadius="lg"
                 bg="white"
-                _hover={{ 
-                  bg: "gray.50", 
+                _hover={{
+                  bg: "gray.50",
                   borderColor: "blue.300",
                   transform: "translateY(-1px)",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                 }}
                 transition="all 0.2s"
               >
                 <Flex justify="space-between" align="start">
                   <VStack align="start" gap={2} flex={1}>
                     <HStack gap={3} align="start">
-                      <Box p={2} bg={`${getTypeColor(todo.type)}.100`} borderRadius="md">
+                      <Box
+                        p={2}
+                        bg={`${getTypeColor(todo.type)}.100`}
+                        borderRadius="md"
+                      >
                         <Box color={`${getTypeColor(todo.type)}.600`}>
                           {getTypeIcon(todo.type)}
                         </Box>
                       </Box>
                       <VStack align="start" gap={1} flex={1}>
-                        <Text fontSize="sm" fontWeight="semibold" color="gray.800">
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.800"
+                        >
                           {todo.title}
                         </Text>
                         <HStack gap={1} wrap="wrap">
-                          <Badge colorScheme={getStatusColor(todo.status)} size="sm">
+                          <Badge
+                            colorScheme={getStatusColor(todo.status)}
+                            size="sm"
+                          >
                             {todo.status}
                           </Badge>
                           {todo.priority && (
-                            <Badge colorScheme={getPriorityColor(todo.priority)} size="sm">
+                            <Badge
+                              colorScheme={getPriorityColor(todo.priority)}
+                              size="sm"
+                            >
                               {todo.priority}
                             </Badge>
                           )}
@@ -283,28 +307,39 @@ export default function UpcomingDueDates() {
                 borderColor="gray.200"
                 borderRadius="lg"
                 bg="white"
-                _hover={{ 
-                  bg: "gray.50", 
+                _hover={{
+                  bg: "gray.50",
                   borderColor: "purple.300",
                   transform: "translateY(-1px)",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                 }}
                 transition="all 0.2s"
               >
                 <Flex justify="space-between" align="start">
                   <VStack align="start" gap={2} flex={1}>
                     <HStack gap={3} align="start">
-                      <Box p={2} bg={`${getTypeColor(milestone.type)}.100`} borderRadius="md">
+                      <Box
+                        p={2}
+                        bg={`${getTypeColor(milestone.type)}.100`}
+                        borderRadius="md"
+                      >
                         <Box color={`${getTypeColor(milestone.type)}.600`}>
                           {getTypeIcon(milestone.type)}
                         </Box>
                       </Box>
                       <VStack align="start" gap={1} flex={1}>
-                        <Text fontSize="sm" fontWeight="semibold" color="gray.800">
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.800"
+                        >
                           {milestone.title}
                         </Text>
                         <HStack gap={1} wrap="wrap">
-                          <Badge colorScheme={getStatusColor(milestone.status)} size="sm">
+                          <Badge
+                            colorScheme={getStatusColor(milestone.status)}
+                            size="sm"
+                          >
                             {milestone.status}
                           </Badge>
                         </HStack>
@@ -328,24 +363,32 @@ export default function UpcomingDueDates() {
                 borderColor="gray.200"
                 borderRadius="lg"
                 bg="white"
-                _hover={{ 
-                  bg: "gray.50", 
+                _hover={{
+                  bg: "gray.50",
                   borderColor: "orange.300",
                   transform: "translateY(-1px)",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                 }}
                 transition="all 0.2s"
               >
                 <Flex justify="space-between" align="start">
                   <VStack align="start" gap={2} flex={1}>
                     <HStack gap={3} align="start">
-                      <Box p={2} bg={`${getTypeColor(subject.type)}.100`} borderRadius="md">
+                      <Box
+                        p={2}
+                        bg={`${getTypeColor(subject.type)}.100`}
+                        borderRadius="md"
+                      >
                         <Box color={`${getTypeColor(subject.type)}.600`}>
                           {getTypeIcon(subject.type)}
                         </Box>
                       </Box>
                       <VStack align="start" gap={1} flex={1}>
-                        <Text fontSize="sm" fontWeight="semibold" color="gray.800">
+                        <Text
+                          fontSize="sm"
+                          fontWeight="semibold"
+                          color="gray.800"
+                        >
                           {subject.title}
                         </Text>
                         {subject.resource_title && (

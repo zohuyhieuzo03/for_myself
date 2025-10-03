@@ -6,6 +6,7 @@ import {
   Heading,
   HStack,
   Text,
+  VStack,
 } from "@chakra-ui/react"
 import { Link } from "@tanstack/react-router"
 import type { ResourcePublic } from "@/client"
@@ -71,14 +72,34 @@ export function ResourceCard({
               {resource.description}
             </Text>
           )}
-          <HStack gap={2}>
-            <Badge colorScheme="blue">Link</Badge>
+          <VStack gap={2} align="start">
             {resource.url && (
-              <a href={resource.url} target="_blank" rel="noopener noreferrer">
-                <Button size="xs">Open Link</Button>
-              </a>
+              <HStack gap={2}>
+                <Badge colorScheme="blue">Link</Badge>
+                <a
+                  href={resource.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button size="xs">Open Link</Button>
+                </a>
+              </HStack>
             )}
-          </HStack>
+            {resource.ai_chat_url && (
+              <HStack gap={2}>
+                <Badge colorScheme="green">AI Chat</Badge>
+                <a
+                  href={resource.ai_chat_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button size="xs" colorScheme="green">
+                    Open AI Chat
+                  </Button>
+                </a>
+              </HStack>
+            )}
+          </VStack>
         </Box>
         <HStack>
           <Button size="sm" variant="ghost" onClick={() => onEdit(resource)}>
