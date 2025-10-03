@@ -1,6 +1,7 @@
 import {
   Badge,
   Box,
+  Button,
   Flex,
   Heading,
   HStack,
@@ -9,6 +10,7 @@ import {
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { useState } from "react"
 import { FiCalendar, FiClock, FiTarget } from "react-icons/fi"
 
 import { ResourcesService, RoadmapService, TodosService } from "@/client"
@@ -25,6 +27,8 @@ interface UpcomingItem {
 }
 
 export default function UpcomingDueDates() {
+  const [visibleItems, setVisibleItems] = useState(5)
+
   // Fetch todos with due dates
   const { data: todosResponse } = useQuery({
     queryKey: ["todos", "upcoming-due"],
@@ -114,14 +118,13 @@ export default function UpcomingDueDates() {
     return dueDate >= now && dueDate <= nextWeek
   })
 
-  // Group by type for display
-  const todos = upcomingItemsFiltered.filter((item) => item.type === "todo")
-  const milestones = upcomingItemsFiltered.filter(
-    (item) => item.type === "milestone",
-  )
-  const subjects = upcomingItemsFiltered.filter(
-    (item) => item.type === "subject",
-  )
+  // Get visible items
+  const visibleUpcomingItems = upcomingItemsFiltered.slice(0, visibleItems)
+  const hasMoreItems = upcomingItemsFiltered.length > visibleItems
+
+  const handleShowMore = () => {
+    setVisibleItems((prev) => Math.min(prev + 5, upcomingItemsFiltered.length))
+  }
 
   const getStatusColor = (status?: string) => {
     switch (status) {
@@ -233,179 +236,102 @@ export default function UpcomingDueDates() {
           </Badge>
         </Flex>
 
-        <VStack gap={3} align="stretch">
-          {/* Todos */}
-          {todos.map((todo) => (
-            <Link key={todo.id} to={getItemLink(todo)}>
+        <VStack gap={2} align="stretch">
+          {/* Render visible items */}
+          {visibleUpcomingItems.map((item) => (
+            <Link key={item.id} to={getItemLink(item)}>
               <Box
-                p={4}
+                p={3}
                 border="1px"
                 borderColor="gray.200"
-                borderRadius="lg"
+                borderRadius="md"
                 bg="white"
                 _hover={{
                   bg: "gray.50",
-                  borderColor: "blue.300",
+                  borderColor: `${getTypeColor(item.type)}.300`,
                   transform: "translateY(-1px)",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
                 }}
                 transition="all 0.2s"
               >
-                <Flex justify="space-between" align="start">
-                  <VStack align="start" gap={2} flex={1}>
-                    <HStack gap={3} align="start">
-                      <Box
-                        p={2}
-                        bg={`${getTypeColor(todo.type)}.100`}
-                        borderRadius="md"
-                      >
-                        <Box color={`${getTypeColor(todo.type)}.600`}>
-                          {getTypeIcon(todo.type)}
-                        </Box>
+                <HStack gap={3} align="center" justify="space-between">
+                  <HStack gap={2} align="center" flex={1} minW={0}>
+                    <Box
+                      p={1.5}
+                      bg={`${getTypeColor(item.type)}.100`}
+                      borderRadius="sm"
+                      flexShrink={0}
+                    >
+                      <Box color={`${getTypeColor(item.type)}.600`}>
+                        {getTypeIcon(item.type)}
                       </Box>
-                      <VStack align="start" gap={1} flex={1}>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="semibold"
-                          color="gray.800"
-                        >
-                          {todo.title}
-                        </Text>
-                        <HStack gap={1} wrap="wrap">
+                    </Box>
+                    <VStack align="start" gap={0.5} flex={1} minW={0}>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color="gray.800"
+                        title={item.title}
+                      >
+                        {item.title}
+                      </Text>
+                      <HStack gap={1} wrap="wrap">
+                        {item.status && (
                           <Badge
-                            colorScheme={getStatusColor(todo.status)}
-                            size="sm"
+                            colorScheme={getStatusColor(item.status)}
+                            size="xs"
+                            fontSize="xs"
+                            px={1.5}
+                            py={0.5}
                           >
-                            {todo.status}
+                            {item.status}
                           </Badge>
-                          {todo.priority && (
-                            <Badge
-                              colorScheme={getPriorityColor(todo.priority)}
-                              size="sm"
-                            >
-                              {todo.priority}
-                            </Badge>
-                          )}
-                        </HStack>
-                      </VStack>
-                    </HStack>
-                    <Text fontSize="xs" color="red.600" fontWeight="medium">
-                      Due: {formatDate(new Date(todo.due_date))}
-                    </Text>
-                  </VStack>
-                </Flex>
-              </Box>
-            </Link>
-          ))}
-
-          {/* Milestones */}
-          {milestones.map((milestone) => (
-            <Link key={milestone.id} to={getItemLink(milestone)}>
-              <Box
-                p={4}
-                border="1px"
-                borderColor="gray.200"
-                borderRadius="lg"
-                bg="white"
-                _hover={{
-                  bg: "gray.50",
-                  borderColor: "purple.300",
-                  transform: "translateY(-1px)",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                }}
-                transition="all 0.2s"
-              >
-                <Flex justify="space-between" align="start">
-                  <VStack align="start" gap={2} flex={1}>
-                    <HStack gap={3} align="start">
-                      <Box
-                        p={2}
-                        bg={`${getTypeColor(milestone.type)}.100`}
-                        borderRadius="md"
-                      >
-                        <Box color={`${getTypeColor(milestone.type)}.600`}>
-                          {getTypeIcon(milestone.type)}
-                        </Box>
-                      </Box>
-                      <VStack align="start" gap={1} flex={1}>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="semibold"
-                          color="gray.800"
-                        >
-                          {milestone.title}
-                        </Text>
-                        <HStack gap={1} wrap="wrap">
-                          <Badge
-                            colorScheme={getStatusColor(milestone.status)}
-                            size="sm"
-                          >
-                            {milestone.status}
-                          </Badge>
-                        </HStack>
-                      </VStack>
-                    </HStack>
-                    <Text fontSize="xs" color="red.600" fontWeight="medium">
-                      Due: {formatDate(new Date(milestone.due_date))}
-                    </Text>
-                  </VStack>
-                </Flex>
-              </Box>
-            </Link>
-          ))}
-
-          {/* Subjects */}
-          {subjects.map((subject) => (
-            <Link key={subject.id} to={getItemLink(subject)}>
-              <Box
-                p={4}
-                border="1px"
-                borderColor="gray.200"
-                borderRadius="lg"
-                bg="white"
-                _hover={{
-                  bg: "gray.50",
-                  borderColor: "orange.300",
-                  transform: "translateY(-1px)",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                }}
-                transition="all 0.2s"
-              >
-                <Flex justify="space-between" align="start">
-                  <VStack align="start" gap={2} flex={1}>
-                    <HStack gap={3} align="start">
-                      <Box
-                        p={2}
-                        bg={`${getTypeColor(subject.type)}.100`}
-                        borderRadius="md"
-                      >
-                        <Box color={`${getTypeColor(subject.type)}.600`}>
-                          {getTypeIcon(subject.type)}
-                        </Box>
-                      </Box>
-                      <VStack align="start" gap={1} flex={1}>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="semibold"
-                          color="gray.800"
-                        >
-                          {subject.title}
-                        </Text>
-                        {subject.resource_title && (
-                          <Text fontSize="xs" color="gray.500">
-                            in {subject.resource_title}
-                          </Text>
                         )}
-                      </VStack>
-                    </HStack>
-                    <Text fontSize="xs" color="red.600" fontWeight="medium">
-                      Due: {formatDate(new Date(subject.due_date))}
-                    </Text>
-                  </VStack>
-                </Flex>
+                        {item.priority && (
+                          <Badge
+                            colorScheme={getPriorityColor(item.priority)}
+                            size="xs"
+                            fontSize="xs"
+                            px={1.5}
+                            py={0.5}
+                          >
+                            {item.priority}
+                          </Badge>
+                        )}
+                      </HStack>
+                      {item.resource_title && (
+                        <Text fontSize="xs" color="gray.500">
+                          in {item.resource_title}
+                        </Text>
+                      )}
+                    </VStack>
+                  </HStack>
+                  <Text 
+                    fontSize="xs" 
+                    color="red.600" 
+                    fontWeight="medium"
+                    flexShrink={0}
+                    textAlign="right"
+                  >
+                    {formatDate(new Date(item.due_date))}
+                  </Text>
+                </HStack>
               </Box>
             </Link>
           ))}
+
+          {/* Show More Button */}
+          {hasMoreItems && (
+            <Button
+              variant="outline"
+              colorScheme="gray"
+              size="sm"
+              onClick={handleShowMore}
+              mt={2}
+            >
+              Show More ({upcomingItemsFiltered.length - visibleItems} remaining)
+            </Button>
+          )}
         </VStack>
       </VStack>
     </Box>
