@@ -6,7 +6,6 @@ import { memo, useMemo } from "react"
 import { formatDate } from "@/utils"
 import {
   getPriorityConfig,
-  getStatusConfig,
   TASK_TYPE_CONFIG,
 } from "@/utils/todoHelpers"
 
@@ -40,9 +39,7 @@ const DraggableTodoCard = memo(
       [transform, transition, isDragging],
     )
 
-    const statusConfig = getStatusConfig(todo.status || "todo")
     const priorityConfig = getPriorityConfig(todo.priority || "medium")
-    const StatusIcon = statusConfig.icon
     const PriorityIcon = priorityConfig.icon
 
     const isOverdue = overdueTodosList?.includes(todo) ?? false
@@ -116,16 +113,6 @@ const DraggableTodoCard = memo(
               ) : null}
 
               <HStack gap={2} flexWrap="wrap">
-                <Badge
-                  colorPalette={statusConfig.color}
-                  size="sm"
-                  display="flex"
-                  alignItems="center"
-                  gap={1}
-                >
-                  <StatusIcon size={12} />
-                  {statusConfig.label}
-                </Badge>
                 <Badge
                   colorPalette={priorityConfig.color}
                   size="sm"
