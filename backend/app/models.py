@@ -293,6 +293,9 @@ class TodoPublic(TodoBase):
     created_at: datetime
     updated_at: datetime
     checklist_items: list["ChecklistItemPublic"] = []
+    # Include related objects for better UX
+    subject: Optional["ResourceSubjectPublic"] = None
+    milestone: Optional["RoadmapMilestonePublic"] = None
 
 
 class TodosPublic(SQLModel):

@@ -34,7 +34,7 @@ import {
 } from "../ui/drawer"
 
 // Navigation data (same as HeaderNavigation)
-const mainItems = [{ icon: FiHome, title: "Dashboard", path: "/" }]
+const _mainItems = [{ icon: FiHome, title: "Dashboard", path: "/" }]
 
 const taskItems = [
   { icon: FiCheckSquare, title: "Todos", path: "/todos" },
@@ -116,7 +116,7 @@ const MobileNavSection = ({ title, items, onClose }: MobileNavSectionProps) => {
           {title}
         </Text>
       </Flex>
-      
+
       <Box
         maxH={isExpanded ? "500px" : "0"}
         overflow="hidden"
@@ -135,7 +135,9 @@ const MobileNavSection = ({ title, items, onClose }: MobileNavSectionProps) => {
               }}
             >
               <Icon as={icon} boxSize={4} color="gray.600" />
-              <Text fontSize="sm" color="gray.700">{itemTitle}</Text>
+              <Text fontSize="sm" color="gray.700">
+                {itemTitle}
+              </Text>
             </Flex>
           </RouterLink>
         ))}
@@ -172,7 +174,7 @@ const MobileNavigation = () => {
           <FaBars />
         </IconButton>
       </DrawerTrigger>
-      
+
       <DrawerContent maxW="xs">
         <DrawerCloseTrigger />
         <DrawerBody overflowY="auto" p={0}>
@@ -203,19 +205,19 @@ const MobileNavigation = () => {
               items={taskItems}
               onClose={() => setOpen(false)}
             />
-            
+
             <MobileNavSection
               title="Email & Communication"
               items={emailItems}
               onClose={() => setOpen(false)}
             />
-            
+
             <MobileNavSection
               title="Finance"
               items={financeItems}
               onClose={() => setOpen(false)}
             />
-            
+
             {adminItems.length > 0 && (
               <MobileNavSection
                 title="Administration"
@@ -223,7 +225,7 @@ const MobileNavigation = () => {
                 onClose={() => setOpen(false)}
               />
             )}
-            
+
             <MobileNavSection
               title="System"
               items={systemItems}

@@ -11,7 +11,11 @@ export default function QuickActions() {
         </Text>
 
         <HStack gap={2} align="stretch" wrap="wrap">
-          <Link to="/todos" search={{ view: "table" }} style={{ flex: 1, minWidth: "200px" }}>
+          <Link
+            to="/todos"
+            search={{ view: "table" }}
+            style={{ flex: 1, minWidth: "200px" }}
+          >
             <Button
               variant="outline"
               size="sm"
@@ -39,7 +43,11 @@ export default function QuickActions() {
             </Button>
           </Link>
 
-          <Link to="/roadmap" search={{ id: undefined }} style={{ flex: 1, minWidth: "200px" }}>
+          <Link
+            to="/roadmap"
+            search={{ id: undefined }}
+            style={{ flex: 1, minWidth: "200px" }}
+          >
             <Button
               variant="outline"
               size="sm"
@@ -53,7 +61,11 @@ export default function QuickActions() {
             </Button>
           </Link>
 
-          <Link to="/resources" search={{ id: undefined }} style={{ flex: 1, minWidth: "200px" }}>
+          <Link
+            to="/resources"
+            search={{ id: undefined }}
+            style={{ flex: 1, minWidth: "200px" }}
+          >
             <Button
               variant="outline"
               size="sm"

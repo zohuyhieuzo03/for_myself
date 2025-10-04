@@ -21,13 +21,7 @@ import {
 import type { IconType } from "react-icons/lib"
 
 import type { UserPublic } from "@/client"
-import {
-  MenuContent,
-  MenuItem,
-  MenuRoot,
-  MenuTrigger,
-} from "../ui/menu"
-
+import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "../ui/menu"
 
 // Task Management - Productivity tools
 const taskItems = [
@@ -86,7 +80,11 @@ interface NavigationDropdownProps {
   icon?: IconType
 }
 
-const NavigationDropdown = ({ title, items, icon }: NavigationDropdownProps) => {
+const NavigationDropdown = ({
+  title,
+  items,
+  icon,
+}: NavigationDropdownProps) => {
   return (
     <MenuRoot>
       <MenuTrigger asChild>
@@ -104,11 +102,13 @@ const NavigationDropdown = ({ title, items, icon }: NavigationDropdownProps) => 
           color="gray.700"
         >
           {icon && <Icon as={icon} boxSize={4} color="gray.600" />}
-          <Text fontSize="sm" fontWeight="medium" color="gray.700">{title}</Text>
+          <Text fontSize="sm" fontWeight="medium" color="gray.700">
+            {title}
+          </Text>
           <Icon as={FiChevronDown} boxSize={3} color="gray.600" />
         </Flex>
       </MenuTrigger>
-      
+
       <MenuContent minW="200px">
         {items.map(({ icon: itemIcon, title: itemTitle, path }) => (
           <RouterLink key={itemTitle} to={path}>
@@ -119,7 +119,9 @@ const NavigationDropdown = ({ title, items, icon }: NavigationDropdownProps) => 
               style={{ cursor: "pointer" }}
             >
               <Icon as={itemIcon} boxSize={4} color="gray.600" />
-              <Text fontSize="sm" color="gray.700">{itemTitle}</Text>
+              <Text fontSize="sm" color="gray.700">
+                {itemTitle}
+              </Text>
             </MenuItem>
           </RouterLink>
         ))}
@@ -138,11 +140,7 @@ const HeaderNavigation = () => {
     : []
 
   return (
-    <Flex
-      alignItems="center"
-      gap={2}
-      display={{ base: "none", md: "flex" }}
-    >
+    <Flex alignItems="center" gap={2} display={{ base: "none", md: "flex" }}>
       {/* Dashboard - Direct link */}
       <RouterLink to="/">
         <Flex
@@ -159,41 +157,28 @@ const HeaderNavigation = () => {
           color="gray.700"
         >
           <Icon as={FiHome} boxSize={4} color="gray.600" />
-          <Text fontSize="sm" fontWeight="medium" color="gray.700">Dashboard</Text>
+          <Text fontSize="sm" fontWeight="medium" color="gray.700">
+            Dashboard
+          </Text>
         </Flex>
       </RouterLink>
 
       {/* Task Management */}
-      <NavigationDropdown
-        title="Tasks"
-        items={taskItems}
-      />
+      <NavigationDropdown title="Tasks" items={taskItems} />
 
       {/* Email & Communication */}
-      <NavigationDropdown
-        title="Email"
-        items={emailItems}
-      />
+      <NavigationDropdown title="Email" items={emailItems} />
 
       {/* Finance Management */}
-      <NavigationDropdown
-        title="Finance"
-        items={financeItems}
-      />
+      <NavigationDropdown title="Finance" items={financeItems} />
 
       {/* Admin - only for superusers */}
       {adminItems.length > 0 && (
-        <NavigationDropdown
-          title="Admin"
-          items={adminItems}
-        />
+        <NavigationDropdown title="Admin" items={adminItems} />
       )}
 
       {/* Settings */}
-      <NavigationDropdown
-        title="Settings"
-        items={systemItems}
-      />
+      <NavigationDropdown title="Settings" items={systemItems} />
     </Flex>
   )
 }

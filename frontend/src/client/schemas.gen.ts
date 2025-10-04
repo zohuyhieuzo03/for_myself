@@ -2785,6 +2785,26 @@ export const TodoPublicSchema = {
             type: 'array',
             title: 'Checklist Items',
             default: []
+        },
+        subject: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/ResourceSubjectPublic'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        milestone: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/RoadmapMilestonePublic'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         }
     },
     type: 'object',

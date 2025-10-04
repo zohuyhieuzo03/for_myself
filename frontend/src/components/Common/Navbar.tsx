@@ -26,7 +26,7 @@ function Navbar() {
         </Link>
         <HeaderNavigation />
       </Flex>
-      
+
       <Flex gap={2} alignItems="center">
         <MobileNavigation />
         <UserMenu />

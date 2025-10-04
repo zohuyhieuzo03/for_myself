@@ -490,6 +490,8 @@ export type TodoPublic = {
     created_at: string;
     updated_at: string;
     checklist_items?: Array<ChecklistItemPublic>;
+    subject?: (ResourceSubjectPublic | null);
+    milestone?: (RoadmapMilestonePublic | null);
 };
 
 export type TodosPublic = {

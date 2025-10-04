@@ -25,14 +25,7 @@ import {
   FiUser,
   FiX,
 } from "react-icons/fi"
-import {
-  type ResourceSubjectPublic,
-  ResourcesService,
-  RoadmapService,
-  type TodoPublic,
-  TodosService,
-  type TodoUpdate,
-} from "@/client"
+import { type TodoPublic, TodosService, type TodoUpdate } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import {
   TODO_PRIORITY_OPTIONS,
@@ -67,27 +60,9 @@ export default function TodoDetailDialog({
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
 
-  // Fetch all resources and their subjects for the subject selector
-  const { data: resourcesData } = useQuery({
-    queryKey: ["resources"],
-    queryFn: () => ResourcesService.readResources(),
-    enabled: open, // Only fetch when dialog is open
-  })
-
-  // Flatten all subjects from all resources
-  const allSubjects: ResourceSubjectPublic[] =
-    resourcesData?.data?.flatMap((resource) => resource.subjects || []) || []
-
-  // Fetch all roadmaps with milestones for the milestone selector
-  const { data: roadmapsData } = useQuery({
-    queryKey: ["roadmaps"],
-    queryFn: () => RoadmapService.readRoadmaps(),
-    enabled: open, // Only fetch when dialog is open
-  })
-
-  // Flatten all milestones from all roadmaps
-  const allMilestones =
-    roadmapsData?.data?.flatMap((roadmap) => roadmap.milestones || []) || []
+  // Get current subject and milestone from todo object
+  const currentSubject = todo.subject
+  const currentMilestone = todo.milestone
 
   // Checklist items are managed independently by ChecklistManager
 
@@ -101,8 +76,6 @@ export default function TodoDetailDialog({
       estimate_minutes: todo.estimate_minutes || undefined,
       priority: todo.priority || "medium",
       type: todo.type || "task",
-      subject_id: todo.subject_id || undefined,
-      milestone_id: todo.milestone_id || undefined,
       planned_date: todo.planned_date
         ? new Date(todo.planned_date).toISOString().split("T")[0]
         : undefined,
@@ -122,8 +95,6 @@ export default function TodoDetailDialog({
       estimate_minutes: todo.estimate_minutes || undefined,
       priority: todo.priority || "medium",
       type: todo.type || "task",
-      subject_id: todo.subject_id || undefined,
-      milestone_id: todo.milestone_id || undefined,
       planned_date: todo.planned_date
         ? new Date(todo.planned_date).toISOString().split("T")[0]
         : undefined,
@@ -157,8 +128,6 @@ export default function TodoDetailDialog({
           estimate_minutes: data.estimate_minutes,
           priority: data.priority,
           type: data.type,
-          subject_id: data.subject_id,
-          milestone_id: data.milestone_id,
           planned_date:
             data.planned_date && data.planned_date.trim() !== ""
               ? data.planned_date
@@ -199,27 +168,17 @@ export default function TodoDetailDialog({
     })
   }
 
-  // Helpers to navigate to selected Subject or Milestone parents
-  const navigateToSelectedSubject = () => {
-    const { subject_id } = getValues()
-    if (!subject_id) return
-    const resource = resourcesData?.data?.find((r) =>
-      (r.subjects || []).some((s) => s.id === subject_id),
-    )
-    if (resource?.id) {
-      navigate({ to: "/resources", search: { id: resource.id } })
-    }
+  // Helpers to navigate to current Subject or Milestone parents (from todo object)
+  const navigateToCurrentSubject = () => {
+    if (!currentSubject) return
+    // Navigate to resources page - the user can find the resource from there
+    navigate({ to: "/resources", search: { id: undefined } })
   }
 
-  const navigateToSelectedMilestone = () => {
-    const { milestone_id } = getValues()
-    if (!milestone_id) return
-    const roadmap = roadmapsData?.data?.find((rm) =>
-      (rm.milestones || []).some((m) => m.id === milestone_id),
-    )
-    if (roadmap?.id) {
-      navigate({ to: "/roadmap", search: { id: roadmap.id } })
-    }
+  const navigateToCurrentMilestone = () => {
+    if (!currentMilestone) return
+    // Navigate to roadmap page - the user can find the roadmap from there
+    navigate({ to: "/roadmap", search: { id: undefined } })
   }
 
   // ========== Parent unlink logic (hooks section) ==========
@@ -622,37 +581,31 @@ export default function TodoDetailDialog({
                       style={{ display: "flex", alignItems: "center", gap: 8 }}
                     >
                       <FiUser size={16} /> Subject
-                      <Button
-                        size="xs"
-                        variant="ghost"
-                        onClick={navigateToSelectedSubject}
-                        title="Open subject's resource"
-                      >
-                        <FiExternalLink size={14} />
-                      </Button>
+                      {currentSubject && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          onClick={navigateToCurrentSubject}
+                          title="Open subject's resource"
+                        >
+                          <FiExternalLink size={14} />
+                        </Button>
+                      )}
                     </Text>
-                    <select
-                      {...register("subject_id")}
-                      onBlur={(e) => {
-                        register("subject_id").onBlur(e)
-                        autoSaveAllFields()
-                      }}
-                      style={{
-                        width: "100%",
-                        padding: "8px",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "6px",
-                        fontSize: "14px",
-                        marginTop: 6,
-                      }}
-                    >
-                      <option value="">No Subject</option>
-                      {allSubjects.map((subject) => (
-                        <option key={subject.id} value={subject.id}>
-                          {subject.title}
-                        </option>
-                      ))}
-                    </select>
+                    {currentSubject ? (
+                      <Text
+                        fontSize="sm"
+                        color="blue.600"
+                        fontWeight="medium"
+                        mt={2}
+                      >
+                        {currentSubject.title}
+                      </Text>
+                    ) : (
+                      <Text fontSize="sm" color="gray.500" mt={2}>
+                        No subject assigned
+                      </Text>
+                    )}
                   </div>
 
                   {/* Milestone */}
@@ -663,37 +616,31 @@ export default function TodoDetailDialog({
                       style={{ display: "flex", alignItems: "center", gap: 8 }}
                     >
                       <FiTarget size={16} /> Milestone
-                      <Button
-                        size="xs"
-                        variant="ghost"
-                        onClick={navigateToSelectedMilestone}
-                        title="Open milestone's roadmap"
-                      >
-                        <FiExternalLink size={14} />
-                      </Button>
+                      {currentMilestone && (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          onClick={navigateToCurrentMilestone}
+                          title="Open milestone's roadmap"
+                        >
+                          <FiExternalLink size={14} />
+                        </Button>
+                      )}
                     </Text>
-                    <select
-                      {...register("milestone_id")}
-                      onBlur={(e) => {
-                        register("milestone_id").onBlur(e)
-                        autoSaveAllFields()
-                      }}
-                      style={{
-                        width: "100%",
-                        padding: "8px",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "6px",
-                        fontSize: "14px",
-                        marginTop: 6,
-                      }}
-                    >
-                      <option value="">No Milestone</option>
-                      {allMilestones.map((milestone) => (
-                        <option key={milestone.id} value={milestone.id}>
-                          {milestone.title}
-                        </option>
-                      ))}
-                    </select>
+                    {currentMilestone ? (
+                      <Text
+                        fontSize="sm"
+                        color="green.600"
+                        fontWeight="medium"
+                        mt={2}
+                      >
+                        {currentMilestone.title}
+                      </Text>
+                    ) : (
+                      <Text fontSize="sm" color="gray.500" mt={2}>
+                        No milestone assigned
+                      </Text>
+                    )}
                   </div>
 
                   {/* Estimate */}

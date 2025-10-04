@@ -76,14 +76,32 @@ def read_todos(
         count_statement = count_statement.where(*base_conditions)
     count = session.exec(count_statement).one()
 
-    # Build main query statement
+    # Build main query statement with relationships
     statement = select(Todo)
     if base_conditions:
         statement = statement.where(*base_conditions)
     statement = statement.offset(skip).limit(limit).order_by(Todo.created_at.desc())
     todos = session.exec(statement).all()
 
-    return TodosPublic(data=todos, count=count)
+    # Convert to public format with relationships
+    todo_publics = []
+    for todo in todos:
+        todo_dict = todo.model_dump()
+        # Add subject object if exists
+        if todo.subject_id:
+            from app.models import ResourceSubject
+            subject = session.get(ResourceSubject, todo.subject_id)
+            if subject:
+                todo_dict["subject"] = subject.model_dump()
+        # Add milestone object if exists
+        if todo.milestone_id:
+            from app.models import RoadmapMilestone
+            milestone = session.get(RoadmapMilestone, todo.milestone_id)
+            if milestone:
+                todo_dict["milestone"] = milestone.model_dump()
+        todo_publics.append(todo_dict)
+
+    return TodosPublic(data=todo_publics, count=count)
 
 
 @router.get("/overdue", response_model=TodosPublic) 
@@ -110,7 +128,23 @@ def read_todo(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> 
         raise HTTPException(status_code=404, detail="Todo not found")
     if not current_user.is_superuser and (todo.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    return todo
+    
+    # Convert to public format with relationships
+    todo_dict = todo.model_dump()
+    # Add subject object if exists
+    if todo.subject_id:
+        from app.models import ResourceSubject
+        subject = session.get(ResourceSubject, todo.subject_id)
+        if subject:
+            todo_dict["subject"] = subject.model_dump()
+    # Add milestone object if exists
+    if todo.milestone_id:
+        from app.models import RoadmapMilestone
+        milestone = session.get(RoadmapMilestone, todo.milestone_id)
+        if milestone:
+            todo_dict["milestone"] = milestone.model_dump()
+    
+    return todo_dict
 
 
 @router.post("/", response_model=TodoPublic)

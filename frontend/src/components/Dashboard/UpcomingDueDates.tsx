@@ -15,7 +15,11 @@ import { FiCalendar, FiClock, FiTarget } from "react-icons/fi"
 
 import { ResourcesService, RoadmapService, TodosService } from "@/client"
 import { formatDate } from "@/utils"
-import { getPriorityConfig, getStatusConfig, TASK_TYPE_CONFIG } from "@/utils/todoHelpers"
+import {
+  getPriorityConfig,
+  getStatusConfig,
+  TASK_TYPE_CONFIG,
+} from "@/utils/todoHelpers"
 
 interface UpcomingItem {
   id: string
@@ -55,7 +59,11 @@ export default function UpcomingDueDates() {
   // Add todos with due dates (excluding completed and archived)
   if (todosResponse?.data) {
     todosResponse.data.forEach((todo) => {
-      if (todo.due_date && todo.status !== "done" && todo.status !== "archived") {
+      if (
+        todo.due_date &&
+        todo.status !== "done" &&
+        todo.status !== "archived"
+      ) {
         upcomingItems.push({
           id: todo.id,
           title: todo.title,
@@ -74,7 +82,11 @@ export default function UpcomingDueDates() {
     roadmapsResponse.data.forEach((roadmap) => {
       if (roadmap.milestones) {
         roadmap.milestones.forEach((milestone) => {
-          if (milestone.due_date && milestone.status !== "completed" && milestone.status !== "blocked") {
+          if (
+            milestone.due_date &&
+            milestone.status !== "completed" &&
+            milestone.status !== "blocked"
+          ) {
             upcomingItems.push({
               id: milestone.id,
               title: milestone.title,
@@ -263,7 +275,9 @@ export default function UpcomingDueDates() {
                       </Text>
                       <HStack gap={1} wrap="wrap">
                         {(() => {
-                          const statusConfig = getStatusConfigForItem(item.status)
+                          const statusConfig = getStatusConfigForItem(
+                            item.status,
+                          )
                           return statusConfig ? (
                             <Badge
                               colorPalette={statusConfig.color}
@@ -275,13 +289,17 @@ export default function UpcomingDueDates() {
                               alignItems="center"
                               gap={0.5}
                             >
-                              {React.createElement(statusConfig.icon, { size: 10 })}
+                              {React.createElement(statusConfig.icon, {
+                                size: 10,
+                              })}
                               {statusConfig.label}
                             </Badge>
                           ) : null
                         })()}
                         {(() => {
-                          const priorityConfig = getPriorityConfigForItem(item.priority)
+                          const priorityConfig = getPriorityConfigForItem(
+                            item.priority,
+                          )
                           return priorityConfig ? (
                             <Badge
                               colorPalette={priorityConfig.color}
@@ -294,23 +312,36 @@ export default function UpcomingDueDates() {
                               alignItems="center"
                               gap={0.5}
                             >
-                              {React.createElement(priorityConfig.icon, { size: 10 })}
+                              {React.createElement(priorityConfig.icon, {
+                                size: 10,
+                              })}
                               {priorityConfig.label}
                             </Badge>
                           ) : null
                         })()}
-                        {item.todo_type && TASK_TYPE_CONFIG[item.todo_type as keyof typeof TASK_TYPE_CONFIG] && (
-                          <Badge
-                            colorPalette={TASK_TYPE_CONFIG[item.todo_type as keyof typeof TASK_TYPE_CONFIG].colorPalette}
-                            size="xs"
-                            fontSize="xs"
-                            px={1.5}
-                            py={0.5}
-                            variant="subtle"
-                          >
-                            {TASK_TYPE_CONFIG[item.todo_type as keyof typeof TASK_TYPE_CONFIG].label}
-                          </Badge>
-                        )}
+                        {item.todo_type &&
+                          TASK_TYPE_CONFIG[
+                            item.todo_type as keyof typeof TASK_TYPE_CONFIG
+                          ] && (
+                            <Badge
+                              colorPalette={
+                                TASK_TYPE_CONFIG[
+                                  item.todo_type as keyof typeof TASK_TYPE_CONFIG
+                                ].colorPalette
+                              }
+                              size="xs"
+                              fontSize="xs"
+                              px={1.5}
+                              py={0.5}
+                              variant="subtle"
+                            >
+                              {
+                                TASK_TYPE_CONFIG[
+                                  item.todo_type as keyof typeof TASK_TYPE_CONFIG
+                                ].label
+                              }
+                            </Badge>
+                          )}
                       </HStack>
                       {item.resource_title && (
                         <Text fontSize="xs" color="gray.500">
@@ -319,9 +350,9 @@ export default function UpcomingDueDates() {
                       )}
                     </VStack>
                   </HStack>
-                  <Text 
-                    fontSize="xs" 
-                    color="red.600" 
+                  <Text
+                    fontSize="xs"
+                    color="red.600"
                     fontWeight="medium"
                     flexShrink={0}
                     textAlign="right"
@@ -342,7 +373,8 @@ export default function UpcomingDueDates() {
               onClick={handleShowMore}
               mt={2}
             >
-              Show More ({upcomingItemsFiltered.length - visibleItems} remaining)
+              Show More ({upcomingItemsFiltered.length - visibleItems}{" "}
+              remaining)
             </Button>
           )}
         </VStack>
