@@ -33,9 +33,6 @@ import {
   DrawerTrigger,
 } from "../ui/drawer"
 
-// Navigation data (same as HeaderNavigation)
-const _mainItems = [{ icon: FiHome, title: "Dashboard", path: "/" }]
-
 const taskItems = [
   { icon: FiCheckSquare, title: "Todos", path: "/todos" },
   { icon: FiCalendar, title: "Daily Todos", path: "/daily-todos" },
