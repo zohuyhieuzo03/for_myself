@@ -50,10 +50,10 @@ export default function UpcomingDueDates() {
   // Combine and filter upcoming items
   const upcomingItems: UpcomingItem[] = []
 
-  // Add todos with due dates
+  // Add todos with due dates (excluding completed and archived)
   if (todosResponse?.data) {
     todosResponse.data.forEach((todo) => {
-      if (todo.due_date) {
+      if (todo.due_date && todo.status !== "done" && todo.status !== "archived") {
         upcomingItems.push({
           id: todo.id,
           title: todo.title,
@@ -66,12 +66,12 @@ export default function UpcomingDueDates() {
     })
   }
 
-  // Add milestones with due dates
+  // Add milestones with due dates (excluding done and archived)
   if (roadmapsResponse?.data) {
     roadmapsResponse.data.forEach((roadmap) => {
       if (roadmap.milestones) {
         roadmap.milestones.forEach((milestone) => {
-          if (milestone.due_date) {
+          if (milestone.due_date && milestone.status !== "completed" && milestone.status !== "blocked") {
             upcomingItems.push({
               id: milestone.id,
               title: milestone.title,
@@ -85,18 +85,19 @@ export default function UpcomingDueDates() {
     })
   }
 
-  // Add subjects with due dates
+  // Add subjects with due dates (excluding done and archived)
   if (resourcesResponse?.data) {
     resourcesResponse.data.forEach((resource) => {
       if (resource.subjects) {
         resource.subjects.forEach((subject) => {
-          if (subject.due_date) {
+          if (subject.due_date && subject.is_completed === false) {
             upcomingItems.push({
               id: subject.id,
               title: subject.title,
               due_date: subject.due_date,
               type: "subject",
               resource_title: resource.title,
+              status: subject.is_completed ? "completed" : "pending",
             })
           }
         })
