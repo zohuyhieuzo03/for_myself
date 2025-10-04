@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session
 
 from app import crud
-from app.api.deps import get_current_active_superuser, get_current_user, get_db
+from app.api.deps import get_current_active_superuser, get_current_user, get_db, CurrentUser, SessionDep
 from app.models import (
     Resource,
     ResourceCreate,
@@ -170,6 +170,29 @@ def read_resource_subjects(
         limit=limit,
     )
     return subjects
+
+
+# ========= SEARCH ALL SUBJECTS ENDPOINT =========
+@router.get("/subjects/search", response_model=ResourceSubjectsPublic)
+def search_all_subjects(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100),
+    search: str = Query(None),
+) -> Any:
+    """
+    Search all subjects across all resources for the current user.
+    """
+    subjects = crud.search_subjects_for_user(
+        session=session,
+        user_id=current_user.id,
+        skip=skip,
+        limit=limit,
+        search=search,
+    )
+    return ResourceSubjectsPublic(data=subjects, count=len(subjects))
 
 
 @router.get("/subjects/{subject_id}", response_model=ResourceSubjectPublic)

@@ -43,6 +43,8 @@ import {
 import AddParent from "./AddParent"
 import AddSubitem from "./AddSubitem"
 import ChecklistManager from "./ChecklistManager"
+import MilestoneSearchDialog from "./MilestoneSearchDialog"
+import SubjectSearchDialog from "./SubjectSearchDialog"
 import TodoCard from "./TodoCard"
 
 interface TodoDetailDialogProps {
@@ -205,6 +207,88 @@ export default function TodoDetailDialog({
 
   const handleChildUnlinked = () => {
     queryClient.invalidateQueries({ queryKey: ["todos", todo.id, "children"] })
+  }
+
+  // ========== Milestone assignment logic ==========
+  const assignMilestoneMutation = useMutation({
+    mutationFn: async (milestoneId: string) => {
+      await TodosService.updateTodoEndpoint({
+        id: todo.id,
+        requestBody: { milestone_id: milestoneId } as TodoUpdate,
+      })
+    },
+    onSuccess: () => {
+      showSuccessToast("Milestone assigned successfully.")
+    },
+    onError: (err: ApiError) => handleError(err),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+    },
+  })
+
+  const handleAssignMilestone = (milestone: any) => {
+    assignMilestoneMutation.mutate(milestone.id)
+  }
+
+  const unassignMilestoneMutation = useMutation({
+    mutationFn: async () => {
+      await TodosService.updateTodoEndpoint({
+        id: todo.id,
+        requestBody: { milestone_id: null } as TodoUpdate,
+      })
+    },
+    onSuccess: () => {
+      showSuccessToast("Milestone unassigned successfully.")
+    },
+    onError: (err: ApiError) => handleError(err),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+    },
+  })
+
+  const handleUnassignMilestone = () => {
+    unassignMilestoneMutation.mutate()
+  }
+
+  // ========== Subject assignment logic ==========
+  const assignSubjectMutation = useMutation({
+    mutationFn: async (subjectId: string) => {
+      await TodosService.updateTodoEndpoint({
+        id: todo.id,
+        requestBody: { subject_id: subjectId } as TodoUpdate,
+      })
+    },
+    onSuccess: () => {
+      showSuccessToast("Subject assigned successfully.")
+    },
+    onError: (err: ApiError) => handleError(err),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+    },
+  })
+
+  const handleAssignSubject = (subject: any) => {
+    assignSubjectMutation.mutate(subject.id)
+  }
+
+  const unassignSubjectMutation = useMutation({
+    mutationFn: async () => {
+      await TodosService.updateTodoEndpoint({
+        id: todo.id,
+        requestBody: { subject_id: null } as TodoUpdate,
+      })
+    },
+    onSuccess: () => {
+      showSuccessToast("Subject unassigned successfully.")
+    },
+    onError: (err: ApiError) => handleError(err),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] })
+    },
+  })
+
+  const handleUnassignSubject = () => {
+    unassignSubjectMutation.mutate()
   }
 
   const deleteMutation = useMutation({
@@ -593,18 +677,33 @@ export default function TodoDetailDialog({
                       )}
                     </Text>
                     {currentSubject ? (
-                      <Text
-                        fontSize="sm"
-                        color="blue.600"
-                        fontWeight="medium"
-                        mt={2}
-                      >
-                        {currentSubject.title}
-                      </Text>
+                      <div style={{ marginTop: 8 }}>
+                        <Text
+                          fontSize="sm"
+                          color="blue.600"
+                          fontWeight="medium"
+                        >
+                          {currentSubject.title}
+                        </Text>
+                        <Button
+                          size="xs"
+                          variant="outline"
+                          colorPalette="red"
+                          onClick={handleUnassignSubject}
+                          loading={unassignSubjectMutation.isPending}
+                          style={{ marginTop: 4 }}
+                        >
+                          Unassign
+                        </Button>
+                      </div>
                     ) : (
-                      <Text fontSize="sm" color="gray.500" mt={2}>
-                        No subject assigned
-                      </Text>
+                      <div style={{ marginTop: 8 }}>
+                        <SubjectSearchDialog
+                          onSelectSubject={handleAssignSubject}
+                          triggerText="Assign Subject"
+                          title="Assign Subject to Todo"
+                        />
+                      </div>
                     )}
                   </div>
 
@@ -628,18 +727,33 @@ export default function TodoDetailDialog({
                       )}
                     </Text>
                     {currentMilestone ? (
-                      <Text
-                        fontSize="sm"
-                        color="green.600"
-                        fontWeight="medium"
-                        mt={2}
-                      >
-                        {currentMilestone.title}
-                      </Text>
+                      <div style={{ marginTop: 8 }}>
+                        <Text
+                          fontSize="sm"
+                          color="green.600"
+                          fontWeight="medium"
+                        >
+                          {currentMilestone.title}
+                        </Text>
+                        <Button
+                          size="xs"
+                          variant="outline"
+                          colorPalette="red"
+                          onClick={handleUnassignMilestone}
+                          loading={unassignMilestoneMutation.isPending}
+                          style={{ marginTop: 4 }}
+                        >
+                          Unassign
+                        </Button>
+                      </div>
                     ) : (
-                      <Text fontSize="sm" color="gray.500" mt={2}>
-                        No milestone assigned
-                      </Text>
+                      <div style={{ marginTop: 8 }}>
+                        <MilestoneSearchDialog
+                          onSelectMilestone={handleAssignMilestone}
+                          triggerText="Assign Milestone"
+                          title="Assign Milestone to Todo"
+                        />
+                      </div>
                     )}
                   </div>
 

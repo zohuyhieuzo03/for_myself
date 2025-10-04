@@ -1077,6 +1077,14 @@ export type ResourcesReadResourceSubjectsData = {
 
 export type ResourcesReadResourceSubjectsResponse = (ResourceSubjectsPublic);
 
+export type ResourcesSearchAllSubjectsData = {
+    limit?: number;
+    search?: string;
+    skip?: number;
+};
+
+export type ResourcesSearchAllSubjectsResponse = (ResourceSubjectsPublic);
+
 export type ResourcesReadResourceSubjectData = {
     subjectId: string;
 };
@@ -1171,6 +1179,14 @@ export type RoadmapDeleteMilestoneData = {
 };
 
 export type RoadmapDeleteMilestoneResponse = (Message);
+
+export type RoadmapSearchAllMilestonesData = {
+    limit?: number;
+    search?: (string | null);
+    skip?: number;
+};
+
+export type RoadmapSearchAllMilestonesResponse = (RoadmapMilestonesPublic);
 
 export type RoadmapReadMilestoneTodosData = {
     limit?: number;

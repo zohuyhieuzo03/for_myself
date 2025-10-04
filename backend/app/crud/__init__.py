@@ -93,6 +93,7 @@ from .roadmap import (
     get_milestones_by_roadmap,
     update_milestone,
     reorder_milestones,
+    search_milestones_for_user,
 )
 from .resource import (
     create_resource,
@@ -106,6 +107,7 @@ from .resource import (
     get_resource_subjects,
     update_resource_subject,
     reorder_resource_subjects,
+    search_subjects_for_user,
 )
 from .feedback import (
     create_feedback,
@@ -212,6 +214,7 @@ __all__ = [
     "get_milestones_by_roadmap",
     "update_milestone",
     "reorder_milestones",
+    "search_milestones_for_user",
     # Resource functions
     "create_resource",
     "delete_resource",
@@ -225,6 +228,7 @@ __all__ = [
     "get_resource_subjects",
     "update_resource_subject",
     "reorder_resource_subjects",
+    "search_subjects_for_user",
     # Feedback functions
     "create_feedback",
     "delete_feedback",

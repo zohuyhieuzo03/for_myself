@@ -244,3 +244,35 @@ def reorder_resource_subjects(
         resource_id=resource_id,
         user_id=user_id,
     )
+
+
+def search_subjects_for_user(
+    session: Session,
+    user_id: uuid.UUID,
+    skip: int = 0,
+    limit: int = 100,
+    search: str | None = None,
+) -> list[ResourceSubject]:
+    """
+    Search all subjects across all resources for a user.
+    """
+    # Build base query with joins
+    statement = (
+        select(ResourceSubject)
+        .join(Resource, ResourceSubject.resource_id == Resource.id)
+        .where(Resource.user_id == user_id)
+    )
+    
+    # Add search condition if provided
+    if search and search.strip():
+        search_term = f"%{search.strip()}%"
+        statement = statement.where(
+            ResourceSubject.title.ilike(search_term) |
+            ResourceSubject.description.ilike(search_term)
+        )
+    
+    # Execute query with pagination
+    statement = statement.order_by(ResourceSubject.created_at.desc()).offset(skip).limit(limit)
+    subjects = session.exec(statement).all()
+    
+    return subjects

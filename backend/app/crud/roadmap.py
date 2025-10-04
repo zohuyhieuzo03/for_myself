@@ -205,3 +205,35 @@ def reorder_milestones(
     
     # Return milestones in new order
     return [milestone_dict[mid] for mid in reorder_request.milestone_ids]
+
+
+def search_milestones_for_user(
+    session: Session,
+    user_id: uuid.UUID,
+    skip: int = 0,
+    limit: int = 100,
+    search: str | None = None,
+) -> list[RoadmapMilestone]:
+    """
+    Search all milestones across all roadmaps for a user.
+    """
+    # Build base query with joins
+    statement = (
+        select(RoadmapMilestone)
+        .join(Roadmap, RoadmapMilestone.roadmap_id == Roadmap.id)
+        .where(Roadmap.user_id == user_id)
+    )
+    
+    # Add search condition if provided
+    if search and search.strip():
+        search_term = f"%{search.strip()}%"
+        statement = statement.where(
+            RoadmapMilestone.title.ilike(search_term) |
+            RoadmapMilestone.description.ilike(search_term)
+        )
+    
+    # Execute query with pagination
+    statement = statement.order_by(RoadmapMilestone.created_at.desc()).offset(skip).limit(limit)
+    milestones = session.exec(statement).all()
+    
+    return milestones

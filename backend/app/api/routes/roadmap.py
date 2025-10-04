@@ -226,6 +226,29 @@ def delete_milestone(
     return Message(message="Milestone deleted successfully")
 
 
+# ========= SEARCH ALL MILESTONES ENDPOINT =========
+@router.get("/milestones/search", response_model=RoadmapMilestonesPublic)
+def search_all_milestones(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = 0,
+    limit: int = 100,
+    search: str | None = None,
+) -> Any:
+    """
+    Search all milestones across all roadmaps for the current user.
+    """
+    milestones = crud.search_milestones_for_user(
+        session=session, 
+        user_id=current_user.id, 
+        skip=skip, 
+        limit=limit,
+        search=search
+    )
+    return RoadmapMilestonesPublic(data=milestones, count=len(milestones))
+
+
 # ========= MILESTONE TODO ENDPOINTS =========
 @router.get("/{roadmap_id}/milestones/{milestone_id}/todos", response_model=TodosPublic)
 def read_milestone_todos(
