@@ -62,14 +62,17 @@ const EditCategory = ({ category }: EditCategoryProps) => {
       }),
     onSuccess: () => {
       showSuccessToast("Category updated successfully.")
-      reset()
-      setIsOpen(false)
     },
     onError: (err: ApiError) => {
       handleError(err)
     },
     onSettled: () => {
+      reset()
       queryClient.invalidateQueries({ queryKey: ["categories"] })
+      // Delay closing dialog to ensure all state updates are processed
+      setTimeout(() => {
+        setIsOpen(false)
+      }, 100)
     },
   })
 
