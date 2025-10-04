@@ -10,11 +10,12 @@ import {
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { useState } from "react"
+import React, { useState } from "react"
 import { FiCalendar, FiClock, FiTarget } from "react-icons/fi"
 
 import { ResourcesService, RoadmapService, TodosService } from "@/client"
 import { formatDate } from "@/utils"
+import { getPriorityConfig, getStatusConfig, TASK_TYPE_CONFIG } from "@/utils/todoHelpers"
 
 interface UpcomingItem {
   id: string
@@ -24,6 +25,7 @@ interface UpcomingItem {
   status?: string
   priority?: string
   resource_title?: string
+  todo_type?: string
 }
 
 export default function UpcomingDueDates() {
@@ -61,6 +63,7 @@ export default function UpcomingDueDates() {
           type: "todo",
           status: todo.status,
           priority: todo.priority,
+          todo_type: todo.type,
         })
       }
     })
@@ -127,32 +130,14 @@ export default function UpcomingDueDates() {
     setVisibleItems((prev) => Math.min(prev + 5, upcomingItemsFiltered.length))
   }
 
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case "completed":
-        return "green"
-      case "in_progress":
-        return "blue"
-      case "blocked":
-        return "red"
-      case "pending":
-        return "gray"
-      default:
-        return "gray"
-    }
+  const getStatusConfigForItem = (status?: string) => {
+    if (!status) return null
+    return getStatusConfig(status)
   }
 
-  const getPriorityColor = (priority?: string) => {
-    switch (priority) {
-      case "high":
-        return "red"
-      case "medium":
-        return "yellow"
-      case "low":
-        return "green"
-      default:
-        return "gray"
-    }
+  const getPriorityConfigForItem = (priority?: string) => {
+    if (!priority) return null
+    return getPriorityConfig(priority)
   }
 
   const getTypeIcon = (type: string) => {
@@ -277,26 +262,53 @@ export default function UpcomingDueDates() {
                         {item.title}
                       </Text>
                       <HStack gap={1} wrap="wrap">
-                        {item.status && (
+                        {(() => {
+                          const statusConfig = getStatusConfigForItem(item.status)
+                          return statusConfig ? (
+                            <Badge
+                              colorPalette={statusConfig.color}
+                              size="xs"
+                              fontSize="xs"
+                              px={1.5}
+                              py={0.5}
+                              display="flex"
+                              alignItems="center"
+                              gap={0.5}
+                            >
+                              {React.createElement(statusConfig.icon, { size: 10 })}
+                              {statusConfig.label}
+                            </Badge>
+                          ) : null
+                        })()}
+                        {(() => {
+                          const priorityConfig = getPriorityConfigForItem(item.priority)
+                          return priorityConfig ? (
+                            <Badge
+                              colorPalette={priorityConfig.color}
+                              size="xs"
+                              fontSize="xs"
+                              px={1.5}
+                              py={0.5}
+                              variant="subtle"
+                              display="flex"
+                              alignItems="center"
+                              gap={0.5}
+                            >
+                              {React.createElement(priorityConfig.icon, { size: 10 })}
+                              {priorityConfig.label}
+                            </Badge>
+                          ) : null
+                        })()}
+                        {item.todo_type && TASK_TYPE_CONFIG[item.todo_type as keyof typeof TASK_TYPE_CONFIG] && (
                           <Badge
-                            colorScheme={getStatusColor(item.status)}
+                            colorPalette={TASK_TYPE_CONFIG[item.todo_type as keyof typeof TASK_TYPE_CONFIG].colorPalette}
                             size="xs"
                             fontSize="xs"
                             px={1.5}
                             py={0.5}
+                            variant="subtle"
                           >
-                            {item.status}
-                          </Badge>
-                        )}
-                        {item.priority && (
-                          <Badge
-                            colorScheme={getPriorityColor(item.priority)}
-                            size="xs"
-                            fontSize="xs"
-                            px={1.5}
-                            py={0.5}
-                          >
-                            {item.priority}
+                            {TASK_TYPE_CONFIG[item.todo_type as keyof typeof TASK_TYPE_CONFIG].label}
                           </Badge>
                         )}
                       </HStack>
